@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Роли пользователей
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum TokenType {
+  VERIFICATION
+  TWO_FACTOR
+  PASSWORD_RESET
+}
+
+// Пользователь
+model User {
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
+  password String
+  name     String?
+  avatar   String?
+  role     Role    @default(USER)
+
+  isVerified         Boolean @default(false)
+  isTwoFactorEnabled Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  comments  Comment[]
+  favorites Favorite[]
+}
+
+model Token {
+  id String @id @default(uuid())
+
+  email     String
+  token     String    @unique
+  type      TokenType
+  expiresIn DateTime
+}
+
+// Автор
+model Author {
+  id        Int      @id @default(autoincrement())
+  name      String
+  slug      String   @unique
+  bio       String?  @db.Text // Биография автора
+  birthYear Int?
+  deathYear Int?
+  image     String?
+  createdAt DateTime @default(now())
+
+  poems Poem[]
+}
+
+// Категория (направление поэзии)
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  image       String?
+  createdAt   DateTime @default(now())
+
+  poems Poem[]
+}
+
+// Стихотворение
+model Poem {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  content     String   @db.Text
+  description String?  @db.Text // Описание/анализ стихотворения
+  authorId    Int
+  year        Int?
+  videoUrl    String? // Путь к видеофайлу для фона
+  categoryId  Int
+  views       Int      @default(0)
+  likes       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  author    Author     @relation(fields: [authorId], references: [id])
+  category  Category   @relation(fields: [categoryId], references: [id])
+  comments  Comment[]
+  favorites Favorite[]
+
+  @@index([categoryId])
+  @@index([authorId])
+}
+
+// Комментарий к стихотворению
+model Comment {
+  id        Int      @id @default(autoincrement())
+  text      String   @db.Text
+  userId    Int
+  poemId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+  poem Poem @relation(fields: [poemId], references: [id], onDelete: Cascade)
+
+  @@index([poemId])
+  @@index([userId])
+}
+
+// Избранное
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  poemId    Int
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  poem Poem @relation(fields: [poemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, poemId])
+  @@index([userId])
+  @@index([poemId])
+}
