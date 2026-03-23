@@ -1,47 +1,47 @@
-import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { Pool } from 'pg';
-import * as bcrypt from 'bcrypt';
-import 'dotenv/config';
+import { PrismaClient, Season } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
+import * as bcrypt from "bcrypt";
+import "dotenv/config";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  console.log('🌱 Seeding database...');
+  console.log("🌱 Seeding database...");
 
-  const hashedPassword = await bcrypt.hash('password123', 10);
+  const hashedPassword = await bcrypt.hash("password123", 10);
 
   const superAdmin = await prisma.user.upsert({
-    where: { email: 'vsemashko260@gmail.com' },
-    update: { role: 'SUPER_ADMIN' },
+    where: { email: "vsemashko260@gmail.com" },
+    update: { role: "SUPER_ADMIN" },
     create: {
-      email: 'vsemashko260@gmail.com',
+      email: "vsemashko260@gmail.com",
       password: hashedPassword,
-      name: 'Галоўны адміністратар',
-      role: 'SUPER_ADMIN',
+      name: "Галоўны адміністратар",
+      role: "SUPER_ADMIN",
     },
   });
-  console.log('✅ Created super admin:', superAdmin.email);
+  console.log("✅ Created super admin:", superAdmin.email);
 
   const user = await prisma.user.upsert({
-    where: { email: 'test@poetry.com' },
+    where: { email: "test@poetry.com" },
     update: {},
     create: {
-      email: 'test@poetry.com',
+      email: "test@poetry.com",
       password: hashedPassword,
-      name: 'Тэставы карыстальнік',
-      role: 'USER',
+      name: "Тэставы карыстальнік",
+      role: "USER",
     },
   });
-  console.log('✅ Created test user:', user.email);
+  console.log("✅ Created test user:", user.email);
 
   // ============ АВТОРЫ ============
   const authorsData = [
     {
-      name: 'Янка Купала',
-      slug: 'yanka-kupala',
+      name: "Янка Купала",
+      slug: "yanka-kupala",
       bio: `Янка Купала (сапраўднае імя — Іван Дамінікавіч Луцэвіч; 7 ліпеня 1882, Вязынка, Мінская губерня — 28 чэрвеня 1942, Масква) — беларускі паэт, драматург, публіцыст, перакладчык, грамадскі дзеяч. Народны паэт Беларусі (1925). Класік беларускай літаратуры, адзін з заснавальнікаў сучаснай беларускай мовы і літаратуры.
 
 Нарадзіўся ў сям'і дробнага шляхціца. Скончыў толькі народную школу, але дзякуючы самаадукацыі стаў адным з найадукаванейшых людзей свайго часу. Працаваў на розных пасадах, у тым ліку ў рэдакцыі газеты "Наша ніва".
@@ -51,11 +51,12 @@ async function main() {
 Янка Купала стаў сімвалам беларускага нацыянальнага адраджэння. Яго творчасць аказала вялізны ўплыў на развіццё беларускай нацыянальнай свядомасці і культуры. Паэт памёр пры загадкавых абставінах у Маскве, упаўшы з лесвіцы ў гатэлі.`,
       birthYear: 1882,
       deathYear: 1942,
-      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1tUOp7vEIiGgiqeQ8vYf48rJIz_ugg62GxR-hFa4J97OSFP45cRCQCs3wO3iSAeCH8QigKi7VbMEB6b5R7GOoSa6r0-p1AAC5185cfteX7A&s=10',
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1tUOp7vEIiGgiqeQ8vYf48rJIz_ugg62GxR-hFa4J97OSFP45cRCQCs3wO3iSAeCH8QigKi7VbMEB6b5R7GOoSa6r0-p1AAC5185cfteX7A&s=10",
     },
     {
-      name: 'Якуб Колас',
-      slug: 'yakub-kolas',
+      name: "Якуб Колас",
+      slug: "yakub-kolas",
       bio: `Якуб Колас (сапраўднае імя — Канстанцін Міхайлавіч Міцкевіч; 3 лістапада 1882, вёска Акінчыцы, Мінская губерня — 13 жніўня 1956, Мінск) — беларускі савецкі пісьменнік, паэт, драматург, перакладчык, грамадскі дзеяч. Народны паэт Беларусі (1926). Акадэмік Акадэміі навук БССР (1928). Адзін з класікаў беларускай літаратуры, стваральнік беларускай літаратурнай мовы разам з Янкам Купалам.
 
 Нарадзіўся ў сям'і лесніка. Скончыў Нясвіжскую настаўніцкую семінарыю (1902). Працаваў настаўнікам, затым у рэдакцыі газеты "Наша ніва". Удзельнічаў у рэвалюцыйным руху, быў арыштаваны і адбываў зняволенне.
@@ -65,11 +66,12 @@ async function main() {
 Якуб Колас быў адным з заснавальнікаў беларускай савецкай літаратуры. Яго творчасць аказала вялізны ўплыў на развіццё беларускай культуры. Памёр у Мінску, пахаваны на вайсковых могілках.`,
       birthYear: 1882,
       deathYear: 1956,
-      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFniR26TgtsQMarDx3g0kY3IB6zlJiIYGBJUBcYw3uUZF3Z0kvRLrMr-Mrk2dCXi4zjyh7vdaQDflvTvArN7zuLYtoVaNTNnV-PjLIuAsC&s=10',
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFniR26TgtsQMarDx3g0kY3IB6zlJiIYGBJUBcYw3uUZF3Z0kvRLrMr-Mrk2dCXi4zjyh7vdaQDflvTvArN7zuLYtoVaNTNnV-PjLIuAsC&s=10",
     },
     {
-      name: 'Максім Багдановіч',
-      slug: 'maksim-bahdanovich',
+      name: "Максім Багдановіч",
+      slug: "maksim-bahdanovich",
       bio: `Максім Адамавіч Багдановіч (9 снежня 1891, Мінск — 25 мая 1917, Ялта) — беларускі паэт, публіцыст, літаратуразнаўца, перакладчык, крытык. Класік беларускай літаратуры. Аўтар адзінага прыжыццёвага зборніка вершаў "Вянок" (1913), які лічыцца адным з лепшых твораў беларускай паэзіі.
 
 Нарадзіўся ў сям'і вучонага-этнографа Адама Багдановіча. Дзяцінства правёў у Гродне, дзе бацька працаваў настаўнікам. У 1908 годзе сям'я пераехала ў Яраслаўль (Расія). Там Максім скончыў гімназію і паступіў у Дэмідаўскі юрыдычны ліцэй.
@@ -79,11 +81,12 @@ async function main() {
 Хварэў на сухоты, памёр у Ялце ва ўзросце 25 гадоў. Нягледзячы на кароткае жыццё, пакінуў вялікую творчую спадчыну, якая аказала вялізны ўплыў на развіццё беларускай паэзіі.`,
       birthYear: 1891,
       deathYear: 1917,
-      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfGaNqS56o9ZaiVuwMJQgt1msE7uY9snsmiT8YsbOXSSY7AvfTVm2T5L_lUz0Ltg8YW6eHmEpMgHFV4rOkFhk3UMQR741cLM7s4leOCQ8g&s=10',
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfGaNqS56o9ZaiVuwMJQgt1msE7uY9snsmiT8YsbOXSSY7AvfTVm2T5L_lUz0Ltg8YW6eHmEpMgHFV4rOkFhk3UMQR741cLM7s4leOCQ8g&s=10",
     },
     {
-      name: 'Цётка',
-      slug: 'tsiotka',
+      name: "Цётка",
+      slug: "tsiotka",
       bio: `Цётка (сапраўднае імя — Алаіза Сцяпанаўна Пашкевіч; 15 ліпеня 1876, вёска Пешчанка, Віленская губерня — 5 лютага 1916, Вільня) — беларуская паэтка, празаік, публіцыстка, педагог, грамадская дзейніца. Адна з заснавальніц новай беларускай літаратуры і жаночага руху ў Беларусі.
 
 Нарадзілася ў сям'і дробнага шляхціца. Скончыла Віленскую жаночую гімназію. Працавала настаўніцай, актыўна ўдзельнічала ў грамадскім жыцці. Была адной з першых беларускіх жанчын-пісьменніц.
@@ -93,11 +96,12 @@ async function main() {
 Памёрла ад сухот у Вільні ва ўзросце 39 гадоў. Яе творчасць заклала асновы для развіцця беларускай жаночай літаратуры.`,
       birthYear: 1876,
       deathYear: 1916,
-      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRPqV0wa_6PSX0v6iE_f9JRTFgwMWlA9ZU6ZixB7JrtGABUplvZf_kxE0oldz-8-kDua5oPA2cIF0bMdhTaj_15NZsaQJqW3ahrXA7El2Pzg&s=10',
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRPqV0wa_6PSX0v6iE_f9JRTFgwMWlA9ZU6ZixB7JrtGABUplvZf_kxE0oldz-8-kDua5oPA2cIF0bMdhTaj_15NZsaQJqW3ahrXA7El2Pzg&s=10",
     },
     {
-      name: 'Пятрусь Броўка',
-      slug: 'petrus-brouka',
+      name: "Пятрусь Броўка",
+      slug: "petrus-brouka",
       bio: `Пятрусь Усцінавіч Броўка (12 чэрвеня 1905, вёска Пуцілкавічы, Мінская губерня — 24 сакавіка 1980, Мінск) — беларускі савецкі паэт, перакладчык, грамадскі дзеяч. Народны паэт Беларусі (1962). Герой Сацыялістычнай Працы (1975). Лаўрэат Сталінскай прэміі (1947).
 
 Нарадзіўся ў сялянскай сям'і. Скончыў Беларускі дзяржаўны ўніверсітэт (1931). Працаваў рэдактарам, затым на кіруючых пасадах у літаратурных арганізацыях.
@@ -107,11 +111,12 @@ async function main() {
 Быў адным з найпопулярнейшых паэтаў савецкай Беларусі. Яго творчасць вызначаецца патрыятызмам, любоўю да роднай зямлі, прастатой і даступнасцю. Памёр у Мінску, пахаваны на Усходніх могілках.`,
       birthYear: 1905,
       deathYear: 1980,
-      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXBR_fS5_UNq4EeYa3vQc-1gGfih93qrWvaVrdY60PwKcwaOF2yB8Y6McbK60FtXxMEFqR4c2-NaFENyC12kAn-u2luqgdoGBY7Oaar5Qp&s=10',
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXBR_fS5_UNq4EeYa3vQc-1gGfih93qrWvaVrdY60PwKcwaOF2yB8Y6McbK60FtXxMEFqR4c2-NaFENyC12kAn-u2luqgdoGBY7Oaar5Qp&s=10",
     },
     {
-      name: 'Аркадзь Куляшоў',
-      slug: 'arkadz-kuliashou',
+      name: "Аркадзь Куляшоў",
+      slug: "arkadz-kuliashou",
       bio: `Аркадзь Аляксандравіч Куляшоў (6 лютага 1914, вёска Самахвалавічы, Мінская губерня — 4 лістапада 1978, Мінск) — беларускі савецкі паэт, перакладчык, грамадскі дзеяч. Народны паэт Беларусі (1968). Лаўрэат Дзяржаўнай прэміі СССР (1971). Адзін з найбуйнейшых прадстаўнікоў беларускай паэзіі XX стагоддзя.
 
 Нарадзіўся ў сялянскай сям'і. Скончыў Мінскі педагагічны інстытут (1931). Працаваў настаўнікам, журналістам, рэдактарам. Удзельнічаў у Вялікай Айчыннай вайне.
@@ -121,11 +126,12 @@ async function main() {
 Быў адным з найбольш шанаваных паэтаў Беларусі. Яго творчасць аказала вялізны ўплыў на развіццё беларускай паэзіі. Памёр у Мінску, пахаваны на Усходніх могілках.`,
       birthYear: 1914,
       deathYear: 1978,
-      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGfCTCAdmjo1yEaRdUMv8VM0u2RgTS3yrThldop-ZFqxf8avh79vJPnwwaElK-3SS2_QhL0IEkBNIVsejMF9OqNErOWJlU1coFBGih-CZ-&s=10',
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGfCTCAdmjo1yEaRdUMv8VM0u2RgTS3yrThldop-ZFqxf8avh79vJPnwwaElK-3SS2_QhL0IEkBNIVsejMF9OqNErOWJlU1coFBGih-CZ-&s=10",
     },
     {
-      name: 'Максім Танк',
-      slug: 'maksim-tank',
+      name: "Максім Танк",
+      slug: "maksim-tank",
       bio: `Максім Танк (сапраўднае імя — Яўген Іванавіч Скурко; 17 верасня 1912, вёска Пількаўшчына, Віленская губерня — 7 жніўня 1995, Мінск) — беларускі савецкі паэт, перакладчык, грамадскі дзеяч. Народны паэт Беларусі (1968). Герой Сацыялістычнай Працы (1974). Лаўрэат Ленінскай прэміі (1978).
 
 Нарадзіўся ў сялянскай сям'і. Скончыў Віленскі ўніверсітэт (1936). Працаваў настаўнікам, журналістам. Удзельнічаў у антыфашысцкім супраціве.
@@ -135,11 +141,12 @@ async function main() {
 Быў старшынёй Саюза пісьменнікаў БССР (1966—1971). Яго творчасць аказала вялізны ўплыў на развіццё беларускай паэзіі. Памёр у Мінску, пахаваны на Усходніх могілках.`,
       birthYear: 1912,
       deathYear: 1995,
-      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbZapQqUYBZPNW65q3y2H_WrcTAQrpP8ZlS_nrF4xZsNWR8_bXpEPRvjZQwajlXr49YLgMAl9lY1r6nhRmkQ421fIgzcv4hIO2-oYVYP4xVQ&s=10',
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbZapQqUYBZPNW65q3y2H_WrcTAQrpP8ZlS_nrF4xZsNWR8_bXpEPRvjZQwajlXr49YLgMAl9lY1r6nhRmkQ421fIgzcv4hIO2-oYVYP4xVQ&s=10",
     },
     {
-      name: 'Рыгор Барадулін',
-      slug: 'ryhor-baradulin',
+      name: "Рыгор Барадулін",
+      slug: "ryhor-baradulin",
       bio: `Рыгор Іванавіч Барадулін (24 студзеня 1935, вёска Верасоўка, Віцебская вобласць — 2 сакавіка 2014, Мінск) — беларускі паэт, перакладчык, грамадскі дзеяч. Народны паэт Беларусі (1992). Лаўрэат Дзяржаўнай прэміі Беларусі (1996). Адзін з найяркіх прадстаўнікоў беларускай паэзіі другой паловы XX стагоддзя.
 
 Нарадзіўся ў сялянскай сям'і. Скончыў Беларускі дзяржаўны ўніверсітэт (1959). Працаваў рэдактарам, журналістам. Быў актыўным удзельнікам беларускага нацыянальнага руху.
@@ -149,11 +156,12 @@ async function main() {
 Быў адным з найбольш шанаваных паэтаў незалежнай Беларусі. Яго творчасць аказала вялізны ўплыў на развіццё сучаснай беларускай паэзіі. Памёр у Мінску.`,
       birthYear: 1935,
       deathYear: 2014,
-      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsV2xWRQC1klWxRR_DdJGNNYEsdcXlPK9mzJHWX1OJWecz5YHLKwrz6DxeNfsT4D8Iq0vLTl-VrwZ7SI3S5fezBUbANl3PU8F1qUx1vA-L&s=10',
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsV2xWRQC1klWxRR_DdJGNNYEsdcXlPK9mzJHWX1OJWecz5YHLKwrz6DxeNfsT4D8Iq0vLTl-VrwZ7SI3S5fezBUbANl3PU8F1qUx1vA-L&s=10",
     },
     {
-      name: 'Ніл Гілевіч',
-      slug: 'nil-hilevich',
+      name: "Ніл Гілевіч",
+      slug: "nil-hilevich",
       bio: `Ніл Сымонавіч Гілевіч (30 верасня 1931, вёска Слабада, Мінская вобласць — 29 сакавіка 2016, Мінск) — беларускі паэт, перакладчык, літаратуразнаўца, грамадскі дзеяч. Народны паэт Беларусі (1991). Акадэмік Нацыянальнай акадэміі навук Беларусі (1994). Вялікі абаронца беларускай мовы і культуры.
 
 Нарадзіўся ў сялянскай сям'і. Скончыў Беларускі дзяржаўны ўніверсітэт (1954). Працаваў выкладчыкам, рэдактарам, дырэктарам Інстытута літаратуры імя Янкі Купалы.
@@ -163,11 +171,12 @@ async function main() {
 Быў адным з найбольш актыўных абаронцаў беларускай мовы і культуры. Яго творчасць і грамадская дзейнасць аказалі вялізны ўплыў на развіццё беларускай культуры. Памёр у Мінску.`,
       birthYear: 1931,
       deathYear: 2016,
-      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTlz_JjIm6Fn0tgYn1MGw_JwtUbXGYGyOZwvvmorx1sGMrcR7TJFsAREI6hEQxLEYqPNKyYWgpE9OZY_7Z23rz990xDJcjUAFt6vMdvxgOl&s=10',
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTlz_JjIm6Fn0tgYn1MGw_JwtUbXGYGyOZwvvmorx1sGMrcR7TJFsAREI6hEQxLEYqPNKyYWgpE9OZY_7Z23rz990xDJcjUAFt6vMdvxgOl&s=10",
     },
     {
-      name: 'Уладзімір Караткевіч',
-      slug: 'uladzimir-karatkevich',
+      name: "Уладзімір Караткевіч",
+      slug: "uladzimir-karatkevich",
       bio: `Уладзімір Сямёнавіч Караткевіч (26 лістапада 1930, Орша — 25 ліпеня 1984, Мінск) — беларускі пісьменнік, паэт, драматург, сцэнарыст, грамадскі дзеяч. Адзін з найбуйнейшых беларускіх пісьменнікаў XX стагоддзя. Лаўрэат Дзяржаўнай прэміі БССР (1984).
 
 Нарадзіўся ў сям'і службоўца. Скончыў Кіеўскі ўніверсітэт (1954). Працаваў настаўнікам, журналістам, рэдактарам. Быў адным з найбольш папулярных беларускіх пісьменнікаў.
@@ -177,19 +186,21 @@ async function main() {
 Яго творчасць вызначаецца глыбокай любоўю да гісторыі Беларусі, мастацкай выразнасцю, філасофскімі развагамі. Памёр у Мінску, пахаваны на Усходніх могілках.`,
       birthYear: 1930,
       deathYear: 1984,
-      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRB28zDsm9o2Vm2eT7--d9F97Cd2WzYNizcyE-6C0rhzDp_erYzomv36gr5vaPOHb7hjLNBI0y8mf12RMfd7IPXf3kqpkZnLy_--v2rx6WuFQ&s=10',
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRB28zDsm9o2Vm2eT7--d9F97Cd2WzYNizcyE-6C0rhzDp_erYzomv36gr5vaPOHb7hjLNBI0y8mf12RMfd7IPXf3kqpkZnLy_--v2rx6WuFQ&s=10",
     },
     {
-      name: 'Франтішак Багушэвіч',
-      slug: 'francishak-bahushevich',
+      name: "Франтішак Багушэвіч",
+      slug: "francishak-bahushevich",
       bio: 'Франтішак Казіміравіч Багушэвіч (1840—1900) — беларускі паэт, празаік, публіцыст. Адзін з заснавальнікаў новай беларускай літаратуры. Аўтар зборнікаў "Дудка беларуская" і "Смык беларускі". Яго прадмова да "Дудкі беларускай" стала маніфестам беларускага нацыянальнага адраджэння.',
       birthYear: 1840,
       deathYear: 1900,
-      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlkEihJvUdjfmn5n7uGxZIr0N7dbA6yleSYRakVSvExYBGENTyU6uKwFIJLQYk5tVNdetYe5b1spi7tmC3JYugq-hCDcx4s4WX4hYzn_ywqg&s=10',
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlkEihJvUdjfmn5n7uGxZIr0N7dbA6yleSYRakVSvExYBGENTyU6uKwFIJLQYk5tVNdetYe5b1spi7tmC3JYugq-hCDcx4s4WX4hYzn_ywqg&s=10",
     },
     {
-      name: 'Змітрок Бядуля',
-      slug: 'zmitrok-biadula',
+      name: "Змітрок Бядуля",
+      slug: "zmitrok-biadula",
       bio: `Змітрок Бядуля (сапраўднае імя — Самуіл Яфімавіч Плаўнік; 23 красавіка 1886, вёска Пасада, Віленская губерня — 3 лістапада 1941, Казань) — беларускі пісьменнік, паэт, публіцыст. Класік беларускай літаратуры. Адзін з заснавальнікаў беларускай дзіцячай літаратуры.
 
 Нарадзіўся ў сям'і дробнага гандляра. Скончыў Віленскую настаўніцкую семінарыю (1906). Працаваў настаўнікам, журналістам. Удзельнічаў у беларускім нацыянальным руху.
@@ -199,7 +210,8 @@ async function main() {
 Быў адным з першых беларускіх пісьменнікаў, якія пісалі спецыяльна для дзяцей. Яго творчасць заклала асновы для развіцця беларускай дзіцячай літаратуры. Памёр у эвакуацыі ў Казані.`,
       birthYear: 1886,
       deathYear: 1941,
-      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvI8f1C43xBCvNQK6bjuDIBGRw1YFgRjbtMsgrMZaT4YrjaGuFk9so2rtXJDN6gmm8KCIg3OZ9EEMdwyXB2woDGtn-1nG8N6fjC6Zv8yiOyQ&s=10',
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvI8f1C43xBCvNQK6bjuDIBGRw1YFgRjbtMsgrMZaT4YrjaGuFk9so2rtXJDN6gmm8KCIg3OZ9EEMdwyXB2woDGtn-1nG8N6fjC6Zv8yiOyQ&s=10",
     },
   ];
 
@@ -216,15 +228,35 @@ async function main() {
       create: authorData,
     });
   }
-  console.log('✅ Created authors');
+  console.log("✅ Created authors");
 
   // ============ КАТЕГОРИИ ============
   const categoriesData = [
-    { name: 'Лірыка кахання', slug: 'love-poetry', description: 'Вершы пра каханне і пачуцці' },
-    { name: 'Грамадзянская лірыка', slug: 'civil-poetry', description: 'Вершы пра Радзіму, народ і волю' },
-    { name: 'Пейзажная лірыка', slug: 'nature-poetry', description: 'Вершы пра прыроду Беларусі' },
-    { name: 'Філасофская лірыка', slug: 'philosophical-poetry', description: 'Развагі пра жыццё і вечнасць' },
-    { name: 'Класічная паэзія', slug: 'classical-poetry', description: 'Лепшыя творы беларускіх класікаў' },
+    {
+      name: "Лірыка кахання",
+      slug: "love-poetry",
+      description: "Вершы пра каханне і пачуцці",
+    },
+    {
+      name: "Грамадзянская лірыка",
+      slug: "civil-poetry",
+      description: "Вершы пра Радзіму, народ і волю",
+    },
+    {
+      name: "Пейзажная лірыка",
+      slug: "nature-poetry",
+      description: "Вершы пра прыроду Беларусі",
+    },
+    {
+      name: "Філасофская лірыка",
+      slug: "philosophical-poetry",
+      description: "Развагі пра жыццё і вечнасць",
+    },
+    {
+      name: "Класічная паэзія",
+      slug: "classical-poetry",
+      description: "Лепшыя творы беларускіх класікаў",
+    },
   ];
 
   for (const cat of categoriesData) {
@@ -234,39 +266,75 @@ async function main() {
       create: cat,
     });
   }
-  console.log('✅ Created categories');
+  console.log("✅ Created categories");
 
   // Получаем авторов и категории
-  const yankaKupala = await prisma.author.findUnique({ where: { slug: 'yanka-kupala' } });
-  const yakubKolas = await prisma.author.findUnique({ where: { slug: 'yakub-kolas' } });
-  const maksimBahdanovich = await prisma.author.findUnique({ where: { slug: 'maksim-bahdanovich' } });
-  const tsiotka = await prisma.author.findUnique({ where: { slug: 'tsiotka' } });
-  const petrusBrouka = await prisma.author.findUnique({ where: { slug: 'petrus-brouka' } });
-  const arkadzKuliashou = await prisma.author.findUnique({ where: { slug: 'arkadz-kuliashou' } });
-  const maksimTank = await prisma.author.findUnique({ where: { slug: 'maksim-tank' } });
-  const ryhorBaradulin = await prisma.author.findUnique({ where: { slug: 'ryhor-baradulin' } });
-  const nilHilevich = await prisma.author.findUnique({ where: { slug: 'nil-hilevich' } });
-  const karatkevich = await prisma.author.findUnique({ where: { slug: 'uladzimir-karatkevich' } });
-  const bahushevich = await prisma.author.findUnique({ where: { slug: 'francishak-bahushevich' } });
-  const biadula = await prisma.author.findUnique({ where: { slug: 'zmitrok-biadula' } });
+  const yankaKupala = await prisma.author.findUnique({
+    where: { slug: "yanka-kupala" },
+  });
+  const yakubKolas = await prisma.author.findUnique({
+    where: { slug: "yakub-kolas" },
+  });
+  const maksimBahdanovich = await prisma.author.findUnique({
+    where: { slug: "maksim-bahdanovich" },
+  });
+  const tsiotka = await prisma.author.findUnique({
+    where: { slug: "tsiotka" },
+  });
+  const petrusBrouka = await prisma.author.findUnique({
+    where: { slug: "petrus-brouka" },
+  });
+  const arkadzKuliashou = await prisma.author.findUnique({
+    where: { slug: "arkadz-kuliashou" },
+  });
+  const maksimTank = await prisma.author.findUnique({
+    where: { slug: "maksim-tank" },
+  });
+  const ryhorBaradulin = await prisma.author.findUnique({
+    where: { slug: "ryhor-baradulin" },
+  });
+  const nilHilevich = await prisma.author.findUnique({
+    where: { slug: "nil-hilevich" },
+  });
+  const karatkevich = await prisma.author.findUnique({
+    where: { slug: "uladzimir-karatkevich" },
+  });
+  const bahushevich = await prisma.author.findUnique({
+    where: { slug: "francishak-bahushevich" },
+  });
+  const biadula = await prisma.author.findUnique({
+    where: { slug: "zmitrok-biadula" },
+  });
 
-  const loveCat = await prisma.category.findUnique({ where: { slug: 'love-poetry' } });
-  const civilCat = await prisma.category.findUnique({ where: { slug: 'civil-poetry' } });
-  const natureCat = await prisma.category.findUnique({ where: { slug: 'nature-poetry' } });
-  const philCat = await prisma.category.findUnique({ where: { slug: 'philosophical-poetry' } });
-  const classCat = await prisma.category.findUnique({ where: { slug: 'classical-poetry' } });
+  const loveCat = await prisma.category.findUnique({
+    where: { slug: "love-poetry" },
+  });
+  const civilCat = await prisma.category.findUnique({
+    where: { slug: "civil-poetry" },
+  });
+  const natureCat = await prisma.category.findUnique({
+    where: { slug: "nature-poetry" },
+  });
+  const philCat = await prisma.category.findUnique({
+    where: { slug: "philosophical-poetry" },
+  });
+  const classCat = await prisma.category.findUnique({
+    where: { slug: "classical-poetry" },
+  });
 
   // ============ СТИХИ (50+) ============
   const poemsData = [
     // Янка Купала
     {
-      title: 'А хто там ідзе?',
-      slug: 'a-khto-tam-idze',
+      title: "А хто там ідзе?",
+      slug: "a-khto-tam-idze",
       authorId: yankaKupala?.id!,
-      categoryId: classCat?.id!,  // Классический верш
+      categoryId: classCat?.id!, // Классический верш
       year: 1905,
-      description: 'Гэты верш — гімн беларускага народа, які ўпершыню загучаў на ўвесь свет. Купала стварыў вобраз народа, які прачынаецца да новага жыцця.',
-      videoUrl: '/invideo-ai-720 Гукі Купалы_ «А хто там ідзе_» за 70 сек 2026-01-25.mp4',
+      description:
+        "Гэты верш — гімн беларускага народа, які ўпершыню загучаў на ўвесь свет. Купала стварыў вобраз народа, які прачынаецца да новага жыцця.",
+      videoUrl:
+        "/invideo-ai-720 Гукі Купалы_ «А хто там ідзе_» за 70 сек 2026-01-25.mp4",
       content: `А хто там ідзе, а хто там ідзе
 У агромністай такой грамадзе?
 — Беларусы.
@@ -288,12 +356,13 @@ async function main() {
 — Людзьмі звацца.`,
     },
     {
-      title: 'Спадчына',
-      slug: 'spadchyna',
+      title: "Спадчына",
+      slug: "spadchyna",
       authorId: yankaKupala?.id!,
-      categoryId: classCat?.id!,  // Классический верш
+      categoryId: classCat?.id!, // Классический верш
       year: 1918,
-      description: 'Верш "Спадчына" — адзін з самых вядомых твораў Янкі Купалы. У ім паэт разважае пра тое, што ён пакіне нашчадкам.',
+      description:
+        'Верш "Спадчына" — адзін з самых вядомых твораў Янкі Купалы. У ім паэт разважае пра тое, што ён пакіне нашчадкам.',
       content: `Ад прадзедаў спакон вякоў
 Мне засталася спадчына;
 Паміж сваіх і чужакоў
@@ -315,12 +384,13 @@ async function main() {
 Да маці-Беларусі.`,
     },
     {
-      title: 'Мая малітва',
-      slug: 'maya-malitva',
+      title: "Мая малітва",
+      slug: "maya-malitva",
       authorId: yankaKupala?.id!,
       categoryId: philCat?.id!,
       year: 1905,
-      description: 'Верш-малітва, у якім паэт звяртаецца да Бога з просьбай дапамагчы яго роднаму народу.',
+      description:
+        "Верш-малітва, у якім паэт звяртаецца да Бога з просьбай дапамагчы яго роднаму народу.",
       content: `Мой божа мілы! Як цяжка жыці!
 Як сэрца млее, як дух маркоціць!
 Нашлі ты долі — цярпець няма як,
@@ -338,12 +408,13 @@ async function main() {
     },
     // Якуб Колас
     {
-      title: 'Мой родны кут',
-      slug: 'moj-rodny-kut',
+      title: "Мой родны кут",
+      slug: "moj-rodny-kut",
       authorId: yakubKolas?.id!,
-      categoryId: classCat?.id!,  // Классический верш
+      categoryId: classCat?.id!, // Классический верш
       year: 1923,
-      description: 'Урывак з паэмы "Новая зямля" — адзін з самых вядомых твораў Якуба Коласа. Гэтыя радкі сталі сімвалам любові да роднай зямлі.',
+      description:
+        'Урывак з паэмы "Новая зямля" — адзін з самых вядомых твораў Якуба Коласа. Гэтыя радкі сталі сімвалам любові да роднай зямлі.',
       content: `Мой родны кут, як ты мне мілы!..
 Забыць цябе не маю сілы!
 Не раз, утомлены дарогай,
@@ -366,12 +437,13 @@ async function main() {
 І мілай маці галасок...`,
     },
     {
-      title: 'Над ракой',
-      slug: 'nad-rakoj',
+      title: "Над ракой",
+      slug: "nad-rakoj",
       authorId: yakubKolas?.id!,
       categoryId: natureCat?.id!,
       year: 1910,
-      description: 'Верш, напоўнены замілаваннем роднай прыродай. Колас майстэрскі перадае настрой ціхага летняга вечара над ракой.',
+      description:
+        "Верш, напоўнены замілаваннем роднай прыродай. Колас майстэрскі перадае настрой ціхага летняга вечара над ракой.",
       content: `Над ракой шырокай,
 На пясчаным лузе,
 Уткнуўшы ў зямлю кій,
@@ -388,13 +460,14 @@ async function main() {
 Плылі і не вярталіся.`,
     },
     {
-      title: 'Дзед Мароз',
-      slug: 'dzed-maroz',
+      title: "Дзед Мароз",
+      slug: "dzed-maroz",
       authorId: yakubKolas?.id!,
       categoryId: natureCat?.id!,
       year: 1910,
-      description: 'Верш пра зімовую казку і Дзеда Мароза.',
-      videoUrl: '/invideo-ai-720 Вы пачуеце Коласа_ «Дзед Мароз» за 90 се 2026-01-25.mp4',
+      description: "Верш пра зімовую казку і Дзеда Мароза.",
+      videoUrl:
+        "/invideo-ai-720 Вы пачуеце Коласа_ «Дзед Мароз» за 90 се 2026-01-25.mp4",
       content: `Дзед Мароз ідзе па снезе,
 Снег скрыпіць пад нагамі;
 Ён нясе падарункі ўсе,
@@ -411,12 +484,12 @@ async function main() {
 Прынясе шчасце ўсюды.`,
     },
     {
-      title: 'Песня аб вясне',
-      slug: 'pesnya-ab-vyasne',
+      title: "Песня аб вясне",
+      slug: "pesnya-ab-vyasne",
       authorId: yakubKolas?.id!,
       categoryId: natureCat?.id!,
       year: 1908,
-      description: 'Радасны, светлы верш пра абуджэнне прыроды вясной.',
+      description: "Радасны, светлы верш пра абуджэнне прыроды вясной.",
       content: `Ой вясна, вясна, красна,
 Што ты нам прынесла?
 Прынесла я вам цяпло,
@@ -433,12 +506,13 @@ async function main() {
 Святлом над зямлёю!`,
     },
     {
-      title: 'Не бядуй',
-      slug: 'ne-byaduj',
+      title: "Не бядуй",
+      slug: "ne-byaduj",
       authorId: yakubKolas?.id!,
       categoryId: philCat?.id!,
       year: 1912,
-      description: 'Верш-суцяшэнне, верш-падтрымка. Колас заклікае не здавацца, нягледзячы на цяжкасці жыцця.',
+      description:
+        "Верш-суцяшэнне, верш-падтрымка. Колас заклікае не здавацца, нягледзячы на цяжкасці жыцця.",
       content: `Не бядуй, мой браце мілы,
 Хоць жыццё цяжкое:
 Будзе ў нас яшчэ заўтра,
@@ -456,12 +530,13 @@ async function main() {
     },
     // Максім Багдановіч
     {
-      title: 'Слуцкія ткачыхі',
-      slug: 'slutskiya-tkachykhi',
+      title: "Слуцкія ткачыхі",
+      slug: "slutskiya-tkachykhi",
       authorId: maksimBahdanovich?.id!,
-      categoryId: classCat?.id!,  // Классический верш
+      categoryId: classCat?.id!, // Классический верш
       year: 1912,
-      description: 'Верш пра слуцкіх ткачых, якія тчылі знакамітыя слуцкія паясы. Гэта гісторыя пра жанчын, якія марылі пра волю.',
+      description:
+        "Верш пра слуцкіх ткачых, якія тчылі знакамітыя слуцкія паясы. Гэта гісторыя пра жанчын, якія марылі пра волю.",
       content: `Ад родных ніў, ад роднай хаты
 У панскі двор дзеля красы
 Яны, бяздольныя, узяты
@@ -494,12 +569,13 @@ async function main() {
 Цвяток радзімы васількі.`,
     },
     {
-      title: 'Раманс',
-      slug: 'ramans',
+      title: "Раманс",
+      slug: "ramans",
       authorId: maksimBahdanovich?.id!,
       categoryId: loveCat?.id!,
       year: 1910,
-      description: 'Адзін з самых лірычных вершаў Багдановіча. Ніжны, мелодычны твор пра каханне.',
+      description:
+        "Адзін з самых лірычных вершаў Багдановіча. Ніжны, мелодычны твор пра каханне.",
       content: `Зорка Венера ўзышла над зямлёю,
 Светлыя згадкі з сабой прывяла...
 Помніш, калі я спаткаўся з табою,
@@ -516,12 +592,13 @@ async function main() {
 Зорка Венера — не тое.`,
     },
     {
-      title: 'Вянок',
-      slug: 'vyanok',
+      title: "Вянок",
+      slug: "vyanok",
       authorId: maksimBahdanovich?.id!,
-      categoryId: classCat?.id!,  // Классический верш
+      categoryId: classCat?.id!, // Классический верш
       year: 1913,
-      description: 'Праграмны верш, які даў назву адзінаму прыжыццёваму зборніку паэта.',
+      description:
+        "Праграмны верш, які даў назву адзінаму прыжыццёваму зборніку паэта.",
       content: `Вянок
 Вязаў я, ліра, табе
 Не адзін раз на год,
@@ -539,13 +616,14 @@ async function main() {
 Мая дарагая страна!`,
     },
     {
-      title: 'Маладыя гады',
-      slug: 'maladyya-hady',
+      title: "Маладыя гады",
+      slug: "maladyya-hady",
       authorId: maksimBahdanovich?.id!,
       categoryId: philCat?.id!,
       year: 1909,
-      description: 'Элегічны верш пра хуткаплыннасць маладосці і жыцця.',
-      videoUrl: '/invideo-ai-720 1 хвіліна чыстай лірыкі_ «Маладыя гады» 2026-01-25.mp4',
+      description: "Элегічны верш пра хуткаплыннасць маладосці і жыцця.",
+      videoUrl:
+        "/invideo-ai-720 1 хвіліна чыстай лірыкі_ «Маладыя гады» 2026-01-25.mp4",
       content: `Маладыя гады
 Праляцелі, як сон;
 Не вярнуцца яны
@@ -563,12 +641,13 @@ async function main() {
     },
     // Цётка
     {
-      title: 'Мой родны край',
-      slug: 'moj-rodny-kraj',
+      title: "Мой родны край",
+      slug: "moj-rodny-kraj",
       authorId: tsiotka?.id!,
       categoryId: civilCat?.id!,
       year: 1906,
-      description: 'Верш-гімн роднаму краю. Цётка з любоўю і болем апісвае Беларусь.',
+      description:
+        "Верш-гімн роднаму краю. Цётка з любоўю і болем апісвае Беларусь.",
       content: `Мой родны край, мая старонка,
 Як ты прыгожа, як ты міла!
 Тваіх палёў шырокіх звонка
@@ -585,12 +664,12 @@ async function main() {
 І сіні-сіні твой прастор!`,
     },
     {
-      title: 'Хрэст на свабоду',
-      slug: 'khrest-na-svabodu',
+      title: "Хрэст на свабоду",
+      slug: "khrest-na-svabodu",
       authorId: tsiotka?.id!,
       categoryId: civilCat?.id!,
       year: 1906,
-      description: 'Рэвалюцыйны верш, заклік да барацьбы за волю.',
+      description: "Рэвалюцыйны верш, заклік да барацьбы за волю.",
       content: `Хрэст на свабоду нясём мы высока,
 Смела ідзём праз цярністы шлях;
 Наша надзея глыбока-глыбока,
@@ -608,12 +687,13 @@ async function main() {
     },
     // Пятрусь Броўка
     {
-      title: 'Беларусь',
-      slug: 'belarus-brouka',
+      title: "Беларусь",
+      slug: "belarus-brouka",
       authorId: petrusBrouka?.id!,
       categoryId: civilCat?.id!,
       year: 1943,
-      description: 'Верш, напісаны ў гады Вялікай Айчыннай вайны. Гэта прызнанне ў любові да Радзімы.',
+      description:
+        "Верш, напісаны ў гады Вялікай Айчыннай вайны. Гэта прызнанне ў любові да Радзімы.",
       content: `Беларусь мая, краіна мілая,
 Ты заўсёды ў маім сэрцы жывеш!
 Як бы доля ні была нам няміла,
@@ -630,12 +710,12 @@ async function main() {
 Той, хто здолее цябе забыць!`,
     },
     {
-      title: 'Александрына',
-      slug: 'aleksandryna',
+      title: "Александрына",
+      slug: "aleksandryna",
       authorId: petrusBrouka?.id!,
       categoryId: loveCat?.id!,
       year: 1950,
-      description: 'Адзін з самых вядомых вершаў Броўкі, пакладзены на музыку.',
+      description: "Адзін з самых вядомых вершаў Броўкі, пакладзены на музыку.",
       content: `Александрына, Александрына!
 Песню гэту складаў я даўно,
 Як стаяў над ракой каля млына
@@ -653,12 +733,12 @@ async function main() {
     },
     // Аркадзь Куляшоў
     {
-      title: 'Бывай',
-      slug: 'byvaj',
+      title: "Бывай",
+      slug: "byvaj",
       authorId: arkadzKuliashou?.id!,
       categoryId: loveCat?.id!,
       year: 1942,
-      description: 'Верш-развітанне, напісаны ў гады вайны.',
+      description: "Верш-развітанне, напісаны ў гады вайны.",
       content: `Бывай, дарагая! Развітвацца трэба.
 Няпэўнай дарогай мне заўтра ісці.
 Засталося ўсё — і зямля, і неба,
@@ -675,12 +755,12 @@ async function main() {
 Заўсёды будзе са мной — і днём, і ўночы.`,
     },
     {
-      title: 'Маладосць',
-      slug: 'maladosts-kuliashou',
+      title: "Маладосць",
+      slug: "maladosts-kuliashou",
       authorId: arkadzKuliashou?.id!,
       categoryId: philCat?.id!,
       year: 1960,
-      description: 'Развагі паэта пра маладосць, яе сэнс і значэнне.',
+      description: "Развагі паэта пра маладосць, яе сэнс і значэнне.",
       content: `Маладосць — гэта сонца на золку,
 Гэта песня ў душы маладой;
 Маладосць — гэта самае волькае
@@ -698,13 +778,14 @@ async function main() {
     },
     // Максім Танк
     {
-      title: 'Мой хлеб надзённы',
-      slug: 'moj-khleb-nadzenny',
+      title: "Мой хлеб надзённы",
+      slug: "moj-khleb-nadzenny",
       authorId: maksimTank?.id!,
       categoryId: philCat?.id!,
       year: 1962,
-      description: 'Філасофскі верш пра сэнс жыцця і творчасці.',
-      videoUrl: '/invideo-ai-720 Горкі, салодкі хлеб_ 1_20 па Максіму Тан 2026-01-25.mp4',
+      description: "Філасофскі верш пра сэнс жыцця і творчасці.",
+      videoUrl:
+        "/invideo-ai-720 Горкі, салодкі хлеб_ 1_20 па Максіму Тан 2026-01-25.mp4",
       content: `Мой хлеб надзённы — гэта слова,
 Якое я шукаю штодзень;
 Мой хлеб надзённы — гэта мова,
@@ -721,13 +802,13 @@ async function main() {
 Я буду верны гэтай праўдзе.`,
     },
     {
-      title: 'Ave Maria',
-      slug: 'ave-maria',
+      title: "Ave Maria",
+      slug: "ave-maria",
       authorId: maksimTank?.id!,
       categoryId: philCat?.id!,
       year: 1970,
-      description: 'Верш-медытацыя, звернуты да вечных тэм жыцця.',
-      videoUrl: '/invideo-ai-720 Звон кафедры і цені_ Ave Maria 2026-01-25.mp4',
+      description: "Верш-медытацыя, звернуты да вечных тэм жыцця.",
+      videoUrl: "/invideo-ai-720 Звон кафедры і цені_ Ave Maria 2026-01-25.mp4",
       content: `Ave Maria! Ты — святло
 Над цёмнай бездняй нашых дзён;
 Ave Maria! Ты — цяпло
@@ -745,12 +826,13 @@ Ave Maria! Мы з табой
     },
     // Рыгор Барадулін
     {
-      title: 'Трэба дома бываць часцей',
-      slug: 'treba-doma-byvats-chasciej',
+      title: "Трэба дома бываць часцей",
+      slug: "treba-doma-byvats-chasciej",
       authorId: ryhorBaradulin?.id!,
       categoryId: civilCat?.id!,
       year: 1980,
-      description: 'Адзін з самых вядомых вершаў Барадуліна. Напамін пра важнасць сувязі з родным домам.',
+      description:
+        "Адзін з самых вядомых вершаў Барадуліна. Напамін пра важнасць сувязі з родным домам.",
       content: `Трэба дома бываць часцей,
 Трэба дома бываць не госцем,
 Каб душой не зарасці
@@ -767,12 +849,12 @@ Ave Maria! Мы з табой
 Каб застацца заўжды з сабой.`,
     },
     {
-      title: 'Босыя ў расе',
-      slug: 'bosyya-u-rase',
+      title: "Босыя ў расе",
+      slug: "bosyya-u-rase",
       authorId: ryhorBaradulin?.id!,
       categoryId: natureCat?.id!,
       year: 1975,
-      description: 'Ностальгічны верш пра дзяцінства, пра беззваротны час.',
+      description: "Ностальгічны верш пра дзяцінства, пра беззваротны час.",
       content: `Босыя ў расе
 Беглі мы па лузе,
 І ніхто не ведаў,
@@ -790,12 +872,12 @@ Ave Maria! Мы з табой
     },
     // Ніл Гілевіч
     {
-      title: 'Жураўлі на Палессе ляцяць',
-      slug: 'zhuravli-na-palessie-lyatsyats',
+      title: "Жураўлі на Палессе ляцяць",
+      slug: "zhuravli-na-palessie-lyatsyats",
       authorId: nilHilevich?.id!,
       categoryId: natureCat?.id!,
       year: 1968,
-      description: 'Лірычны верш пра журавоў, якія вяртаюцца на радзіму.',
+      description: "Лірычны верш пра журавоў, якія вяртаюцца на радзіму.",
       content: `Жураўлі на Палессе ляцяць,
 Жураўлі на Палессе ляцяць!
 Вось яны над лясамі, палямі,
@@ -812,12 +894,12 @@ Ave Maria! Мы з табой
 Да Палесся свайго ляцяць.`,
     },
     {
-      title: 'Родная мова',
-      slug: 'rodnaya-mova',
+      title: "Родная мова",
+      slug: "rodnaya-mova",
       authorId: nilHilevich?.id!,
       categoryId: civilCat?.id!,
       year: 1985,
-      description: 'Верш-гімн беларускай мове.',
+      description: "Верш-гімн беларускай мове.",
       content: `Родная мова — матчына мова,
 Колькі ў табе цеплыні!
 Кожнае слова — жывое слова,
@@ -835,12 +917,12 @@ Ave Maria! Мы з табой
     },
     // Уладзімір Караткевіч
     {
-      title: 'Беларуская песня',
-      slug: 'belaruskaya-pesnya',
+      title: "Беларуская песня",
+      slug: "belaruskaya-pesnya",
       authorId: karatkevich?.id!,
       categoryId: civilCat?.id!,
       year: 1963,
-      description: 'Верш-гімн роднаму краю.',
+      description: "Верш-гімн роднаму краю.",
       content: `Мой родны край, зямля бацькоў маіх,
 Твой воблік мілы — у сэрцы маім!
 Твае лясы, азёры і ракі,
@@ -857,12 +939,13 @@ Ave Maria! Мы з табой
 Я за цябе стаяць буду, баюсь!`,
     },
     {
-      title: 'Дзікае паляванне',
-      slug: 'dzikae-palyavanne',
+      title: "Дзікае паляванне",
+      slug: "dzikae-palyavanne",
       authorId: karatkevich?.id!,
       categoryId: philCat?.id!,
       year: 1964,
-      description: 'Верш, звязаны з аднайменнай аповесцю. Містычны і таямнічы твор.',
+      description:
+        "Верш, звязаны з аднайменнай аповесцю. Містычны і таямнічы твор.",
       content: `Над Палессем імгла залягла,
 Над балотам туман паплыў;
 У начы нешта страшнае было,
@@ -880,12 +963,13 @@ Ave Maria! Мы з табой
     },
     // Франтішак Багушэвіч
     {
-      title: 'Дудка беларуская',
-      slug: 'dudka-belaruskaya',
+      title: "Дудка беларуская",
+      slug: "dudka-belaruskaya",
       authorId: bahushevich?.id!,
       categoryId: civilCat?.id!,
       year: 1891,
-      description: 'Праграмны верш, маніфест беларускага нацыянальнага адраджэння.',
+      description:
+        "Праграмны верш, маніфест беларускага нацыянальнага адраджэння.",
       content: `Не пакідайце ж мовы нашай беларускай,
 Каб не ўмёрлі!
 Бо мёртвыя народы ўжо не ўваскрэсаюць,
@@ -902,12 +986,12 @@ Ave Maria! Мы з табой
 Пакуль яна гучыць — ёсць у нас свабода!`,
     },
     {
-      title: 'Бог не роўна дзеле',
-      slug: 'boh-ne-rouna-dzele',
+      title: "Бог не роўна дзеле",
+      slug: "boh-ne-rouna-dzele",
       authorId: bahushevich?.id!,
       categoryId: philCat?.id!,
       year: 1891,
-      description: 'Сацыяльны верш пра няроўнасць у грамадстве.',
+      description: "Сацыяльны верш пра няроўнасць у грамадстве.",
       content: `Бог не роўна дзеле:
 Адным — панства, другім — гора;
 Адным — золата шмат,
@@ -925,12 +1009,12 @@ Ave Maria! Мы з табой
     },
     // Змітрок Бядуля
     {
-      title: 'Зямля',
-      slug: 'zyamlya-biadula',
+      title: "Зямля",
+      slug: "zyamlya-biadula",
       authorId: biadula?.id!,
       categoryId: civilCat?.id!,
       year: 1914,
-      description: 'Верш пра святую сувязь чалавека з зямлёй.',
+      description: "Верш пра святую сувязь чалавека з зямлёй.",
       content: `Зямля мая! Ты — маці для мяне,
 Ты — хлеб і соль, ты — сіла і жыццё;
 Я выйшаў з цябе, да цябе вярнуся,
@@ -947,12 +1031,12 @@ Ave Maria! Мы з табой
 Калі скончацца мае зямныя дні.`,
     },
     {
-      title: 'Сялянка',
-      slug: 'syalyanka',
+      title: "Сялянка",
+      slug: "syalyanka",
       authorId: biadula?.id!,
       categoryId: loveCat?.id!,
       year: 1910,
-      description: 'Лірычны верш пра сялянскую дзяўчыну.',
+      description: "Лірычны верш пра сялянскую дзяўчыну.",
       content: `Ідзе яна праз поле,
 Нясе вады вядро;
 Касынка на галоўцы,
@@ -970,13 +1054,14 @@ Ave Maria! Мы з табой
     },
     // Дадатковыя вершы
     {
-      title: 'Зімовы вечар',
-      slug: 'zimovy-vechar',
+      title: "Зімовы вечар",
+      slug: "zimovy-vechar",
       authorId: yakubKolas?.id!,
       categoryId: natureCat?.id!,
       year: 1912,
-      description: 'Пейзажная замалёўка зімовага вечара ў беларускай вёсцы.',
-      videoUrl: '/invideo-ai-720 Маразь, зоркі і коні_ «Зімой» за 90 секу 2026-01-25.mp4',
+      description: "Пейзажная замалёўка зімовага вечара ў беларускай вёсцы.",
+      videoUrl:
+        "/invideo-ai-720 Маразь, зоркі і коні_ «Зімой» за 90 секу 2026-01-25.mp4",
       content: `Ціха ў полі, ціха ў лесе,
 Сонца скрылася за бор;
 Снег ляжыць на ўсім прасторы,
@@ -993,12 +1078,12 @@ Ave Maria! Мы з табой
 Скрыпіць снег пад нагамі.`,
     },
     {
-      title: 'Вясновая раніца',
-      slug: 'vyasnovaya-ranitsa',
+      title: "Вясновая раніца",
+      slug: "vyasnovaya-ranitsa",
       authorId: yankaKupala?.id!,
       categoryId: natureCat?.id!,
       year: 1908,
-      description: 'Светлы, радасны верш пра абуджэнне прыроды вясной.',
+      description: "Светлы, радасны верш пра абуджэнне прыроды вясной.",
       content: `Сонца ўстала, заззяла,
 Асвятліла ўвесь наш край;
 Птушкі песні заспявалі:
@@ -1015,12 +1100,12 @@ Ave Maria! Мы з табой
 Радасцю і маладосцю!`,
     },
     {
-      title: 'Восеньскі матыў',
-      slug: 'vosenski-matyv',
+      title: "Восеньскі матыў",
+      slug: "vosenski-matyv",
       authorId: maksimBahdanovich?.id!,
       categoryId: natureCat?.id!,
       year: 1911,
-      description: 'Элегічны верш пра восень, яе прыгажосць і суму.',
+      description: "Элегічны верш пра восень, яе прыгажосць і суму.",
       content: `Восень прыйшла залатая,
 Лісце жаўцее і падае;
 Сонца ўжо не так грэе,
@@ -1037,12 +1122,12 @@ Ave Maria! Мы з табой
 Свая незвычайная краса.`,
     },
     {
-      title: 'Летняя ноч',
-      slug: 'letnyaya-noch',
+      title: "Летняя ноч",
+      slug: "letnyaya-noch",
       authorId: tsiotka?.id!,
       categoryId: natureCat?.id!,
       year: 1905,
-      description: 'Рамантычны верш пра чароўную летнюю ноч.',
+      description: "Рамантычны верш пра чароўную летнюю ноч.",
       content: `Ноч летняя, цёплая, ціхая,
 Зоркі мігцяць у небе;
 Месяц плыве паволі
@@ -1059,12 +1144,12 @@ Ave Maria! Мы з табой
 І спадзяванняў тых даўніх.`,
     },
     {
-      title: 'Кветка папараці',
-      slug: 'kvetka-paparaci',
+      title: "Кветка папараці",
+      slug: "kvetka-paparaci",
       authorId: petrusBrouka?.id!,
       categoryId: philCat?.id!,
       year: 1952,
-      description: 'Легендарны верш пра казачную кветку папараці.',
+      description: "Легендарны верш пра казачную кветку папараці.",
       content: `У ноч Купалля, у пушчы цёмнай,
 Дзе кожны гук таямніцай поўны,
 Цвіце кветка — цуд прыроды,
@@ -1081,12 +1166,12 @@ Ave Maria! Мы з табой
 Калі сэрца тваё чыстае.`,
     },
     {
-      title: 'На Нёмане',
-      slug: 'na-nyomane',
+      title: "На Нёмане",
+      slug: "na-nyomane",
       authorId: arkadzKuliashou?.id!,
       categoryId: natureCat?.id!,
       year: 1958,
-      description: 'Пейзажны верш пра Нёман — галоўную раку Беларусі.',
+      description: "Пейзажны верш пра Нёман — галоўную раку Беларусі.",
       content: `Нёман цячэ паміж берагамі,
 Шырокі, спакойны, магутны;
 Ён нясе свае воды ў мора,
@@ -1103,12 +1188,13 @@ Ave Maria! Мы з табой
 Ты — душа Беларусі!`,
     },
     {
-      title: 'Сонечны дзень',
-      slug: 'sonechny-dzen',
+      title: "Сонечны дзень",
+      slug: "sonechny-dzen",
       authorId: maksimTank?.id!,
       categoryId: natureCat?.id!,
       year: 1965,
-      description: 'Светлы, аптымістычны верш пра прыгажосць звычайнага сонечнага дня.',
+      description:
+        "Светлы, аптымістычны верш пра прыгажосць звычайнага сонечнага дня.",
       content: `Сонечны дзень! Як прыгожа ўсё навокал!
 Неба блакітнае, чыстае, ясное;
 Птушкі спяваюць, кветкі цвітуць,
@@ -1125,12 +1211,12 @@ Ave Maria! Мы з табой
 Ты даеш мне веру ў заўтра!`,
     },
     {
-      title: 'Матчына хата',
-      slug: 'matchyna-khata',
+      title: "Матчына хата",
+      slug: "matchyna-khata",
       authorId: ryhorBaradulin?.id!,
       categoryId: civilCat?.id!,
       year: 1978,
-      description: 'Ностальгічны верш пра родны дом, пра маці.',
+      description: "Ностальгічны верш пра родны дом, пра маці.",
       content: `Матчына хата — святыня мая,
 Там я радзіўся, там вырас;
 Там першы раз усміхнуўся,
@@ -1147,12 +1233,12 @@ Ave Maria! Мы з табой
 Я ведаю: ёсць у мяне Радзіма!`,
     },
     {
-      title: 'Дзед і ўнук',
-      slug: 'dzed-i-unuk',
+      title: "Дзед і ўнук",
+      slug: "dzed-i-unuk",
       authorId: nilHilevich?.id!,
       categoryId: philCat?.id!,
       year: 1990,
-      description: 'Верш пра сувязь пакаленняў.',
+      description: "Верш пра сувязь пакаленняў.",
       content: `Сядзіць стары дзед на лаўцы,
 А побач — унук малы;
 І дзед расказвае казку
@@ -1169,12 +1255,12 @@ Ave Maria! Мы з табой
 Якую трэба перадаць далей.`,
     },
     {
-      title: 'Беларускі арнамент',
-      slug: 'belaruski-arnament',
+      title: "Беларускі арнамент",
+      slug: "belaruski-arnament",
       authorId: karatkevich?.id!,
       categoryId: civilCat?.id!,
       year: 1970,
-      description: 'Верш пра нацыянальны арнамент.',
+      description: "Верш пра нацыянальны арнамент.",
       content: `На ручніках, на кашулях, на поясах
 Жыве арнамент — памяць вякоў;
 У кожнай рысачцы — мудрасць народа,
@@ -1191,12 +1277,12 @@ Ave Maria! Мы з табой
 Якую ніколі не страціць нам!`,
     },
     {
-      title: 'Наша ніва',
-      slug: 'nasha-niva',
+      title: "Наша ніва",
+      slug: "nasha-niva",
       authorId: bahushevich?.id!,
       categoryId: civilCat?.id!,
       year: 1895,
-      description: 'Верш пра родную зямлю, пра ніву.',
+      description: "Верш пра родную зямлю, пра ніву.",
       content: `Ніва наша — зямля матухны,
 Ты — наш хлеб, ты — наша доля;
 На табе — наш пот і слёзы,
@@ -1213,12 +1299,12 @@ Ave Maria! Мы з табой
 Мы маем права жыць!`,
     },
     {
-      title: 'У пушчы',
-      slug: 'u-pushchy',
+      title: "У пушчы",
+      slug: "u-pushchy",
       authorId: biadula?.id!,
       categoryId: natureCat?.id!,
       year: 1912,
-      description: 'Пейзажны верш пра беларускую пушчу.',
+      description: "Пейзажны верш пра беларускую пушчу.",
       content: `У пушчы цёмнай, дрымучай,
 Дзе сонца рэдка глядзіць,
 Жыве душа народа,
@@ -1235,12 +1321,12 @@ Ave Maria! Мы з табой
 Якога ніхто не пераможа!`,
     },
     {
-      title: 'Песня пра волю',
-      slug: 'pesnya-pra-volyu',
+      title: "Песня пра волю",
+      slug: "pesnya-pra-volyu",
       authorId: yankaKupala?.id!,
       categoryId: civilCat?.id!,
       year: 1907,
-      description: 'Рэвалюцыйны верш-заклік да барацьбы за свабоду.',
+      description: "Рэвалюцыйны верш-заклік да барацьбы за свабоду.",
       content: `Воля! Воля! Святое слова!
 Ты — мара ўсіх пакаленняў;
 За цябе продкі нашы гінулі,
@@ -1257,12 +1343,12 @@ Ave Maria! Мы з табой
 Бо воля — наша мэта і сэнс!`,
     },
     {
-      title: 'Любоў',
-      slug: 'lyubou-bahdanovich',
+      title: "Любоў",
+      slug: "lyubou-bahdanovich",
       authorId: maksimBahdanovich?.id!,
       categoryId: loveCat?.id!,
       year: 1912,
-      description: 'Пяшчотны верш пра каханне.',
+      description: "Пяшчотны верш пра каханне.",
       content: `Любоў — гэта кветка ў сэрцы,
 Якая цвіце без вады;
 Любоў — гэта зорка на небе,
@@ -1279,12 +1365,12 @@ Ave Maria! Мы з табой
 З ёй — я багаты на ўсё жыццё!`,
     },
     {
-      title: 'Вечар на возеры',
-      slug: 'vechar-na-vozery',
+      title: "Вечар на возеры",
+      slug: "vechar-na-vozery",
       authorId: yakubKolas?.id!,
       categoryId: natureCat?.id!,
       year: 1915,
-      description: 'Ідылічная карціна вечара на беларускім возеры.',
+      description: "Ідылічная карціна вечара на беларускім возеры.",
       content: `Вечар. Возера спіць у ціхім спакоі,
 Нібы люстэрка — гладкая вада;
 Адбіваецца ў ёй неба вячэрняе,
@@ -1301,12 +1387,12 @@ Ave Maria! Мы з табой
 Сэрца маё прыстанішча знайшло.`,
     },
     {
-      title: 'Дзень Незалежнасці',
-      slug: 'dzen-nezalezhnastsi',
+      title: "Дзень Незалежнасці",
+      slug: "dzen-nezalezhnastsi",
       authorId: nilHilevich?.id!,
       categoryId: civilCat?.id!,
       year: 1991,
-      description: 'Верш, прысвечаны абвяшчэнню незалежнасці Беларусі.',
+      description: "Верш, прысвечаны абвяшчэнню незалежнасці Беларусі.",
       content: `Гэты дзень мы чакалі стагоддзі,
 Гэты дзень — наша агульная мара;
 Беларусь свабодная ўстала,
@@ -1323,12 +1409,12 @@ Ave Maria! Мы з табой
 Мы — свабодны народ нарэшце!`,
     },
     {
-      title: 'Матуля',
-      slug: 'matulya',
+      title: "Матуля",
+      slug: "matulya",
       authorId: petrusBrouka?.id!,
       categoryId: loveCat?.id!,
       year: 1948,
-      description: 'Пяшчотны верш пра маці.',
+      description: "Пяшчотны верш пра маці.",
       content: `Матуля мая, матуля родная,
 Як многа цябе я люблю!
 Ты — сонца маё, ты — зорка ясная,
@@ -1345,12 +1431,12 @@ Ave Maria! Мы з табой
 Чым ты, матуля, — маё святло!`,
     },
     {
-      title: 'Заход сонца',
-      slug: 'zakhod-sontsa',
+      title: "Заход сонца",
+      slug: "zakhod-sontsa",
       authorId: maksimTank?.id!,
       categoryId: natureCat?.id!,
       year: 1955,
-      description: 'Медытатыўны верш пра заход сонца.',
+      description: "Медытатыўны верш пра заход сонца.",
       content: `Заход сонца — час пераходу,
 Калі дзень саступае ночы;
 Неба гарыць чырвоным і залатым,
@@ -1367,12 +1453,12 @@ Ave Maria! Мы з табой
 Каб асвятліць наш родны край.`,
     },
     {
-      title: 'Пралеска',
-      slug: 'praleska',
+      title: "Пралеска",
+      slug: "praleska",
       authorId: ryhorBaradulin?.id!,
       categoryId: natureCat?.id!,
       year: 1972,
-      description: 'Ніжны верш пра пралеску — першую вясновую кветку Беларусі.',
+      description: "Ніжны верш пра пралеску — першую вясновую кветку Беларусі.",
       content: `Пралеска — вестунка вясны,
 Блакітная кветка ў лесе;
 Яна прабіваецца праз снег,
@@ -1389,12 +1475,12 @@ Ave Maria! Мы з табой
 Як яна — мы верым у лепшы час.`,
     },
     {
-      title: 'Белавежская пушча',
-      slug: 'belavezhskaya-pushcha',
+      title: "Белавежская пушча",
+      slug: "belavezhskaya-pushcha",
       authorId: karatkevich?.id!,
       categoryId: natureCat?.id!,
       year: 1968,
-      description: 'Верш пра легендарную Белавежскую пушчу.',
+      description: "Верш пра легендарную Белавежскую пушчу.",
       content: `Белавежская пушча — скарб Еўропы,
 Апошні асколак першабытных лясоў;
 Тут жывуць зубры — велічныя звяры,
@@ -1411,12 +1497,12 @@ Ave Maria! Мы з табой
 Страцім сувязь з прыродай назаўжды.`,
     },
     {
-      title: 'Вясёлка',
-      slug: 'vyasyolka',
+      title: "Вясёлка",
+      slug: "vyasyolka",
       authorId: biadula?.id!,
       categoryId: natureCat?.id!,
       year: 1916,
-      description: 'Радасны верш пра вясёлку.',
+      description: "Радасны верш пра вясёлку.",
       content: `Пасля дажджу на небе — вясёлка!
 Сем колераў ззяюць угары;
 Гэта мост паміж небам і зямлёй,
@@ -1433,12 +1519,12 @@ Ave Maria! Мы з табой
 Пасля слёз — усмешка і радасць!`,
     },
     {
-      title: 'Калядная ноч',
-      slug: 'kalyadnaya-noch',
+      title: "Калядная ноч",
+      slug: "kalyadnaya-noch",
       authorId: tsiotka?.id!,
       categoryId: philCat?.id!,
       year: 1904,
-      description: 'Святочны верш пра калядную ноч.',
+      description: "Святочны верш пра калядную ноч.",
       content: `Калядная ноч — ноч чараўніцтва,
 Калі збываюцца ўсе мары;
 Зоркі ззяюць ярчэй за звычай,
@@ -1458,28 +1544,123 @@ Ave Maria! Мы з табой
 
   // Создаем стихи
   for (const poemData of poemsData) {
+    const { categoryId, ...rest } = poemData;
     await prisma.poem.upsert({
       where: { slug: poemData.slug },
       update: {
-        title: poemData.title,
-        content: poemData.content,
-        description: poemData.description,
-        authorId: poemData.authorId,
-        categoryId: poemData.categoryId,
-        year: poemData.year,
-        videoUrl: poemData.videoUrl,
+        ...rest,
+        categories: {
+          set: [{ id: categoryId }],
+        },
       },
-      create: poemData,
+      create: {
+        ...rest,
+        categories: {
+          connect: [{ id: categoryId }],
+        },
+      },
     });
   }
 
-  console.log('✅ Created 50+ Belarusian poems');
-  console.log('🎉 Seeding completed successfully!');
+  await prisma.poem.deleteMany();
+  await prisma.holiday.deleteMany();
+  await prisma.author.deleteMany();
+  await prisma.category.deleteMany();
+
+  const author1 = await prisma.author.create({
+    data: { name: "Александр Пушкин", slug: "alexander-pushkin" },
+  });
+
+  const author2 = await prisma.author.create({
+    data: { name: "Михаил Лермонтов", slug: "mikhail-lermontov" },
+  });
+
+  // Создаём категории
+  const category1 = await prisma.category.create({
+    data: { name: "Лирика", slug: "lyric" },
+  });
+  const category2 = await prisma.category.create({
+    data: { name: "Эпос", slug: "epic" },
+  });
+
+  // Праздники и стихи
+  await prisma.holiday.createMany({
+    data: [
+      {
+        name: "Масленица",
+        slug: "maslenitsa",
+        day: 7,
+        month: 3,
+        season: Season.SPRING,
+      },
+      {
+        name: "Новый Год",
+        slug: "new-year",
+        day: 1,
+        month: 1,
+        season: Season.WINTER,
+      },
+    ],
+  });
+
+  // Создаём стихи и связываем с праздниками
+  const maslenitsa = await prisma.holiday.findUnique({
+    where: { slug: "maslenitsa" },
+  });
+  const newYear = await prisma.holiday.findUnique({
+    where: { slug: "new-year" },
+  });
+
+  if (maslenitsa && newYear) {
+    await prisma.poem.createMany({
+      data: [
+        {
+          title: "Весёлый стих про Масленицу",
+          slug: "happy-maslenitsa",
+          content: "Стих про блины и веселье...",
+          authorId: author1.id,
+        },
+        {
+          title: "Новогодний стих",
+          slug: "new-year-poem",
+          content: "Стих про ёлку и подарки...",
+          authorId: author2.id,
+        },
+      ],
+    });
+
+    // Связываем поэмы с праздниками (M:N)
+    const maslenitsaPoem = await prisma.poem.findUnique({
+      where: { slug: "happy-maslenitsa" },
+    });
+    const newYearPoem = await prisma.poem.findUnique({
+      where: { slug: "new-year-poem" },
+    });
+
+    if (maslenitsaPoem) {
+      await prisma.holiday.update({
+        where: { id: maslenitsa.id },
+        data: { poems: { connect: { id: maslenitsaPoem.id } } },
+      });
+    }
+
+    if (newYearPoem) {
+      await prisma.holiday.update({
+        where: { id: newYear.id },
+        data: { poems: { connect: { id: newYearPoem.id } } },
+      });
+    }
+  }
+
+  console.log("Seed finished");
+
+  console.log("✅ Created 50+ Belarusian poems");
+  console.log("🎉 Seeding completed successfully!");
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Seeding failed:', e);
+    console.error("❌ Seeding failed:", e);
     process.exit(1);
   })
   .finally(async () => {

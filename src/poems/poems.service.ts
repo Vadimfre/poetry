@@ -1,5 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
 export class PoemsService {
@@ -14,7 +14,7 @@ export class PoemsService {
         take: limit,
         include: {
           author: true,
-          category: true,
+          categories: true,
           _count: {
             select: {
               comments: true,
@@ -22,7 +22,7 @@ export class PoemsService {
             },
           },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
       }),
       this.prisma.poem.count(),
     ]);
@@ -41,7 +41,7 @@ export class PoemsService {
       where: { id },
       include: {
         author: true,
-        category: true,
+        categories: true,
         comments: {
           include: {
             user: {
@@ -52,7 +52,7 @@ export class PoemsService {
               },
             },
           },
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: "desc" },
         },
         _count: {
           select: {
@@ -64,7 +64,7 @@ export class PoemsService {
     });
 
     if (!poem) {
-      throw new NotFoundException('Poem not found');
+      throw new NotFoundException("Poem not found");
     }
 
     // Increment views
@@ -98,7 +98,7 @@ export class PoemsService {
       where: { slug },
       include: {
         author: true,
-        category: true,
+        categories: true,
         comments: {
           include: {
             user: {
@@ -109,7 +109,7 @@ export class PoemsService {
               },
             },
           },
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: "desc" },
         },
         _count: {
           select: {
@@ -121,7 +121,7 @@ export class PoemsService {
     });
 
     if (!poem) {
-      throw new NotFoundException('Poem not found');
+      throw new NotFoundException("Poem not found");
     }
 
     // Increment views
@@ -152,12 +152,12 @@ export class PoemsService {
 
   async findByCategory(categoryId: number) {
     return this.prisma.poem.findMany({
-      where: { categoryId },
+      where: { categories: { some: { id: categoryId } } },
       include: {
         author: true,
-        category: true,
+        categories: true,
       },
-      orderBy: { year: 'asc' },
+      orderBy: { year: "asc" },
     });
   }
 
@@ -167,16 +167,16 @@ export class PoemsService {
     });
 
     if (!category) {
-      throw new NotFoundException('Category not found');
+      throw new NotFoundException("Category not found");
     }
 
     return this.prisma.poem.findMany({
-      where: { categoryId: category.id },
+      where: { categories: { some: { id: category.id } } },
       include: {
         author: true,
-        category: true,
+        categories: true,
       },
-      orderBy: { year: 'asc' },
+      orderBy: { year: "asc" },
     });
   }
 
@@ -184,14 +184,14 @@ export class PoemsService {
     return this.prisma.poem.findMany({
       where: {
         OR: [
-          { title: { contains: query, mode: 'insensitive' } },
-          { author: { name: { contains: query, mode: 'insensitive' } } },
-          { content: { contains: query, mode: 'insensitive' } },
+          { title: { contains: query, mode: "insensitive" } },
+          { author: { name: { contains: query, mode: "insensitive" } } },
+          { content: { contains: query, mode: "insensitive" } },
         ],
       },
       include: {
         author: true,
-        category: true,
+        categories: true,
       },
       take: 20,
     });
@@ -208,7 +208,7 @@ export class PoemsService {
           },
         },
       },
-      orderBy: { name: 'asc' },
+      orderBy: { name: "asc" },
     });
   }
 
@@ -218,15 +218,15 @@ export class PoemsService {
       include: {
         poems: {
           include: {
-            category: true,
+            categories: true,
           },
-          orderBy: { year: 'asc' },
+          orderBy: { year: "asc" },
         },
       },
     });
 
     if (!author) {
-      throw new NotFoundException('Аўтар не знойдзены');
+      throw new NotFoundException("Аўтар не знойдзены");
     }
 
     return author;

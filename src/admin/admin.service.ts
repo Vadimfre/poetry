@@ -26,14 +26,19 @@ export class AdminService {
       throw new BadRequestException('Верш з такой назвай ужо існуе');
     }
 
+    const { categoryId, ...rest } = data;
+
     return this.prisma.poem.create({
       data: {
-        ...data,
+        ...rest,
         slug,
+        categories: {
+          connect: { id: categoryId },
+        },
       },
       include: {
         author: true,
-        category: true,
+        categories: true,
       },
     });
   }
@@ -62,12 +67,20 @@ export class AdminService {
       updateData.slug = this.generateSlug(data.title);
     }
 
+    // Если передан categoryId, обновляем связь
+    if (data.categoryId !== undefined) {
+      updateData.categories = {
+        set: [{ id: data.categoryId }],
+      };
+      delete updateData.categoryId;
+    }
+
     return this.prisma.poem.update({
       where: { id },
       data: updateData,
       include: {
         author: true,
-        category: true,
+        categories: true,
       },
     });
   }
@@ -93,7 +106,7 @@ export class AdminService {
     return this.prisma.poem.findMany({
       include: {
         author: true,
-        category: true,
+        categories: true,
         _count: {
           select: {
             comments: true,

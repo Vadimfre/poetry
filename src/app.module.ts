@@ -15,6 +15,8 @@ import { AdminModule } from './admin/admin.module';
 import { MailModule } from './libs/mail/mail.module';
 import { EmailConfirmationModule } from './auth/email-confirmation/email-confirmation.module';
 import { PasswordRecoveryModule } from './auth/password-recovery/password-recovery.module';
+import { HolidaysModule } from './holidays/holidays.module';
+import { AuthorsModule } from './authors/authors.module';
 
 @Module({
   imports: [
@@ -37,6 +39,8 @@ import { PasswordRecoveryModule } from './auth/password-recovery/password-recove
     MailModule,
     EmailConfirmationModule,
     PasswordRecoveryModule,
+    HolidaysModule,
+    AuthorsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

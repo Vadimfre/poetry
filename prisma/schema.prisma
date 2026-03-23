@@ -19,6 +19,13 @@ enum TokenType {
   PASSWORD_RESET
 }
 
+enum Season {
+  WINTER
+  SPRING
+  SUMMER
+  AUTUMN
+}
+
 // Пользователь
 model User {
   id       Int     @id @default(autoincrement())
@@ -70,7 +77,7 @@ model Category {
   image       String?
   createdAt   DateTime @default(now())
 
-  poems Poem[]
+  poems Poem[] @relation("PoemCategories")
 }
 
 // Стихотворение
@@ -79,23 +86,45 @@ model Poem {
   title       String
   slug        String   @unique
   content     String   @db.Text
-  description String?  @db.Text // Описание/анализ стихотворения
+  description String?  @db.Text
   authorId    Int
   year        Int?
-  videoUrl    String? // Путь к видеофайлу для фона
-  categoryId  Int
+  videoUrl    String?
   views       Int      @default(0)
   likes       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  author    Author     @relation(fields: [authorId], references: [id])
-  category  Category   @relation(fields: [categoryId], references: [id])
-  comments  Comment[]
-  favorites Favorite[]
+  author     Author     @relation(fields: [authorId], references: [id])
+  categories Category[] @relation("PoemCategories")
+  comments   Comment[]
+  favorites  Favorite[]
+  holidays   Holiday[] @relation("HolidayPoems")
 
-  @@index([categoryId])
   @@index([authorId])
+}
+
+
+// Праздник
+model Holiday {
+  id String @id @default(uuid())
+
+  name  String
+  slug  String @unique
+  day   Int
+  month Int
+
+  season      Season // Время года для фильтрации по слайдам
+  image       String? // Картинка праздника (опционально)
+  description String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  poems Poem[] @relation("HolidayPoems")
+
+  @@unique([day, month, slug])
+  @@index([month, day])
 }
 
 // Комментарий к стихотворению

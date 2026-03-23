@@ -38,7 +38,7 @@ export class FavoritesService {
         poem: {
           include: {
             author: true,
-            category: true,
+            categories: true,
           },
         },
       },
@@ -75,7 +75,7 @@ export class FavoritesService {
         poem: {
           include: {
             author: true,
-            category: true,
+            categories: true,
             _count: {
               select: {
                 comments: true,
