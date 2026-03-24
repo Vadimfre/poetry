@@ -3,7 +3,7 @@
   \*********************************************************************************************************************************************************************************************************************************************************************************************************/
 .AboutBelarusSection_aboutSection__0mB0q {
   padding: 120px 0;
-  background: linear-gradient(180deg, #fff 0%, #F6F1EE 100%);
+  background: linear-gradient(180deg, var(--main-bg) 0%, var(--light-bg) 100%);
   position: relative;
   overflow: hidden;
 }
@@ -34,7 +34,7 @@
   font-weight: 600;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: #8b7355;
+  color: var(--accent-color);
   display: inline-block;
   margin-bottom: 20px;
   position: relative;
@@ -47,7 +47,7 @@
   left: 0;
   width: 40px;
   height: 2px;
-  background: #8b7355;
+  background: var(--accent-color);
 }
 
 .AboutBelarusSection_title__kU6xY {
@@ -111,10 +111,10 @@
   display: flex;
   gap: 24px;
   padding: 30px;
-  background: white;
+  background: var(--light-bg);
   border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(139, 115, 85, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(96, 165, 250, 0.1);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 0;
   transform: translateX(30px);
@@ -169,7 +169,7 @@
 .AboutBelarusSection_ornament__7_Yyi {
   width: 8px;
   height: 8px;
-  background: #8b7355;
+  background: var(--accent-color);
   opacity: 0.3;
   transform: rotate(45deg);
 }
@@ -228,7 +228,7 @@
   \*****************************************************************************************************************************************************************************************************************************************************************************************************/
 .AllAuthorsSection_section__XLZN4 {
   padding: 100px 0;
-  background: #fff;
+  background: var(--light-bg);
   position: relative;
 }
 
@@ -239,7 +239,7 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(139, 115, 85, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.2), transparent);
 }
 
 .AllAuthorsSection_loading__TG6_P {
@@ -258,7 +258,7 @@
   font-weight: 600;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: #8b7355;
+  color: var(--accent-color);
   display: block;
   margin-bottom: 16px;
 }
@@ -297,13 +297,14 @@
 }
 
 .AllAuthorsSection_card__TVXaq {
-  background: #F9F7F5;
+  background: var(--light-bg);
   border-radius: 20px;
   overflow: hidden;
   text-decoration: none;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 0;
   animation: AllAuthorsSection_fadeIn__8N9XJ 0.5s ease forwards;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 @keyframes AllAuthorsSection_fadeIn__8N9XJ {
@@ -321,7 +322,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #EDE6E0 0%, #F6F1EE 100%);
+  background: linear-gradient(135deg, var(--main-bg) 0%, var(--light-bg) 100%);
   padding: 20px;
 }
 
@@ -338,14 +339,14 @@
   width: 120px;
   height: 150px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #8b7355 0%, #a08060 100%);
+  background: linear-gradient(135deg, var(--accent-color) 0%, #3b82f6 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 48px;
   font-weight: 700;
   color: white;
-  box-shadow: 0 8px 25px rgba(139, 115, 85, 0.3);
+  box-shadow: 0 8px 25px rgba(96, 165, 250, 0.3);
 }
 
 .AllAuthorsSection_info__7V0OQ {
@@ -361,7 +362,7 @@
 
 .AllAuthorsSection_years__R7571 {
   font-size: 14px;
-  color: #8b7355;
+  color: var(--accent-color);
   display: block;
   margin-bottom: 12px;
   font-weight: 500;
@@ -381,11 +382,11 @@
 .AllAuthorsSection_poemsCount__N4ajw {
   display: inline-block;
   padding: 6px 14px;
-  background: rgba(139, 115, 85, 0.1);
+  background: rgba(96, 165, 250, 0.1);
   border-radius: 16px;
   font-size: 12px;
   font-weight: 600;
-  color: #8b7355;
+  color: var(--accent-color);
 }
 
 /* Responsive */
@@ -448,7 +449,7 @@
   \***********************************************************************************************************************************************************************************************************************************************************************************************/
 .AuthorsSection_authorsSection__rJCMW {
   padding: 100px 0;
-  background: linear-gradient(180deg, #F6F1EE 0%, #EDE6E0 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #F6F1EE 100%);
   position: relative;
   overflow: hidden;
 }
@@ -482,14 +483,14 @@
   font-size: 48px;
   font-weight: 700;
   letter-spacing: -2px;
-  color: var(--primary-color);
+  color: #2c2c2c;
   margin-bottom: 20px;
   line-height: 1.1;
 }
 
 .AuthorsSection_sectionSubtitle__Z_XRd {
   font-size: 18px;
-  color: var(--secondary-color);
+  color: #666666;
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
@@ -514,14 +515,14 @@
 
 .AuthorsSection_authorCard__cOhPy {
   position: relative;
-  background: white;
+  background: #F6F1EE;
   border-radius: 24px;
   padding: 40px 30px;
   text-align: center;
   text-decoration: none;
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(139, 115, 85, 0.1);
 }
 
@@ -591,7 +592,7 @@
 .AuthorsSection_authorName__tU0h7 {
   font-size: 24px;
   font-weight: 700;
-  color: var(--primary-color);
+  color: #2c2c2c;
   margin-bottom: 8px;
 }
 
@@ -605,7 +606,7 @@
 
 .AuthorsSection_authorTitle__PZHZK {
   font-size: 13px;
-  color: var(--secondary-color);
+  color: #666666;
   display: block;
   padding: 6px 16px;
   background: rgba(139, 115, 85, 0.1);
@@ -617,7 +618,7 @@
 
 .AuthorsSection_authorQuote__Ksk9_ {
   font-size: 14px;
-  color: var(--secondary-color);
+  color: #666666;
   line-height: 1.6;
   font-style: italic;
   margin: 0;
@@ -649,7 +650,7 @@
 .AuthorsSection_statNumber__yZtVW {
   font-size: 48px;
   font-weight: 700;
-  color: var(--primary-color);
+  color: #2c2c2c;
   display: block;
   line-height: 1;
   margin-bottom: 8px;
@@ -657,7 +658,7 @@
 
 .AuthorsSection_statLabel__te8pq {
   font-size: 14px;
-  color: var(--secondary-color);
+  color: #666666;
   text-transform: uppercase;
   letter-spacing: 2px;
   font-weight: 500;
@@ -726,7 +727,7 @@
   \*****************************************************************************************************************************************************************************************************************************************************************************************/
 .CardsSlider_sliderSection__Hk1zM {
   padding: 60px 0 80px;
-  background-color: #F6F1EE;
+  background-color: var(--light-bg);
 }
 
 .CardsSlider_sectionTitle__ZK_Pl {
@@ -749,8 +750,8 @@
 .CardsSlider_loadingSpinner__i1T6m {
   width: 40px;
   height: 40px;
-  border: 3px solid #e0e0e0;
-  border-top-color: #666;
+  border: 3px solid var(--text-secondary);
+  border-top-color: var(--accent-color);
   border-radius: 50%;
   animation: CardsSlider_spin__qIkO6 0.8s linear infinite;
 }
@@ -767,13 +768,14 @@
 }
 
 .CardsSlider_card__wt9kK {
-  background-color: #ffffff;
+  background-color: var(--light-bg);
   border-radius: 12px;
   position: relative;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateY(0);
   opacity: 0;
   animation: CardsSlider_cardAppear__gaQtv 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 @keyframes CardsSlider_cardAppear__gaQtv {
@@ -802,7 +804,7 @@
   width: 100%;
   height: 380px;
   border-radius: 12px;
-  background-color: #e0e0e0;
+  background-color: var(--text-secondary);
   margin-bottom: 16px;
   display: flex;
   align-items: flex-start;
@@ -840,7 +842,7 @@
   font-size: 15px;
   font-weight: 700;
   letter-spacing: 0.5px;
-  color: #ffffff;
+  color: var(--white);
   text-transform: uppercase;
   text-align: left;
   margin: 0;
@@ -852,13 +854,13 @@
 .CardsSlider_cardButton__IxCCq {
   width: 100%;
   padding: 12px 20px;
-  background-color: #ffffff;
-  color: #666666;
+  background-color: var(--light-bg);
+  color: var(--text-primary);
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--text-secondary);
   border-radius: 50px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -866,9 +868,9 @@
 }
 
 .CardsSlider_cardButton__IxCCq:hover {
-  background-color: #2c2c2c;
-  color: #ffffff;
-  border-color: #2c2c2c;
+  background-color: var(--accent-color);
+  color: var(--white);
+  border-color: var(--accent-color);
   transform: scale(1.02);
 }
 
@@ -2214,15 +2216,15 @@
   !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[3]!./components/Header/Header.module.css ***!
   \*******************************************************************************************************************************************************************************************************************************************************************************/
 .Header_header__pXml_ {
-  background-color: var(--white);
-  border-radius: 12px;
+  background-color: var(--light-bg);
   position: -webkit-sticky;
   position: sticky;
   margin-bottom: 32px;
   top: 0;
   z-index: 1000;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
+  
 }
 
 .Header_headerScrolled__G9Dkr {
@@ -2232,6 +2234,8 @@
 .Header_headerWrapper__oL4kj {
   max-width: 1800px;
   margin: 0 auto;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 .Header_headerContent__9ua52 {
@@ -2310,14 +2314,15 @@
   top: calc(100% + 10px);
   left: 50%;
   transform: translateX(-50%);
-  background: #ffffff;
+  background: var(--light-bg);
   border-radius: 20px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
   min-width: 360px;
   padding: 16px;
   padding-top: 20px;
   z-index: 1000;
   animation: Header_slideDownFade__t_Yiq 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .Header_directionsMenu__v_Fgv::after {
@@ -2348,10 +2353,10 @@
   left: 50%;
   width: 12px;
   height: 12px;
-  background: #ffffff;
+  background: var(--light-bg);
   transform: translateX(-50%) rotate(45deg);
   border-radius: 2px;
-  box-shadow: -2px -2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: -2px -2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .Header_directionItem__pq0E1 {
@@ -2377,29 +2382,29 @@
 }
 
 .Header_directionItem__pq0E1:hover {
-  background: linear-gradient(135deg, rgba(246, 241, 238, 0.8) 0%, rgba(246, 241, 238, 1) 100%);
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.1) 0%, rgba(96, 165, 250, 0.2) 100%);
   transform: translateX(4px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .Header_directionIcon__XhjHh {
   width: 52px;
   height: 52px;
   border-radius: 14px;
-  background: linear-gradient(135deg, rgba(44, 44, 44, 0.06) 0%, rgba(44, 44, 44, 0.12) 100%);
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.1) 0%, rgba(96, 165, 250, 0.2) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 26px;
   flex-shrink: 0;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .Header_directionItem__pq0E1:hover .Header_directionIcon__XhjHh {
-  background: linear-gradient(135deg, #2c2c2c 0%, #000000 100%);
+  background: linear-gradient(135deg, var(--accent-color) 0%, #3b82f6 100%);
   transform: scale(1.08) rotate(5deg);
-  box-shadow: 0 8px 16px rgba(44, 44, 44, 0.25);
+  box-shadow: 0 8px 16px rgba(96, 165, 250, 0.3);
 }
 
 .Header_directionContent__AULGF {
@@ -2409,13 +2414,13 @@
 .Header_directionTitle__cFJc6 {
   font-size: 15px;
   font-weight: 600;
-  color: #2c2c2c;
+  color: var(--text-primary);
   margin-bottom: 2px;
 }
 
 .Header_directionDesc__dftrP {
   font-size: 13px;
-  color: #666;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -2457,7 +2462,7 @@
 }
 
 .Header_profileButton___Lwyi:hover {
-  background-color: #F6F1EE;
+  background-color: rgba(96, 165, 250, 0.1);
 }
 
 .Header_avatar__hof_m {
@@ -2487,13 +2492,14 @@
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
-  background-color: var(--white);
+  background-color: var(--light-bg);
   border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   min-width: 250px;
   padding: 12px;
   z-index: 1000;
   animation: Header_slideDown__g_4Qy 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 @keyframes Header_slideDown__g_4Qy {
@@ -2566,7 +2572,7 @@
 }
 
 .Header_profileMenuItem__hIFDQ:hover {
-  background-color: #F6F1EE;
+  background-color: rgba(96, 165, 250, 0.1);
 }
 
 .Header_adminLink__U4oUm {
@@ -2939,6 +2945,664 @@
 }
 
 /*!*******************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[3]!./components/SeasonSlider/SeasonSlider.module.css ***!
+  \*******************************************************************************************************************************************************************************************************************************************************************************************/
+.SeasonSlider_slider__y4Dup {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 20px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
+}
+
+.SeasonSlider_slidesContainer__SFMGv {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.SeasonSlider_slide__k4n_a {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transform: scale(1.1);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+  pointer-events: none;
+}
+
+.SeasonSlider_slide__k4n_a.SeasonSlider_active__6nK75 {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.SeasonSlider_image__D_4I_ {
+  object-fit: cover;
+  object-position: center;
+}
+
+.SeasonSlider_overlay__kuApI {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(16, 13, 13, 0.2);
+  z-index: 1;
+}
+
+.SeasonSlider_slideContent__Rhb3V {
+  position: absolute;
+  bottom: 80px;
+  left: 80px;
+  right: 80px;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+
+.SeasonSlider_content__Ja8p5 {
+  color: white;
+}
+
+.SeasonSlider_calendarWrapper__EPuAf {
+  flex-shrink: 0;
+}
+
+.SeasonSlider_subtitle__VcdsM {
+  display: block;
+  font-size: 1.1rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  opacity: 0.8;
+  margin-bottom: 12px;
+  transform: translateY(20px);
+  opacity: 0;
+  animation: SeasonSlider_fadeInUp__siI8Y 0.6s ease forwards;
+  animation-delay: 0.3s;
+}
+
+.SeasonSlider_slide__k4n_a.SeasonSlider_active__6nK75 .SeasonSlider_subtitle__VcdsM {
+  opacity: 0.8;
+  transform: translateY(0);
+}
+
+.SeasonSlider_title___wZ_I {
+  font-size: 5rem;
+  font-weight: 300;
+  letter-spacing: 0.25em;
+  margin: 0;
+  text-shadow: 2px 4px 30px rgba(0, 0, 0, 0.4);
+  transform: translateY(30px);
+  opacity: 0;
+  animation: SeasonSlider_fadeInUp__siI8Y 0.6s ease forwards;
+  animation-delay: 0.5s;
+}
+
+.SeasonSlider_slide__k4n_a.SeasonSlider_active__6nK75 .SeasonSlider_title___wZ_I {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes SeasonSlider_fadeInUp__siI8Y {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.SeasonSlider_arrow__RYl_X {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 60px;
+  height: 60px;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.SeasonSlider_arrow__RYl_X:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.SeasonSlider_arrowLeft__cXi5F {
+  left: 30px;
+}
+
+.SeasonSlider_arrowRight__Y6ajQ {
+  right: 30px;
+}
+
+.SeasonSlider_dots__3sliO {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  gap: 12px;
+}
+
+.SeasonSlider_dot__6SmkD {
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.SeasonSlider_dot__6SmkD:hover {
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(1.2);
+}
+
+.SeasonSlider_dotActive__e1z_m {
+  background: white;
+  border-color: white;
+  transform: scale(1.2);
+}
+
+.SeasonSlider_progress__lMdjV {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.2);
+  z-index: 10;
+}
+
+.SeasonSlider_progressBar__j1uiG {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.5), white);
+  transition: width 0.5s ease;
+}
+/* Responsive */
+@media (max-width: 1200px) {
+  .SeasonSlider_slideContent__Rhb3V {
+    left: 60px;
+    right: 60px;
+    bottom: 60px;
+  }
+  .SeasonSlider_title___wZ_I {
+    font-size: 4.5rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .SeasonSlider_slideContent__Rhb3V {
+    left: 40px;
+    right: 40px;
+    bottom: 50px;
+    gap: 20px;
+  }
+  .SeasonSlider_title___wZ_I {
+    font-size: 4rem;
+  }
+  .SeasonSlider_subtitle__VcdsM {
+    font-size: 1rem;
+    letter-spacing: 0.3em;
+  }
+  .SeasonSlider_arrow__RYl_X {
+    width: 50px;
+    height: 50px;
+  }
+  .SeasonSlider_arrowLeft__cXi5F {
+    left: 20px;
+  }
+  .SeasonSlider_arrowRight__Y6ajQ {
+    right: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .SeasonSlider_slideContent__Rhb3V {
+    flex-direction: column;
+    align-items: flex-start;
+    left: 30px;
+    right: 30px;
+    bottom: 40px;
+    gap: 30px;
+  }
+  .SeasonSlider_title___wZ_I {
+    font-size: 3rem;
+  }
+  .SeasonSlider_subtitle__VcdsM {
+    font-size: 0.9rem;
+    letter-spacing: 0.2em;
+  }
+  .SeasonSlider_calendarWrapper__EPuAf {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  .SeasonSlider_arrow__RYl_X {
+    width: 45px;
+    height: 45px;
+  }
+  .SeasonSlider_arrowLeft__cXi5F {
+    left: 15px;
+  }
+  .SeasonSlider_arrowRight__Y6ajQ {
+    right: 15px;
+  }
+  .SeasonSlider_dots__3sliO {
+    bottom: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .SeasonSlider_slideContent__Rhb3V {
+    left: 20px;
+    right: 20px;
+    bottom: 30px;
+    gap: 20px;
+  }
+  .SeasonSlider_title___wZ_I {
+    font-size: 2.2rem;
+  }
+  .SeasonSlider_subtitle__VcdsM {
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+  }
+  .SeasonSlider_arrow__RYl_X {
+    width: 40px;
+    height: 40px;
+    display: none; /* Можно скрыть на очень маленьких экранах */
+  }
+  .SeasonSlider_dots__3sliO {
+    bottom: 10px;
+  }
+  .SeasonSlider_dot__6SmkD {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+@media (max-width: 320px) {
+  .SeasonSlider_slideContent__Rhb3V {
+    left: 15px;
+    right: 15px;
+    bottom: 20px;
+  }
+  .SeasonSlider_title___wZ_I {
+    font-size: 1.8rem;
+  }
+  .SeasonSlider_subtitle__VcdsM {
+    font-size: 0.7rem;
+  }
+}
+
+/*!***********************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[3]!./components/SeasonCalendar/SeasonCalendar.module.css ***!
+  \***********************************************************************************************************************************************************************************************************************************************************************************************/
+.SeasonCalendar_calendar__unQp6 {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: rgba(255, 255, 255, 0.12);
+  -webkit-backdrop-filter: blur(20px);
+          backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 24px;
+  min-width: 280px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  animation: SeasonCalendar_slideIn__yAnxb 0.6s ease forwards;
+  animation-delay: 0.4s;
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+@keyframes SeasonCalendar_slideIn__yAnxb {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.SeasonCalendar_header__axHuj {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.SeasonCalendar_month__sKJEx {
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: white;
+  letter-spacing: 0.05em;
+}
+
+.SeasonCalendar_year__wWAUC {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 300;
+}
+
+.SeasonCalendar_dayNames__q89rg {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-gap: 4px;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.SeasonCalendar_dayName__ZK99I {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 0;
+}
+
+.SeasonCalendar_days__dYu4W {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-gap: 4px;
+  gap: 4px;
+}
+
+.SeasonCalendar_day__xC4_O {
+  text-align: center;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+  padding: 8px 4px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.SeasonCalendar_day__xC4_O:not(.SeasonCalendar_empty__vDrgj):hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.SeasonCalendar_empty__vDrgj {
+  color: transparent;
+}
+
+.SeasonCalendar_firstDay__k1Veo {
+  background: var(--accent-color);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.SeasonCalendar_holiday__GhiQI {
+  position: relative;
+  cursor: pointer;
+  font-weight: 500;
+  color: white;
+}
+
+.SeasonCalendar_holiday__GhiQI:hover {
+  background: var(--accent-color);
+  transform: scale(1.1);
+}
+
+.SeasonCalendar_holidayDot__L33Qo {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  background: var(--accent-color);
+  border-radius: 50%;
+}
+
+.SeasonCalendar_holiday__GhiQI.SeasonCalendar_firstDay__k1Veo .SeasonCalendar_holidayDot__L33Qo {
+  background: white;
+}
+
+.SeasonCalendar_selected__z4N_s {
+  background: var(--accent-color) !important;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.SeasonCalendar_holidayPopup__mPUTJ {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  right: 0;
+  background: rgba(30, 30, 30, 0.95);
+  -webkit-backdrop-filter: blur(20px);
+          backdrop-filter: blur(20px);
+  border-radius: 12px;
+  padding: 16px 20px;
+  min-width: 220px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  animation: SeasonCalendar_popupIn__KY8kc 0.25s ease;
+  z-index: 100;
+}
+
+@keyframes SeasonCalendar_popupIn__KY8kc {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.SeasonCalendar_holidayHeader__dRGAy {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.SeasonCalendar_holidayDate__DmPk3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent-color);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.SeasonCalendar_holidayName__Gt8b3 {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: white;
+  line-height: 1.3;
+}
+
+.SeasonCalendar_poemsList__gPLjb {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.SeasonCalendar_poemsTitle__G7m_T {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+
+.SeasonCalendar_poemItem__QFIzB {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.SeasonCalendar_poemItem__QFIzB:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+}
+
+.SeasonCalendar_seasonMonths__tYd2I {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.SeasonCalendar_seasonMonth__JffW_ {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 6px 12px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  letter-spacing: 0.03em;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.SeasonCalendar_seasonMonth__JffW_:hover {
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.SeasonCalendar_activeMonth__MTHvS {
+  background: var(--accent-color);
+  color: white;
+  font-weight: 500;
+}
+/* Responsive */
+@media (max-width: 1024px) {
+  .SeasonCalendar_calendar__unQp6 {
+    padding: 20px;
+    min-width: 260px;
+  }
+  .SeasonCalendar_month__sKJEx {
+    font-size: 1.2rem;
+  }
+  .SeasonCalendar_year__wWAUC {
+    font-size: 0.9rem;
+  }
+  .SeasonCalendar_day__xC4_O {
+    font-size: 0.85rem;
+    padding: 6px 3px;
+  }
+  .SeasonCalendar_dayName__ZK99I {
+    font-size: 0.7rem;
+  }
+  .SeasonCalendar_seasonMonth__JffW_ {
+    font-size: 0.75rem;
+    padding: 5px 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .SeasonCalendar_calendar__unQp6 {
+    padding: 16px;
+    min-width: 240px;
+  }
+  .SeasonCalendar_month__sKJEx {
+    font-size: 1.1rem;
+  }
+  .SeasonCalendar_day__xC4_O {
+    font-size: 0.8rem;
+    padding: 5px 2px;
+  }
+  .SeasonCalendar_dayNames__q89rg {
+    gap: 2px;
+  }
+  .SeasonCalendar_days__dYu4W {
+    gap: 2px;
+  }
+  .SeasonCalendar_seasonMonth__JffW_ {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+  }
+  .SeasonCalendar_holidayPopup__mPUTJ {
+    min-width: 200px;
+    padding: 12px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .SeasonCalendar_calendar__unQp6 {
+    padding: 12px;
+    min-width: 200px;
+  }
+  .SeasonCalendar_month__sKJEx {
+    font-size: 1rem;
+  }
+  .SeasonCalendar_day__xC4_O {
+    font-size: 0.75rem;
+    padding: 4px 1px;
+  }
+  .SeasonCalendar_dayName__ZK99I {
+    font-size: 0.65rem;
+  }
+  .SeasonCalendar_seasonMonth__JffW_ {
+    font-size: 0.65rem;
+    padding: 3px 6px;
+  }
+  .SeasonCalendar_holidayPopup__mPUTJ {
+    min-width: 180px;
+    padding: 10px 14px;
+    bottom: calc(100% + 8px);
+    right: -10px;
+  }
+}
+
+@media (max-width: 320px) {
+  .SeasonCalendar_calendar__unQp6 {
+    padding: 8px;
+    min-width: 180px;
+  }
+  .SeasonCalendar_month__sKJEx {
+    font-size: 0.9rem;
+  }
+  .SeasonCalendar_day__xC4_O {
+    font-size: 0.7rem;
+  }
+  .SeasonCalendar_seasonMonth__JffW_ {
+    font-size: 0.6rem;
+    padding: 2px 4px;
+  }
+}
+
+/*!*******************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[3]!./components/PromoSection/PromoSection.module.css ***!
   \*******************************************************************************************************************************************************************************************************************************************************************************************/
 .PromoSection_promoSection__6TMJv {
@@ -2956,7 +3620,7 @@
   font-size: 16px;
   font-weight: 600;
   letter-spacing: -0.5px;
-  color: #B89B7C;
+  color: #8b7355;
   margin-bottom: 30px;
   text-transform: uppercase;
 }
@@ -2973,7 +3637,7 @@
 .PromoSection_divider__N1L13 {
   width: 1px;
   height: 300px;
-  background-color: #2c2c2c;
+  background-color: #666666;
   margin: 0 auto 60px;
 }
 
@@ -2981,7 +3645,7 @@
   font-size: 16px;
   font-weight: 400;
   letter-spacing: -0.3px;
-  color: #999999;
+  color: #666666;
   line-height: 1.4;
   text-transform: uppercase;
 }
@@ -2998,20 +3662,21 @@
 
 .PromoSection_whitePlate__C_fBO {
   width: 100%;
-  background-color: #ffffff;
+  background-color: #F6F1EE;
   border-radius: 12px;
   padding: 80px 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .PromoSection_dot__XoR4s {
   position: absolute;
   width: 16px;
   height: 16px;
-  background-color: #2c2c2c;
+  background-color: #8b7355;
   border-radius: 50%;
   z-index: 10;
 }

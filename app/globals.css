@@ -7,20 +7,22 @@
 
 :root {
   --primary-color: #2c2c2c;
-  --secondary-color: #6b6b6b;
-  --accent-color: #8b8b8b;
+  --secondary-color: #666666;
+  --accent-color: #8b7355;
   --light-bg: #F6F1EE;
   --white: #ffffff;
   --text-primary: #2c2c2c;
-  --text-secondary: #6b6b6b;
+  --text-secondary: #666666;
   --border-radius: 50px;
-  --main-bg: #F6F1EE;
+  --main-bg: #ffffff;
+  --margin: 10px;
+  --container-padding: 20px;
 }
 
 body {
   font-family: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: var(--text-primary);
-  background-color: #F6F1EE;
+  background-color: var(--main-bg);
   line-height: 1.6;
 }
 
@@ -51,4 +53,7 @@ button {
 .container {
   max-width: 1800px;
   margin: 0 auto;
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+  width: 100%;
 }

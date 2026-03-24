@@ -1,19 +1,20 @@
 import { useState } from "react";
-import { slides } from "../season-slider-data";
 
-export const useSlider = (initialIndex = 0) => {
+export const useSlider = (slidesLength: number, initialIndex = 0) => {
   const [currentSlide, setCurrentSlide] = useState(initialIndex);
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
+    if (slidesLength === 0) return;
+    setCurrentSlide((prev) => (prev + 1) % slidesLength);
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+    if (slidesLength === 0) return;
+    setCurrentSlide((prev) => (prev - 1 + slidesLength) % slidesLength);
   };
 
   const goToSlide = (index: number) => {
-    if (index >= 0 && index < slides.length) {
+    if (index >= 0 && index < slidesLength) {
       setCurrentSlide(index);
     }
   };

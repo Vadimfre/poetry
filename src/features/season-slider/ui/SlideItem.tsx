@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import styles from "./SeasonSlider.module.css";
-import SeasonCalendar from "../../season-calendar/ui/SeasonCalendar";
+import styles from "@/components/SeasonSlider/SeasonSlider.module.css";
+import SeasonCalendar from "../../season-calendar/ui/SeasonCalendar-ul";
 
 interface Slide {
   id: number;
@@ -24,21 +24,17 @@ export default function SlideItem({ slide, isActive }: SlideItemProps) {
       <Image
         src={slide.src}
         alt={slide.alt}
-        fill
-        priority={false}
+        width={1920}
+        height={1080}
         className={styles.image}
       />
       <div className={styles.overlay} />
+
       <div className={styles.slideContent}>
         <div className={styles.content}>
           <span className={styles.subtitle}>{slide.subtitle}</span>
           <h2 className={styles.title}>{slide.title}</h2>
         </div>
-        {isActive && (
-          <div className={styles.calendarWrapper}>
-            <SeasonCalendar season={slide.season} />
-          </div>
-        )}
       </div>
     </div>
   );

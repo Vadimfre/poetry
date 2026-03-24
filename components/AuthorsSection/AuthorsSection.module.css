@@ -1,6 +1,6 @@
 .authorsSection {
   padding: 100px 0;
-  background: linear-gradient(180deg, #F6F1EE 0%, #EDE6E0 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #F6F1EE 100%);
   position: relative;
   overflow: hidden;
 }
@@ -34,14 +34,14 @@
   font-size: 48px;
   font-weight: 700;
   letter-spacing: -2px;
-  color: var(--primary-color);
+  color: #2c2c2c;
   margin-bottom: 20px;
   line-height: 1.1;
 }
 
 .sectionSubtitle {
   font-size: 18px;
-  color: var(--secondary-color);
+  color: #666666;
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
@@ -65,14 +65,14 @@
 
 .authorCard {
   position: relative;
-  background: white;
+  background: #F6F1EE;
   border-radius: 24px;
   padding: 40px 30px;
   text-align: center;
   text-decoration: none;
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(139, 115, 85, 0.1);
 }
 
@@ -142,7 +142,7 @@
 .authorName {
   font-size: 24px;
   font-weight: 700;
-  color: var(--primary-color);
+  color: #2c2c2c;
   margin-bottom: 8px;
 }
 
@@ -156,7 +156,7 @@
 
 .authorTitle {
   font-size: 13px;
-  color: var(--secondary-color);
+  color: #666666;
   display: block;
   padding: 6px 16px;
   background: rgba(139, 115, 85, 0.1);
@@ -167,7 +167,7 @@
 
 .authorQuote {
   font-size: 14px;
-  color: var(--secondary-color);
+  color: #666666;
   line-height: 1.6;
   font-style: italic;
   margin: 0;
@@ -199,7 +199,7 @@
 .statNumber {
   font-size: 48px;
   font-weight: 700;
-  color: var(--primary-color);
+  color: #2c2c2c;
   display: block;
   line-height: 1;
   margin-bottom: 8px;
@@ -207,7 +207,7 @@
 
 .statLabel {
   font-size: 14px;
-  color: var(--secondary-color);
+  color: #666666;
   text-transform: uppercase;
   letter-spacing: 2px;
   font-weight: 500;

@@ -1,6 +1,6 @@
 "use client";
 
-import styles from "./SeasonSlider.module.css";
+import styles from "@/components/SeasonSlider/SeasonSlider.module.css";
 
 interface DotsNavigationProps {
   slidesLength: number;

@@ -24,10 +24,23 @@
       "static/css/app/collection/[slug]/page.css",
       "static/chunks/app/collection/[slug]/page.js"
     ],
-    "/_not-found/page": [
+    "/author/[slug]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
+      "static/css/app/author/[slug]/page.css",
+      "static/chunks/app/author/[slug]/page.js"
+    ],
+    "/faq/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/faq/page.css",
+      "static/chunks/app/faq/page.js"
+    ],
+    "/about/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/about/page.css",
+      "static/chunks/app/about/page.js"
     ]
   }
 }

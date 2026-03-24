@@ -21,11 +21,15 @@ export const useHolidaySeasons = () => {
   });
 };
 
-export const useHolidaysBySeason = (season: Season) => {
+export const useHolidaysBySeason = (
+  season: Season,
+  options?: { enabled?: boolean },
+) => {
   return useQuery<Holiday[]>({
     queryKey: ["holidays", "season", season],
     queryFn: () => holidaysApi.getBySeason(season),
-    enabled: !!season,
+    enabled: !!season && (options?.enabled ?? true),
+    staleTime: 10 * 60 * 1000, // 10 минут
   });
 };
 

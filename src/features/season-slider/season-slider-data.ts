@@ -1,45 +1,44 @@
-import { Season } from "@/src/shared";
+import { Season } from "@/src/shared/types/holiday.types";
 
 export type SlideSeason = "spring" | "summer" | "autumn" | "winter";
-
-export const slides = [
-  {
-    id: 1,
-    src: "/images/spring.jpg",
-    alt: "Вясна",
-    title: "ВЯСНА",
-    subtitle: "Час абуджэння",
-    season: "spring",
-  },
-  {
-    id: 2,
-    src: "/images/summer.jpg",
-    alt: "Лета",
-    title: "ЛЕТА",
-    subtitle: "Час росквіту",
-    season: "summer",
-  },
-  {
-    id: 3,
-    src: "/images/autumn.jpg",
-    alt: "Восень",
-    title: "ВОСЕНЬ",
-    subtitle: "Час роздуму",
-    season: "autumn",
-  },
-  {
-    id: 4,
-    src: "/images/winter.jpg",
-    alt: "Зіма",
-    title: "ЗІМА",
-    subtitle: "Час спакою",
-    season: "winter",
-  },
-];
 
 export const seasonMap = {
   spring: Season.SPRING,
   summer: Season.SUMMER,
   autumn: Season.AUTUMN,
   winter: Season.WINTER,
+};
+
+export const seasonColors = {
+  spring: "#ff00be", // зелёный
+  summer: "#FF9800", // оранжевый
+  autumn: "#fe9900", // коричневый
+  winter: "#2196F3", // синий
+};
+
+export const seasonConfig = {
+  spring: {
+    months: ["Сакавік", "Красавік", "Май"],
+    monthNumbers: [3, 4, 5],
+    year: 2026,
+    color: seasonColors.spring,
+  },
+  summer: {
+    months: ["Чэрвень", "Ліпень", "Жнівень"],
+    monthNumbers: [6, 7, 8],
+    year: 2026,
+    color: seasonColors.summer,
+  },
+  autumn: {
+    months: ["Верасень", "Кастрычнік", "Лістапад"],
+    monthNumbers: [9, 10, 11],
+    year: 2026,
+    color: seasonColors.autumn,
+  },
+  winter: {
+    months: ["Снежань", "Студзень", "Люты"],
+    monthNumbers: [12, 1, 2],
+    year: 2026,
+    color: seasonColors.winter,
+  },
 };

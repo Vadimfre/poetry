@@ -1,6 +1,6 @@
 .section {
   padding: 100px 0;
-  background: #fff;
+  background: var(--light-bg);
   position: relative;
 }
 
@@ -11,7 +11,7 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(139, 115, 85, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.2), transparent);
 }
 
 .loading {
@@ -30,7 +30,7 @@
   font-weight: 600;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: #8b7355;
+  color: var(--accent-color);
   display: block;
   margin-bottom: 16px;
 }
@@ -68,13 +68,14 @@
 }
 
 .card {
-  background: #F9F7F5;
+  background: var(--light-bg);
   border-radius: 20px;
   overflow: hidden;
   text-decoration: none;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 0;
   animation: fadeIn 0.5s ease forwards;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 @keyframes fadeIn {
@@ -92,7 +93,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #EDE6E0 0%, #F6F1EE 100%);
+  background: linear-gradient(135deg, var(--main-bg) 0%, var(--light-bg) 100%);
   padding: 20px;
 }
 
@@ -109,14 +110,14 @@
   width: 120px;
   height: 150px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #8b7355 0%, #a08060 100%);
+  background: linear-gradient(135deg, var(--accent-color) 0%, #3b82f6 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 48px;
   font-weight: 700;
   color: white;
-  box-shadow: 0 8px 25px rgba(139, 115, 85, 0.3);
+  box-shadow: 0 8px 25px rgba(96, 165, 250, 0.3);
 }
 
 .info {
@@ -132,7 +133,7 @@
 
 .years {
   font-size: 14px;
-  color: #8b7355;
+  color: var(--accent-color);
   display: block;
   margin-bottom: 12px;
   font-weight: 500;
@@ -152,11 +153,11 @@
 .poemsCount {
   display: inline-block;
   padding: 6px 14px;
-  background: rgba(139, 115, 85, 0.1);
+  background: rgba(96, 165, 250, 0.1);
   border-radius: 16px;
   font-size: 12px;
   font-weight: 600;
-  color: #8b7355;
+  color: var(--accent-color);
 }
 
 /* Responsive */

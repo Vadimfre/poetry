@@ -22,6 +22,21 @@ export const useSeasonCalendar = ({
 
   const currentMonthNumber = monthNumbers[activeMonthIndex];
 
+  const days = getDaysInMonth(year, currentMonthNumber);
+
+  function getDaysInMonth(year: number, month: number) {
+    const firstDay = new Date(year, month - 1, 1).getDay();
+    const daysInMonth = new Date(year, month, 0).getDate();
+
+    const result: (number | null)[] = [];
+    const startOffset = firstDay === 0 ? 6 : firstDay - 1;
+
+    for (let i = 0; i < startOffset; i++) result.push(null);
+    for (let day = 1; day <= daysInMonth; day++) result.push(day);
+
+    return result;
+  }
+
   const getHolidayForDay = useCallback(
     (day: number) =>
       holidays.find((h) => h.day === day && h.month === currentMonthNumber),
@@ -52,6 +67,7 @@ export const useSeasonCalendar = ({
   return {
     activeMonthIndex,
     currentMonthNumber,
+    days,
     selectedDay,
     selectedHoliday,
     handleDayClick,

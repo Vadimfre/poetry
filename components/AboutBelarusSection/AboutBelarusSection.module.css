@@ -1,6 +1,6 @@
 .aboutSection {
   padding: 120px 0;
-  background: linear-gradient(180deg, #fff 0%, #F6F1EE 100%);
+  background: linear-gradient(180deg, var(--main-bg) 0%, var(--light-bg) 100%);
   position: relative;
   overflow: hidden;
 }
@@ -30,7 +30,7 @@
   font-weight: 600;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: #8b7355;
+  color: var(--accent-color);
   display: inline-block;
   margin-bottom: 20px;
   position: relative;
@@ -43,7 +43,7 @@
   left: 0;
   width: 40px;
   height: 2px;
-  background: #8b7355;
+  background: var(--accent-color);
 }
 
 .title {
@@ -107,10 +107,10 @@
   display: flex;
   gap: 24px;
   padding: 30px;
-  background: white;
+  background: var(--light-bg);
   border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(139, 115, 85, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(96, 165, 250, 0.1);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 0;
   transform: translateX(30px);
@@ -165,7 +165,7 @@
 .ornament {
   width: 8px;
   height: 8px;
-  background: #8b7355;
+  background: var(--accent-color);
   opacity: 0.3;
   transform: rotate(45deg);
 }

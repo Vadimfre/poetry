@@ -157,3 +157,19 @@ model Favorite {
   @@index([userId])
   @@index([poemId])
 }
+
+// Слайды сезонов для главного слайдера
+model SeasonSlide {
+  id        String   @id @default(cuid())
+  title     String
+  subtitle  String
+  season    Season
+  imageUrl  String
+  altText   String
+  order     Int
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([season, order])
+}

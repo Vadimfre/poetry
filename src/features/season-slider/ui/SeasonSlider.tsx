@@ -2,20 +2,38 @@
 
 import styles from "@/components/SeasonSlider/SeasonSlider.module.css";
 import { useSlider } from "../model/use-slide";
-import { slides } from "../season-slider-data";
-import SlideItem from "./SlideItem";
 import NavigationArrows from "./NavigationArrows";
 import DotsNavigation from "./DotsNavigation";
 import ProgressBar from "./ProgressBar";
+import { SeasonSlide } from "./SeasonSlide";
+import { useSeasonSlides } from "../model/use-season-slides";
 
 export default function SeasonSlider() {
-  const { currentSlide, nextSlide, prevSlide, goToSlide } = useSlider();
+  const { data: slides, isLoading } = useSeasonSlides();
+
+  const { currentSlide, nextSlide, prevSlide, goToSlide } = useSlider(slides?.length || 0);
+
+  if (isLoading) {
+    return (
+      <div className={styles.slider}>
+        <div className={styles.loading}>Загрузка слайдов...</div>
+      </div>
+    );
+  }
+
+  if (!slides || slides.length === 0) {
+    return (
+      <div className={styles.slider}>
+        <div className={styles.empty}>Нет доступных слайдов</div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.slider}>
       <div className={styles.slidesContainer}>
         {slides.map((slide, index) => (
-          <SlideItem
+          <SeasonSlide
             key={slide.id}
             slide={slide}
             isActive={index === currentSlide}
@@ -31,7 +49,15 @@ export default function SeasonSlider() {
         onDotClick={goToSlide}
       />
 
-      <ProgressBar progress={(currentSlide + 1) / slides.length} />
+      <ProgressBar
+        progress={
+          slides.length === 1
+            ? 1
+            : slides.length > 1
+            ? currentSlide / (slides.length - 1)
+            : 0
+        }
+      />
     </div>
   );
 }
