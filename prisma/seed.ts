@@ -1562,97 +1562,156 @@ Ave Maria! Мы з табой
     });
   }
 
-  await prisma.poem.deleteMany();
-  await prisma.holiday.deleteMany();
-  await prisma.author.deleteMany();
-  await prisma.category.deleteMany();
+  console.log("✅ Created 50+ Belarusian poems");
 
-  const author1 = await prisma.author.create({
-    data: { name: "Александр Пушкин", slug: "alexander-pushkin" },
-  });
+  // ============ ПРАЗДНИКИ ============
+  const holidaysData = [
+    // Зима
+    { day: 25, month: 12, name: "Каляды", poems: ["Ave Maria", "Звон кафедры"] },
+    { day: 1, month: 1, name: "Новы год", poems: ["Дзед Мароз"] },
+    { day: 7, month: 1, name: "Раство", poems: ["Ave Maria", "Звон кафедры"] },
+    { day: 13, month: 1, name: "Шчодры вечар", poems: ["Маразь, зоркі і коні"] },
+    { day: 14, month: 1, name: "Стары Новы год", poems: ["Маразь, зоркі і коні"] },
+    { day: 19, month: 1, name: "Вадохрышча", poems: ["Калі рака шэпча"] },
+    { day: 25, month: 1, name: "Дзень беларускай навукі", poems: ["Чыстая лірыка"] },
+    { day: 2, month: 2, name: "Грамніцы", poems: ["Зіма", "Маразь"] },
+    { day: 15, month: 2, name: "Дзень памяці воінаў", poems: ["Будзь цвёрды"] },
+    { day: 21, month: 2, name: "Дзень роднай мовы", poems: ["А хто там ідзе", "Родная мова"] },
+    { day: 23, month: 2, name: "Дзень абаронцаў Айчыны", poems: ["Будзь цвёрды"] },
+    // Вясна
+    { day: 15, month: 3, name: "Дзень Канстытуцыі", poems: ["А хто там ідзе"] },
+    { day: 21, month: 3, name: "Сусветны дзень паэзіі", poems: ["Чыстая лірыка", "Маладыя гады"] },
+    { day: 2, month: 4, name: "Дзень яднання народаў", poems: ["Родная мова"] },
+    { day: 7, month: 5, name: "Радаўніца", poems: ["Звон кафедры", "Памяць"] },
+    // Лета
+    { day: 3, month: 7, name: "Дзень Незалежнасці", poems: ["А хто там ідзе", "Спадчына"] },
+    { day: 7, month: 7, name: "Купалле / Дзень нараджэння Янкі Купалы", poems: ["Гукі Купалы", "А хто там ідзе"] },
+    // Восень
+    { day: 1, month: 9, name: "Дзень беларускага пісьменства", poems: ["Родная мова", "Спадчына"] },
+    { day: 17, month: 9, name: "Дзень нараджэння Максіма Танка", poems: ["Горкі, салодкі хлеб"] },
+    { day: 3, month: 11, name: "Дзень нараджэння Якуба Коласа", poems: ["Вы пачуеце Коласа", "Дзед Мароз"] },
+  ];
 
-  const author2 = await prisma.author.create({
-    data: { name: "Михаил Лермонтов", slug: "mikhail-lermontov" },
-  });
-
-  // Создаём категории
-  const category1 = await prisma.category.create({
-    data: { name: "Лирика", slug: "lyric" },
-  });
-  const category2 = await prisma.category.create({
-    data: { name: "Эпос", slug: "epic" },
-  });
-
-  // Праздники и стихи
-  await prisma.holiday.createMany({
-    data: [
-      {
-        name: "Масленица",
-        slug: "maslenitsa",
-        day: 7,
-        month: 3,
-        season: Season.SPRING,
-      },
-      {
-        name: "Новый Год",
-        slug: "new-year",
-        day: 1,
-        month: 1,
-        season: Season.WINTER,
-      },
-    ],
-  });
-
-  // Создаём стихи и связываем с праздниками
-  const maslenitsa = await prisma.holiday.findUnique({
-    where: { slug: "maslenitsa" },
-  });
-  const newYear = await prisma.holiday.findUnique({
-    where: { slug: "new-year" },
-  });
-
-  if (maslenitsa && newYear) {
-    await prisma.poem.createMany({
-      data: [
-        {
-          title: "Весёлый стих про Масленицу",
-          slug: "happy-maslenitsa",
-          content: "Стих про блины и веселье...",
-          authorId: author1.id,
-        },
-        {
-          title: "Новогодний стих",
-          slug: "new-year-poem",
-          content: "Стих про ёлку и подарки...",
-          authorId: author2.id,
-        },
-      ],
-    });
-
-    // Связываем поэмы с праздниками (M:N)
-    const maslenitsaPoem = await prisma.poem.findUnique({
-      where: { slug: "happy-maslenitsa" },
-    });
-    const newYearPoem = await prisma.poem.findUnique({
-      where: { slug: "new-year-poem" },
-    });
-
-    if (maslenitsaPoem) {
-      await prisma.holiday.update({
-        where: { id: maslenitsa.id },
-        data: { poems: { connect: { id: maslenitsaPoem.id } } },
-      });
-    }
-
-    if (newYearPoem) {
-      await prisma.holiday.update({
-        where: { id: newYear.id },
-        data: { poems: { connect: { id: newYearPoem.id } } },
-      });
-    }
+  // Функция для создания slug из названия
+  function createSlug(name: string): string {
+    return name
+      .toLowerCase()
+      .replace(/[^a-zа-яёўі0-9\s]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/[ё]/g, 'yo')
+      .replace(/[ў]/g, 'w')
+      .replace(/[і]/g, 'i')
+      .replace(/[а-я]/g, (char) => {
+        const mapping: Record<string, string> = {
+          'а': 'a', 'б': 'b', 'в': 'v', 'г': 'h', 'д': 'd',
+          'е': 'e', 'ж': 'zh', 'з': 'z', 'і': 'i', 'й': 'j',
+          'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o',
+          'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u',
+          'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh',
+          'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya',
+        };
+        return mapping[char] || char;
+      })
+      .replace(/--+/g, '-')
+      .replace(/^-|-$/g, '');
   }
 
-  console.log("Seed finished");
+  // Определение сезона по месяцу
+  function getSeason(month: number): Season {
+    if (month === 12 || month === 1 || month === 2) return Season.WINTER;
+    if (month >= 3 && month <= 5) return Season.SPRING;
+    if (month >= 6 && month <= 8) return Season.SUMMER;
+    return Season.AUTUMN;
+  }
+
+  // Создаем праздники и связываем со стихами
+  for (const holidayData of holidaysData) {
+    const slug = createSlug(holidayData.name);
+    const season = getSeason(holidayData.month);
+
+    // Находим стихи по названиям
+    const poemSlugs = holidayData.poems.map(poemTitle => {
+      // Сопоставление названий стихов с slug из poemsData
+      const found = poemsData.find(p => p.title === poemTitle);
+      return found ? found.slug : null;
+    }).filter(Boolean) as string[];
+
+    const poems = await prisma.poem.findMany({
+      where: { slug: { in: poemSlugs } },
+    });
+
+    const holiday = await prisma.holiday.upsert({
+      where: { slug },
+      update: {
+        name: holidayData.name,
+        day: holidayData.day,
+        month: holidayData.month,
+        season,
+        poems: {
+          set: poems.map(p => ({ id: p.id })),
+        },
+      },
+      create: {
+        name: holidayData.name,
+        slug,
+        day: holidayData.day,
+        month: holidayData.month,
+        season,
+        poems: {
+          connect: poems.map(p => ({ id: p.id })),
+        },
+      },
+    });
+    console.log(`✅ Created holiday: ${holiday.name} (${holiday.day}.${holiday.month})`);
+  }
+
+  console.log("✅ Created holidays");
+
+  // Создаем слайды для сезонов
+  const seasonSlidesData = [
+    {
+      title: "Зіма",
+      subtitle: "Снежныя дні",
+      season: Season.WINTER,
+      imageUrl: "/images/seasons/winter.jpg",
+      altText: "Winter",
+      order: 1,
+      isActive: true,
+    },
+    {
+      title: "Вясна",
+      subtitle: "Цвіценне",
+      season: Season.SPRING,
+      imageUrl: "/images/seasons/spring.jpg",
+      altText: "Spring",
+      order: 2,
+      isActive: true,
+    },
+    {
+      title: "Лета",
+      subtitle: "Сонечныя дні",
+      season: Season.SUMMER,
+      imageUrl: "/images/seasons/summer.jpg",
+      altText: "Summer",
+      order: 3,
+      isActive: true,
+    },
+  ];
+
+  for (const slideData of seasonSlidesData) {
+    await prisma.seasonSlide.upsert({
+      where: {
+        season_order: {
+          season: slideData.season,
+          order: slideData.order,
+        }
+      },
+      update: slideData,
+      create: slideData,
+    });
+  }
+
+  console.log("✅ Created season slides");
 
   console.log("✅ Created 50+ Belarusian poems");
   console.log("🎉 Seeding completed successfully!");

@@ -17,6 +17,7 @@ import { EmailConfirmationModule } from './auth/email-confirmation/email-confirm
 import { PasswordRecoveryModule } from './auth/password-recovery/password-recovery.module';
 import { HolidaysModule } from './holidays/holidays.module';
 import { AuthorsModule } from './authors/authors.module';
+import { SeasonSlidesModule } from './season-slides/season-slides.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { AuthorsModule } from './authors/authors.module';
     PasswordRecoveryModule,
     HolidaysModule,
     AuthorsModule,
+    SeasonSlidesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
