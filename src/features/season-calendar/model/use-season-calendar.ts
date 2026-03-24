@@ -5,14 +5,12 @@ import type { Holiday } from "@/src/shared/types/holiday.types";
 
 interface UseSeasonCalendarProps {
   holidays: Holiday[];
-  months: string[];
   monthNumbers: number[];
   year: number;
 }
 
 export const useSeasonCalendar = ({
   holidays,
-  months,
   monthNumbers,
   year,
 }: UseSeasonCalendarProps) => {

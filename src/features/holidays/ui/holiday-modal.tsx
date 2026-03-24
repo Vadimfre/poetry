@@ -168,7 +168,7 @@ export function HolidayModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-w-6xl w-[98vw] max-h-[95vh] p-0 gap-0 overflow-hidden border-0 bg-transparent shadow-2xl"
+        className="w-[98vw] max-w-none sm:w-[700px] sm:max-w-[700px] md:w-[1200px] md:max-w-[1200px] max-h-[95vh] p-0 gap-0 overflow-hidden border-0 bg-transparent shadow-2xl"
         showCloseButton={false}
         aria-describedby={undefined}
       >
@@ -236,7 +236,7 @@ export function HolidayModal({
 
               <div className="flex flex-col lg:flex-row min-h-[700px]">
                 {/* Left Side - Hero */}
-                <div className="relative lg:w-2/5 h-80 lg:h-auto overflow-hidden">
+                <div className="relative lg:w-1/2 h-96 lg:h-auto overflow-hidden">
                   {holiday.image ? (
                     <>
                       <Image
@@ -265,7 +265,7 @@ export function HolidayModal({
                   )}
 
                   {/* Hero Content Overlay */}
-                  <div className="absolute inset-0 flex flex-col justify-end p-8 lg:p-10">
+                  <div className="absolute inset-0 grid grid-rows-[auto] content-start p-10 lg:p-12 gap-6">
                     {/* Season Badge */}
                     <Badge className="w-fit mb-4 bg-white/10 backdrop-blur-md text-white border-white/20 px-4 py-1.5">
                       <Star className="w-3.5 h-3.5 mr-2" />
@@ -288,7 +288,7 @@ export function HolidayModal({
                       </h2>
 
                       {holiday.description && (
-                        <p className="text-slate-300 text-lg leading-relaxed">
+                        <p className="text-slate-300 text-xl leading-relaxed">
                           {holiday.description}
                         </p>
                       )}
@@ -347,8 +347,8 @@ export function HolidayModal({
                       value="poems"
                       className="flex-1 mt-0 data-[state=inactive]:hidden"
                     >
-                      <ScrollArea className="h-[500px] lg:h-[580px]">
-                        <div className="p-8 space-y-6">
+                      <ScrollArea className="h-[550px] lg:h-[650px]">
+                        <div className="p-10 space-y-8">
                           {holiday.poems.length > 0 ? (
                             holiday.poems.map((poem, index) => (
                               <div
@@ -361,7 +361,7 @@ export function HolidayModal({
                                 )}
                               >
                                 {/* Poem Header */}
-                                <div className="p-6 pb-4 border-b border-slate-700/30">
+                                <div className="p-8 pb-6 border-b border-slate-700/30">
                                   <div className="flex items-start justify-between gap-4">
                                     <div className="flex-1">
                                       {/* Title Row */}
@@ -371,7 +371,7 @@ export function HolidayModal({
                                             {index + 1}
                                           </span>
                                         </div>
-                                        <h4 className="text-xl font-semibold text-white group-hover:text-amber-300 transition-colors">
+                                        <h4 className="text-2xl font-semibold text-white group-hover:text-amber-300 transition-colors">
                                           {poem.title}
                                         </h4>
                                         {poem.year && (
@@ -431,7 +431,7 @@ export function HolidayModal({
                                     </div>
 
                                     {/* Action Buttons */}
-                                    <div className="flex flex-col gap-2">
+                                    <div className="flex flex-col gap-3">
                                       <Button
                                         variant="ghost"
                                         size="icon"
@@ -474,7 +474,7 @@ export function HolidayModal({
                                   </div>
 
                                   {/* Stats */}
-                                  <div className="flex items-center gap-4 mt-4 pt-4 border-t border-slate-700/30">
+                                  <div className="flex items-center gap-6 mt-6 pt-6 border-t border-slate-700/30">
                                     <div className="flex items-center gap-1.5 text-slate-400 text-sm">
                                       <Eye className="w-4 h-4" />
                                       <span>{poem.views.toLocaleString()}</span>
@@ -505,16 +505,16 @@ export function HolidayModal({
                                 </div>
 
                                 {/* Poem Content */}
-                                <div className="p-6 pt-5">
+                                <div className="p-8 pt-6">
                                   {poem.description && (
                                     <p className="text-slate-400 text-sm mb-4 italic">
                                       {poem.description}
                                     </p>
                                   )}
-                                  <div className="relative pl-5 border-l-2 border-amber-500/40">
+                                  <div className="relative pl-6 border-l-2 border-amber-500/40">
                                     <p
                                       className={cn(
-                                        "text-slate-200 whitespace-pre-line font-serif text-lg leading-loose",
+                                        "text-slate-200 whitespace-pre-line font-serif text-xl leading-loose",
                                         expandedPoem !== poem.id &&
                                           "line-clamp-6",
                                       )}
@@ -552,7 +552,7 @@ export function HolidayModal({
                                 </div>
 
                                 {/* Open Full Button */}
-                                <div className="px-6 pb-6">
+                                <div className="px-8 pb-8">
                                   <Button
                                     className="w-full bg-slate-700/50 hover:bg-slate-700 text-white border border-slate-600/50 gap-2"
                                     variant="outline"
@@ -589,9 +589,9 @@ export function HolidayModal({
                       value="info"
                       className="flex-1 mt-0 data-[state=inactive]:hidden"
                     >
-                      <ScrollArea className="h-[500px] lg:h-[580px]">
-                        <div className="p-8">
-                          <div className="rounded-2xl bg-slate-800/50 border border-slate-700/50 p-8">
+                      <ScrollArea className="h-[550px] lg:h-[650px]">
+                        <div className="p-10">
+                          <div className="rounded-2xl bg-slate-800/50 border border-slate-700/50 p-10">
                             <h3 className="text-2xl font-serif text-white mb-6">
                               Пра свята «{holiday.name}»
                             </h3>

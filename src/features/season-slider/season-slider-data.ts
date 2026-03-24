@@ -12,7 +12,7 @@ export const seasonMap = {
 export const seasonColors = {
   spring: "#ff00be", // зелёный
   summer: "#FF9800", // оранжевый
-  autumn: "#fe9900", // коричневый
+  autumn: "#ff4500", // коричневый
   winter: "#2196F3", // синий
 };
 

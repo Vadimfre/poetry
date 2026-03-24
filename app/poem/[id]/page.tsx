@@ -9,7 +9,8 @@ interface PageProps {
 export default function PoemPage({ params }: PageProps) {
   return (
     <div>
-      <PoemViewSection poemId={params.id} />
+      {/* <PoemViewSection poemId={params.id} /> */}
+      Poem
     </div>
   )
 }

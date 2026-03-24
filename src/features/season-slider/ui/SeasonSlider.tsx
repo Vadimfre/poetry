@@ -7,11 +7,24 @@ import DotsNavigation from "./DotsNavigation";
 import ProgressBar from "./ProgressBar";
 import { SeasonSlide } from "./SeasonSlide";
 import { useSeasonSlides } from "../model/use-season-slides";
+import { HolidayModal } from "../../holidays/ui/holiday-modal";
+import { useState } from "react";
+import { useSeasonDay } from "../model/use-season-day";
+import { useSeasonCalendar } from "../../season-calendar/model/use-season-calendar";
 
 export default function SeasonSlider() {
   const { data: slides, isLoading } = useSeasonSlides();
 
-  const { currentSlide, nextSlide, prevSlide, goToSlide } = useSlider(slides?.length || 0);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // const { selectedDay, currentMonthNumber } = useSeasonCalendar();
+
+  // const {} = useSeasonDay();
+
+  const { currentSlide, nextSlide, prevSlide, goToSlide } = useSlider(
+    slides?.length || 0,
+  );
 
   if (isLoading) {
     return (
@@ -54,8 +67,8 @@ export default function SeasonSlider() {
           slides.length === 1
             ? 1
             : slides.length > 1
-            ? currentSlide / (slides.length - 1)
-            : 0
+              ? currentSlide / (slides.length - 1)
+              : 0
         }
       />
     </div>

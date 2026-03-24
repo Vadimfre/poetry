@@ -33,7 +33,7 @@ export const holidaysApi = {
       holidays = await holidaysApi.getBySeason(season);
     } else {
       // Загружаем все праздники
-      const all = await holidaysApi.getAll(1, 1000); // поднимаем лимит
+      const all = await holidaysApi.getAll(1, 1000);
       holidays = all.holidays;
     }
 

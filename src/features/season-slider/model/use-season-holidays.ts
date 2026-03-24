@@ -1,4 +1,3 @@
-// src/features/season-slider/model/use-season-holidays.ts
 import { useQueries } from "@tanstack/react-query";
 import { holidaysApi } from "@/src/shared/api";
 import { Season } from "@/src/shared/types";
