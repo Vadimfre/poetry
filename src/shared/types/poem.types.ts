@@ -24,14 +24,14 @@ export interface Poem {
   description: string | null;
 
   authorId: number;
-  author?: Author;
+  author: Author;
 
   year: number | null;
-  videoUrl: string | null;
+  videoUrl: string;
   views: number;
   likes: number;
 
-  categories?: Category[];
+  categories: Category[];
 
   comments?: Comment[];
   isFavorited?: boolean;

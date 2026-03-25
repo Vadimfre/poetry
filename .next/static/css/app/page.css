@@ -3594,6 +3594,1103 @@
   }
 }
 
+/*!*********************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[3]!./src/features/holidays/ui/loading-state.module.css ***!
+  \*********************************************************************************************************************************************************************************************************************************************************************************************/
+.loading-state_loadingContainer__DyTrV {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 550px;
+  border-radius: 1.5rem;
+  background: linear-gradient(135deg, #0f172a, #1e293b, #0f172a);
+}
+
+.loading-state_loadingContent__YoFJd {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.loading-state_loadingGlow__NyOVE {
+  position: relative;
+}
+
+.loading-state_loadingPulse__Ny7Od {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background-color: rgba(245, 158, 11, 0.3);
+  filter: blur(1rem);
+  animation: loading-state_pulse__tGeT6 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.loading-state_loadingIconWrapper__RvdZk {
+  position: relative;
+  z-index: 10;
+  padding: 1.25rem;
+  border-radius: 9999px;
+  background-color: rgba(30, 41, 59, 0.8);
+  border: 1px solid #334155;
+}
+
+.loading-state_loadingIcon__yDC2k {
+  width: 3.5rem;
+  height: 3.5rem;
+  color: #fbbf24;
+  animation: loading-state_pulse__tGeT6 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.loading-state_loadingText__XzJqC {
+  text-align: center;
+}
+
+.loading-state_loadingTitle__nTvnL {
+  color: #cbd5e1;
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+.loading-state_loadingSubtitle__wCEI8 {
+  color: #64748b;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+@keyframes loading-state_pulse__tGeT6 {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+/*!***********************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[3]!./components/PoemCard/PoemCard.module.css ***!
+  \***********************************************************************************************************************************************************************************************************************************************************************************/
+/* Main card container */
+.PoemCard_card__YipZr {
+  position: relative;
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: all 0.3s;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.PoemCard_card__YipZr:hover {
+  border-color: rgba(251, 191, 36, 0.5);
+  box-shadow: 0 25px 50px -12px rgba(245, 158, 11, 0.2);
+}
+
+/* Decorative quote */
+.PoemCard_decorativeQuote__72r6t {
+  position: absolute;
+  top: -1rem;
+  right: -1rem;
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+.PoemCard_decorativeQuote__72r6t svg {
+  width: 6rem;
+  height: 6rem;
+  color: white;
+}
+
+/* Header */
+.PoemCard_header__NSRqn {
+  position: relative;
+  padding: 1.5rem;
+  padding-bottom: 1rem;
+}
+
+.PoemCard_headerContent__XuZml {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.PoemCard_titleRow__Dlcdq {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.PoemCard_indexBadge__FQqrV {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #fbbf24, #f97316);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.3);
+  flex-shrink: 0;
+}
+
+.PoemCard_indexText__9cDQh {
+  font-size: 0.875rem;
+  font-weight: bold;
+  color: white;
+}
+
+.PoemCard_titleContainer__Ky0hW {
+  flex: 1;
+  min-width: 0;
+}
+
+.PoemCard_title__Ttq1a {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: white;
+  transition: color 0.3s;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.PoemCard_card__YipZr:hover .PoemCard_title__Ttq1a {
+  color: #fcd34d;
+}
+
+.PoemCard_year__MCESW {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* Author info */
+.PoemCard_authorInfo__rOHQJ {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.PoemCard_authorImage__n0Nxf {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 9999px;
+  object-fit: cover;
+  border: 2px solid rgba(251, 191, 36, 0.3);
+}
+
+.PoemCard_authorPlaceholder__KqGfR {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #475569, #334155);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.PoemCard_authorPlaceholder__KqGfR svg {
+  width: 1rem;
+  height: 1rem;
+  color: #cbd5e1;
+}
+
+.PoemCard_authorDetails__r8kRa {
+  display: flex;
+  flex-direction: column;
+}
+
+.PoemCard_authorName__q4WTt {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+}
+
+.PoemCard_authorYears__o05he {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* Categories */
+.PoemCard_categories__ns4NH {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.PoemCard_categoryBadge__fwzji {
+  background: linear-gradient(to right, rgba(71, 85, 105, 0.5), rgba(51, 65, 85, 0.5));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+}
+
+.PoemCard_categoryBadge__fwzji:hover {
+  background: linear-gradient(to right, rgba(245, 158, 11, 0.2), rgba(249, 115, 22, 0.2));
+}
+
+/* Action buttons */
+.PoemCard_actionButtons__KbR2C {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.PoemCard_actionButton__bT040 {
+  border-radius: 0.75rem;
+  height: 2.5rem;
+  width: 2.5rem;
+  transition: all 0.3s;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.PoemCard_likeButton__V12AR {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.PoemCard_likeButton__V12AR:hover {
+  color: #fb7185;
+  border-color: rgba(251, 113, 133, 0.5);
+  background-color: rgba(251, 113, 133, 0.1);
+}
+
+.PoemCard_likeButtonActive__9Ocko {
+  background: linear-gradient(135deg, #f43f5e, #ec4899);
+  color: white;
+  border-color: #f43f5e;
+  box-shadow: 0 10px 15px -3px rgba(244, 63, 94, 0.3);
+}
+
+.PoemCard_saveButton__kpCXE {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.PoemCard_saveButton__kpCXE:hover {
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.5);
+  background-color: rgba(251, 191, 36, 0.1);
+}
+
+.PoemCard_saveButtonActive__urxhR {
+  background: linear-gradient(135deg, #fbbf24, #f97316);
+  color: white;
+  border-color: #fbbf24;
+  box-shadow: 0 10px 15px -3px rgba(251, 191, 36, 0.3);
+}
+
+.PoemCard_actionIcon__5DdBL {
+  width: 1rem;
+  height: 1rem;
+}
+
+.PoemCard_actionIconFilled__nSJld {
+  fill: currentColor;
+}
+
+/* Stats */
+.PoemCard_stats__KjYkP {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.PoemCard_statItem__MjBot {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: #cbd5e1;
+  font-size: 0.875rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.5rem;
+}
+
+.PoemCard_statIcon__bWKwQ {
+  width: 1rem;
+  height: 1rem;
+}
+
+.PoemCard_viewsIcon__UoDgQ {
+  color: #94a3b8;
+}
+
+.PoemCard_likesIcon__CP_P2 {
+  color: #fb7185;
+}
+
+.PoemCard_commentsIcon__coP3B {
+  color: #94a3b8;
+}
+
+.PoemCard_videoLink__D8utL {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: #fb7185;
+  font-size: 0.875rem;
+  margin-left: auto;
+  background-color: rgba(251, 113, 133, 0.1);
+  padding: 0.375rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(251, 113, 133, 0.3);
+  transition: all 0.2s;
+}
+
+.PoemCard_videoLink__D8utL:hover {
+  color: #fda4af;
+  background-color: rgba(251, 113, 133, 0.2);
+  border-color: rgba(251, 113, 133, 0.5);
+}
+
+.PoemCard_videoIcon__DRq3T {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Divider */
+.PoemCard_divider__lQR1S {
+  margin: 0 1.5rem;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+}
+
+/* Content */
+.PoemCard_content__CFbPa {
+  padding: 1.5rem;
+  padding-top: 1.25rem;
+}
+
+.PoemCard_description__G_x3D {
+  color: #cbd5e1;
+  font-size: 0.875rem;
+  font-style: italic;
+  line-height: 1.625;
+  margin-bottom: 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  border-left: 2px solid rgba(251, 191, 36, 0.5);
+}
+
+.PoemCard_poemContent__eYuwY {
+  position: relative;
+}
+
+.PoemCard_verticalLine__Lq4qD {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0.25rem;
+  background: linear-gradient(to bottom, #fbbf24, #f97316, #fbbf24);
+  border-radius: 9999px;
+}
+
+.PoemCard_text__V_5Hb {
+  color: #f1f5f9;
+  white-space: pre-line;
+  font-family: serif;
+  font-size: 1rem;
+  line-height: 1.625;
+  padding-left: 1.25rem;
+}
+
+.PoemCard_textCollapsed___HT8V {
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.PoemCard_expandButton__Q04s6 {
+  margin-top: 1rem;
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  background-color: transparent;
+  gap: 0.5rem;
+  height: 2.25rem;
+  padding: 0 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.PoemCard_expandButton__Q04s6:hover {
+  color: #fcd34d;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(251, 191, 36, 0.5);
+}
+
+.PoemCard_expandIcon__qpcdG {
+  width: 1rem;
+  height: 1rem;
+  transition: transform 0.3s;
+}
+
+.PoemCard_expandIconRotated__0e1iP {
+  transform: rotate(180deg);
+}
+
+/* Footer */
+.PoemCard_footer__Lf8MR {
+  padding: 0 1.5rem 1.5rem;
+}
+
+.PoemCard_fullPageButton__klh1B {
+  width: 100%;
+  background: linear-gradient(to right, rgba(251, 191, 36, 0.2), rgba(249, 115, 22, 0.2));
+  color: #fcd34d;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  gap: 0.5rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.PoemCard_fullPageButton__klh1B:hover {
+  background: linear-gradient(to right, rgba(251, 191, 36, 0.3), rgba(249, 115, 22, 0.3));
+  color: #fde68a;
+  border-color: rgba(251, 191, 36, 0.5);
+}
+
+.PoemCard_fullPageIcon__xTgwn {
+  width: 1rem;
+  height: 1rem;
+}
+/*!*******************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[3]!./src/features/holidays/ui/empty-state.module.css ***!
+  \*******************************************************************************************************************************************************************************************************************************************************************************************/
+.empty-state_emptyContainer__U5Kay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1rem;
+  text-align: center;
+}
+
+.empty-state_emptyIconWrapper__66XSv {
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background-color: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  margin-bottom: 1.25rem;
+}
+
+.empty-state_emptyIcon__pyPHs {
+  width: 4rem;
+  height: 4rem;
+  color: #475569;
+}
+
+.empty-state_emptyTitle__mIW6i {
+  color: #cbd5e1;
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+.empty-state_emptySubtitle___KCUD {
+  color: #64748b;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  max-width: 24rem;
+}
+
+.empty-state_emptyButton__yUsIE {
+  margin-top: 1.5rem;
+  background-color: #f59e0b;
+  color: #0f172a;
+  font-weight: 600;
+  padding: 1.25rem 1.5rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.empty-state_emptyButton__yUsIE:hover {
+  background-color: #d97706;
+}
+
+.empty-state_emptyButtonIcon__3_sob {
+  width: 1rem;
+  height: 1rem;
+}
+/*!****************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[3]!./src/features/holidays/ui/info-tab.module.css ***!
+  \****************************************************************************************************************************************************************************************************************************************************************************************/
+.info-tab_scrollArea__cjLin {
+  height: 480px;
+}
+
+@media (min-width: 1024px) {
+  .info-tab_scrollArea__cjLin {
+    height: 560px;
+  }
+}
+
+.info-tab_container__FlhiJ {
+  padding: 1.5rem;
+}
+
+.info-tab_card__VQ111 {
+  border-radius: 1rem;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(100, 116, 139, 0.5);
+  padding: 1.5rem;
+}
+
+.info-tab_title__f3k6P {
+  font-size: 1.25rem;
+  font-family: serif;
+  color: white;
+  margin-bottom: 1.25rem;
+}
+
+.info-tab_content__cfrc2 {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.info-tab_infoRow__Gjh84 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: rgba(51, 65, 85, 0.3);
+}
+
+.info-tab_infoIcon__XlL_W {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #fbbf24; /* amber-400 */
+  flex-shrink: 0;
+}
+
+.info-tab_infoLabel__NSPM7 {
+  font-size: 0.75rem;
+  color: rgb(148, 163, 184);
+}
+
+.info-tab_infoValue__ajZd_ {
+  font-size: 1rem;
+  color: white;
+  font-weight: 500;
+}
+
+.info-tab_section__lJppD {
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(100, 116, 139, 0.5);
+}
+
+.info-tab_sectionTitle__O1M_J {
+  font-size: 1rem;
+  font-weight: 500;
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.info-tab_description__6PauB {
+  color: rgb(203, 213, 225);
+  line-height: 1.6;
+  font-size: 0.875rem;
+}
+
+.info-tab_authorsContainer__9_RhX {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.info-tab_authorChip__zO36V {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.5rem;
+  background: rgba(51, 65, 85, 0.5);
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.info-tab_authorChip__zO36V:hover {
+  background: rgba(51, 65, 85, 0.8);
+}
+
+.info-tab_authorImage__Mv9Wo {
+  border-radius: 9999px;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.info-tab_authorPlaceholder__zGho3 {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 9999px;
+  background: rgb(71, 85, 105);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-tab_authorPlaceholderIcon__5BQBg {
+  width: 0.625rem;
+  height: 0.625rem;
+  color: rgb(148, 163, 184);
+}
+
+.info-tab_authorName__NQMqi {
+  font-size: 0.875rem;
+  color: rgb(226, 232, 240);
+  font-weight: 500;
+}
+/*!********************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[3]!./src/features/holidays/ui/hero-section.module.css ***!
+  \********************************************************************************************************************************************************************************************************************************************************************************************/
+.hero-section_container__iEldS {
+  position: relative;
+  width: 100%;
+  height: 18rem; /* h-72 */
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+@media (min-width: 1024px) {
+  .hero-section_container__iEldS {
+    width: 380px;
+    height: auto;
+  }
+}
+
+@media (min-width: 1280px) {
+  .hero-section_container__iEldS {
+    width: 420px;
+  }
+}
+
+.hero-section_content__wR6_Z {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .hero-section_content__wR6_Z {
+    padding: 2rem;
+  }
+}
+
+.hero-section_badge__bDxEG {
+  width: fit-content;
+  margin-bottom: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+}
+
+.hero-section_badgeIcon__HY73l {
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-right: 0.375rem;
+}
+
+.hero-section_dateContainer__nvc3s {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 0.75rem;
+}
+
+.hero-section_dateIconWrapper__FTITG {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+}
+
+.hero-section_dateIcon__rqbdo {
+  width: 1rem;
+  height: 1rem;
+  color: white;
+}
+
+.hero-section_dateText__GjRKN {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+}
+
+.hero-section_title__tx_O6 {
+  font-size: 1.875rem;
+  font-family: serif;
+  color: white;
+  margin-bottom: 0.75rem;
+  line-height: 1.2;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+@media (min-width: 1024px) {
+  .hero-section_title__tx_O6 {
+    font-size: 2.25rem;
+  }
+}
+
+.hero-section_description__33I_8 {
+  color: rgb(203, 213, 225);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+@media (min-width: 1024px) {
+  .hero-section_description__33I_8 {
+    font-size: 1rem;
+  }
+}
+
+.hero-section_statsContainer__2idAv {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.hero-section_statItem__9RMQP {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hero-section_statIcon__mdWNT {
+  width: 1rem;
+  height: 1rem;
+}
+
+.hero-section_statIconHeart__VQ1ZZ {
+  color: rgb(251, 113, 133); /* rose-400 */
+}
+
+.hero-section_statIconMessage__H4uos {
+  color: rgb(96, 165, 250); /* blue-400 */
+}
+
+.hero-section_statValue__eBthg {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+}
+
+/* HeroBackground styles */
+.hero-section_backgroundImage__GTDqo {
+  object-fit: cover;
+}
+
+.hero-section_gradientRight__JedIn {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, transparent, rgba(15, 23, 42, 0.5), rgb(15, 23, 42));
+}
+
+@media (max-width: 1023px) {
+  .hero-section_gradientRight__JedIn {
+    display: none;
+  }
+}
+
+.hero-section_gradientTop__ml2vk {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgb(15, 23, 42), rgba(15, 23, 42, 0.7), transparent);
+}
+
+@media (min-width: 1024px) {
+  .hero-section_gradientTop__ml2vk {
+    display: none;
+  }
+}
+
+.hero-section_fallbackBackground__2s282 {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom right, rgb(30, 41, 59), rgb(15, 23, 42));
+}
+
+.hero-section_fallbackPattern__IssZN {
+  position: absolute;
+  inset: 0;
+  opacity: 0.4;
+}
+
+.hero-section_pulseCircle1__VCoIl {
+  position: absolute;
+  top: 4rem;
+  left: 2rem;
+  width: 10rem;
+  height: 10rem;
+  background: rgba(245, 158, 11, 0.2);
+  border-radius: 9999px;
+  filter: blur(3rem);
+  animation: hero-section_pulse__wSqYk 4s infinite;
+}
+
+.hero-section_pulseCircle2__p_7uv {
+  position: absolute;
+  bottom: 4rem;
+  right: 2rem;
+  width: 13rem;
+  height: 13rem;
+  background: rgba(59, 130, 246, 0.15);
+  border-radius: 9999px;
+  filter: blur(3rem);
+  animation: hero-section_pulse__wSqYk 4s infinite;
+  animation-delay: 1s;
+}
+
+@keyframes hero-section_pulse__wSqYk {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+/*!*******************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[3]!./components/HolidayModal/HolidayModal.module.css ***!
+  \*******************************************************************************************************************************************************************************************************************************************************************************************/
+/* Main dialog content */
+.HolidayModal_dialogContent__96KTO {
+  width: 95vw !important;
+  max-width: none !important;
+  max-height: 95vh;
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+@media (min-width: 1200px) {
+  .HolidayModal_dialogContent__96KTO {
+    max-width: 1200px;
+  }
+}
+
+/* Container with gradient background */
+.HolidayModal_container__VyH3i {
+  position: relative;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  min-height: 620px;
+  display: flex;
+  flex-direction: column;
+}
+
+
+
+/* Background pattern */
+.HolidayModal_backgroundPattern__OkiH6 {
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+.HolidayModal_backgroundPatternInner__RHfo5 {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Header buttons */
+.HolidayModal_closeButton__mVp1Y {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 50;
+  padding: 0.625rem;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s;
+}
+
+.HolidayModal_closeButton__mVp1Y:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.HolidayModal_closeButtonIcon__uO9RZ {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: white;
+  transition: transform 0.3s;
+}
+
+.HolidayModal_closeButton__mVp1Y:hover .HolidayModal_closeButtonIcon__uO9RZ {
+  transform: rotate(90deg);
+}
+
+.HolidayModal_shareButton__7a4fj {
+  position: absolute;
+  top: 1.25rem;
+  right: 4rem;
+  z-index: 50;
+  padding: 0.625rem;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s;
+}
+
+.HolidayModal_shareButton__7a4fj:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.HolidayModal_shareButtonIcon__ezHAA {
+  width: 1rem;
+  height: 1rem;
+  color: white;
+}
+
+/* Content layout */
+.HolidayModal_contentRight__3C5Ld {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #192740;
+  backdrop-filter: blur(12px);
+  min-width: 0;
+}
+
+/* Tabs header */
+.HolidayModal_tabsHeader__xpAb7 {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.HolidayModal_tabsList__rowJf {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  padding: 0.25rem;
+  height: auto;
+  border-radius: 0.75rem;
+}
+
+.HolidayModal_tabTriggerBase__4Zp1s {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 0.625rem;
+  padding-bottom: 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  transition: all 0.3s;
+}
+
+.HolidayModal_tabIcon__a1gF4 {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+}
+
+/* Scroll area for poems */
+.HolidayModal_poemsScrollArea__j8UgP {
+  height: 480px;
+}
+
+@media (min-width: 1024px) {
+  .HolidayModal_poemsScrollArea__j8UgP {
+    height: 560px;
+  }
+}
+
+.HolidayModal_poemsContainer__PQUfk {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Main content layout */
+.HolidayModal_mainContent__LGrss {
+  display: flex;
+  flex-direction: column;
+  min-height: 620px;
+}
+
+@media (min-width: 1024px) {
+  .HolidayModal_mainContent__LGrss {
+    flex-direction: row;
+  }
+}
+
+/* Right content panel */
+.HolidayModal_contentRight__3C5Ld {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #192740;
+  backdrop-filter: blur(12px);
+  min-width: 0;
+}
+
+/* Bottom gradient line */
+.HolidayModal_bottomGradient__hFMZv {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 0.25rem;
+  background: linear-gradient(to right, transparent, rgba(245, 158, 11, 0.6), transparent);
+}
 /*!*******************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[3]!./components/PromoSection/PromoSection.module.css ***!
   \*******************************************************************************************************************************************************************************************************************************************************************************************/

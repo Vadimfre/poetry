@@ -11,6 +11,29 @@
       "static/chunks/main-app.js",
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
+    ],
+    "/author/[slug]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/author/[slug]/page.css",
+      "static/chunks/app/author/[slug]/page.js"
+    ],
+    "/poem/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/poem/[id]/page.js"
+    ],
+    "/poem/[id]/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/poem/[id]/layout.css",
+      "static/chunks/app/poem/[id]/layout.js"
+    ],
+    "/collection/[slug]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/collection/[slug]/page.css",
+      "static/chunks/app/collection/[slug]/page.js"
     ]
   }
 }

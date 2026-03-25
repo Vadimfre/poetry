@@ -7,7 +7,7 @@ import {
   HolidaysResponse,
 } from "@/src/shared/types/holiday.types";
 
-const seasons = [Season.WINTER, Season.SPRING, Season.SUMMER, Season.AUTUMN];
+export const seasons = [Season.WINTER, Season.SPRING, Season.SUMMER, Season.AUTUMN];
 
 export const useHolidays = (page = 1, limit = 20) => {
   return useQuery<HolidaysResponse>({

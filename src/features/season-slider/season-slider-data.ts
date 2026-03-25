@@ -42,3 +42,9 @@ export const seasonConfig = {
     color: seasonColors.winter,
   },
 };
+
+export const MONTH_NAMES = [
+  "студзеня", "лютага", "сакавіка", "красавіка", "мая", "чэрвеня",
+  "ліпеня", "жніўня", "верасня", "кастрычніка", "лістапада", "снежня"
+] as const
+

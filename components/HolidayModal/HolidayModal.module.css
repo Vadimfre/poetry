@@ -1,0 +1,190 @@
+/* Main dialog content */
+.dialogContent {
+  width: 95vw !important;
+  max-width: none !important;
+  max-height: 95vh;
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+@media (min-width: 1200px) {
+  .dialogContent {
+    max-width: 1200px;
+  }
+}
+
+/* Container with gradient background */
+.container {
+  position: relative;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  min-height: 620px;
+  display: flex;
+  flex-direction: column;
+}
+
+
+
+/* Background pattern */
+.backgroundPattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+.backgroundPatternInner {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Header buttons */
+.closeButton {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 50;
+  padding: 0.625rem;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s;
+}
+
+.closeButton:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.closeButtonIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: white;
+  transition: transform 0.3s;
+}
+
+.closeButton:hover .closeButtonIcon {
+  transform: rotate(90deg);
+}
+
+.shareButton {
+  position: absolute;
+  top: 1.25rem;
+  right: 4rem;
+  z-index: 50;
+  padding: 0.625rem;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s;
+}
+
+.shareButton:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.shareButtonIcon {
+  width: 1rem;
+  height: 1rem;
+  color: white;
+}
+
+/* Content layout */
+.contentRight {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #192740;
+  backdrop-filter: blur(12px);
+  min-width: 0;
+}
+
+/* Tabs header */
+.tabsHeader {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tabsList {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  padding: 0.25rem;
+  height: auto;
+  border-radius: 0.75rem;
+}
+
+.tabTriggerBase {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 0.625rem;
+  padding-bottom: 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  transition: all 0.3s;
+}
+
+.tabIcon {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+}
+
+/* Scroll area for poems */
+.poemsScrollArea {
+  height: 480px;
+}
+
+@media (min-width: 1024px) {
+  .poemsScrollArea {
+    height: 560px;
+  }
+}
+
+.poemsContainer {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Main content layout */
+.mainContent {
+  display: flex;
+  flex-direction: column;
+  min-height: 620px;
+}
+
+@media (min-width: 1024px) {
+  .mainContent {
+    flex-direction: row;
+  }
+}
+
+/* Right content panel */
+.contentRight {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #192740;
+  backdrop-filter: blur(12px);
+  min-width: 0;
+}
+
+/* Bottom gradient line */
+.bottomGradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 0.25rem;
+  background: linear-gradient(to right, transparent, rgba(245, 158, 11, 0.6), transparent);
+}

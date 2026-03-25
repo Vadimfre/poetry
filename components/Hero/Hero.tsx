@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import styles from "./Hero.module.css";
-import SeasonSlider from "@/src/features/season-slider/ui/SeasonSlider";
+import SeasonSlider from "../SeasonSlider/SeasonSlider";
 
 const Hero = () => {
   const [imageLoaded, setImageLoaded] = useState(false);

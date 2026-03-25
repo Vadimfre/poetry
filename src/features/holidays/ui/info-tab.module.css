@@ -1,0 +1,127 @@
+.scrollArea {
+  height: 480px;
+}
+
+@media (min-width: 1024px) {
+  .scrollArea {
+    height: 560px;
+  }
+}
+
+.container {
+  padding: 1.5rem;
+}
+
+.card {
+  border-radius: 1rem;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(100, 116, 139, 0.5);
+  padding: 1.5rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-family: serif;
+  color: white;
+  margin-bottom: 1.25rem;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: rgba(51, 65, 85, 0.3);
+}
+
+.infoIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #fbbf24; /* amber-400 */
+  flex-shrink: 0;
+}
+
+.infoLabel {
+  font-size: 0.75rem;
+  color: rgb(148, 163, 184);
+}
+
+.infoValue {
+  font-size: 1rem;
+  color: white;
+  font-weight: 500;
+}
+
+.section {
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(100, 116, 139, 0.5);
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 500;
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.description {
+  color: rgb(203, 213, 225);
+  line-height: 1.6;
+  font-size: 0.875rem;
+}
+
+.authorsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.authorChip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.5rem;
+  background: rgba(51, 65, 85, 0.5);
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.authorChip:hover {
+  background: rgba(51, 65, 85, 0.8);
+}
+
+.authorImage {
+  border-radius: 9999px;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.authorPlaceholder {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 9999px;
+  background: rgb(71, 85, 105);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.authorPlaceholderIcon {
+  width: 0.625rem;
+  height: 0.625rem;
+  color: rgb(148, 163, 184);
+}
+
+.authorName {
+  font-size: 0.875rem;
+  color: rgb(226, 232, 240);
+  font-weight: 500;
+}

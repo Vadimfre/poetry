@@ -8,7 +8,7 @@ import CalendarHeader from "./CalendarHeader";
 import CalendarDays from "./CalendarDays";
 import { useHolidaysByMonthAndDay } from "../../holidays/model/use-holidays";
 import { seasonMap } from "../../season-slider/season-slider-data";
-import { HolidayModal } from "../../holidays/ui/holiday-modal";
+import { HolidayModal } from "../../../../components/HolidayModal/holiday-modal";
 
 interface SeasonCalendarProps {
   season: "spring" | "summer" | "autumn" | "winter";
