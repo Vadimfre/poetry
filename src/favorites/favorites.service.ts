@@ -1,22 +1,29 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import {
+  FavoriteResponseDto,
+  ToggleFavoriteResponseDto,
+} from "./dto/favorite-response.dto";
 
 @Injectable()
 export class FavoritesService {
   constructor(private prisma: PrismaService) {}
 
-  async addToFavorites(userId: number, poemId: number) {
-    // Check if poem exists
+  async toggleFavorite(
+    userId: number,
+    poemId: number,
+  ): Promise<ToggleFavoriteResponseDto> {
+    // Проверяем существование стихотворения
     const poem = await this.prisma.poem.findUnique({
       where: { id: poemId },
     });
 
     if (!poem) {
-      throw new NotFoundException('Poem not found');
+      throw new NotFoundException("Стихотворение не найдено");
     }
 
-    // Check if already in favorites
-    const existing = await this.prisma.favorite.findUnique({
+    // Ищем существующий избранный
+    const existingFavorite = await this.prisma.favorite.findUnique({
       where: {
         userId_poemId: {
           userId,
@@ -25,27 +32,86 @@ export class FavoritesService {
       },
     });
 
-    if (existing) {
-      throw new ConflictException('Poem already in favorites');
-    }
-
-    return this.prisma.favorite.create({
-      data: {
-        userId,
-        poemId,
-      },
-      include: {
-        poem: {
-          include: {
-            author: true,
-            categories: true,
+    return this.prisma.$transaction(async (tx) => {
+      if (existingFavorite) {
+        // Удаляем из избранного и уменьшаем счетчик
+        await tx.favorite.delete({
+          where: {
+            id: existingFavorite.id,
           },
-        },
-      },
+        });
+
+        const updatedPoem = await tx.poem.update({
+          where: { id: poemId },
+          data: {
+            favoritesCount: {
+              decrement: 1,
+            },
+          },
+        });
+
+        return {
+          isFavorite: false,
+          favoritesCount: updatedPoem.favoritesCount,
+        };
+      } else {
+        // Добавляем в избранное и увеличиваем счетчик
+        await tx.favorite.create({
+          data: {
+            userId,
+            poemId,
+          },
+        });
+
+        const updatedPoem = await tx.poem.update({
+          where: { id: poemId },
+          data: {
+            favoritesCount: {
+              increment: 1,
+            },
+          },
+        });
+
+        return {
+          isFavorite: true,
+          favoritesCount: updatedPoem.favoritesCount,
+        };
+      }
     });
   }
 
-  async removeFromFavorites(userId: number, poemId: number) {
+  async isFavorite(userId: number, poemId: number): Promise<boolean> {
+    const favorite = await this.prisma.favorite.findUnique({
+      where: {
+        userId_poemId: {
+          userId,
+          poemId,
+        },
+      },
+    });
+
+    return !!favorite;
+  }
+
+  async getUserFavorites(userId: number): Promise<FavoriteResponseDto[]> {
+    const favorites = await this.prisma.favorite.findMany({
+      where: { userId },
+      include: {
+        poem: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return favorites.map((fav) => ({
+      id: fav.id,
+      userId: fav.userId,
+      poemId: fav.poemId,
+      createdAt: fav.createdAt,
+      poem: fav.poem,
+    }));
+  }
+
+  async removeFavorite(userId: number, poemId: number): Promise<void> {
     const favorite = await this.prisma.favorite.findUnique({
       where: {
         userId_poemId: {
@@ -56,49 +122,11 @@ export class FavoritesService {
     });
 
     if (!favorite) {
-      throw new NotFoundException('Favorite not found');
+      throw new NotFoundException("Запись в избранном не найдена");
     }
 
     await this.prisma.favorite.delete({
-      where: {
-        id: favorite.id,
-      },
+      where: { id: favorite.id },
     });
-
-    return { message: 'Removed from favorites' };
-  }
-
-  async getUserFavorites(userId: number) {
-    return this.prisma.favorite.findMany({
-      where: { userId },
-      include: {
-        poem: {
-          include: {
-            author: true,
-            categories: true,
-            _count: {
-              select: {
-                comments: true,
-                favorites: true,
-              },
-            },
-          },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
-
-  async checkFavorite(userId: number, poemId: number) {
-    const favorite = await this.prisma.favorite.findUnique({
-      where: {
-        userId_poemId: {
-          userId,
-          poemId,
-        },
-      },
-    });
-
-    return { isFavorite: !!favorite };
   }
 }

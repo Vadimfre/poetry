@@ -231,4 +231,52 @@ export class PoemsService {
 
     return author;
   }
+
+  async getStats(poemId: number, userId?: number) {
+    const poem = await this.prisma.poem.findUnique({
+      where: { id: poemId },
+      select: {
+        views: true,
+        likesCount: true,
+        commentsCount: true,
+      },
+    });
+
+    if (!poem) {
+      throw new NotFoundException("Стихотворение не найдено");
+    }
+
+    // Получаем актуальное количество избранных (лайков) через агрегацию
+    const favoritesCount = await this.prisma.favorite.count({
+      where: { poemId },
+    });
+
+    // Получаем актуальное количество комментариев через агрегацию
+    const commentsCount = await this.prisma.comment.count({
+      where: { poemId },
+    });
+
+    let isFavorited = false;
+    if (userId) {
+      const favorite = await this.prisma.favorite.findUnique({
+        where: {
+          userId_poemId: {
+            userId,
+            poemId,
+          },
+        },
+      });
+      isFavorited = !!favorite;
+    }
+
+    return {
+      poemId,
+      views: poem.views,
+      likesCount: poem.likesCount, // поле из модели, может быть устаревшим
+      favoritesCount,
+      commentsCount,
+      isFavorited,
+      updatedAt: new Date().toISOString(),
+    };
+  }
 }

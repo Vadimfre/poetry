@@ -9,38 +9,57 @@ import {
   UseGuards,
   Req,
   ParseIntPipe,
-} from '@nestjs/common';
-import { CommentsService } from './comments.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+  Query,
+} from "@nestjs/common";
+import { CommentsService } from "./comments.service";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { CreateCommentDto } from "./dto/create-comment.dto";
+import { UpdateCommentDto } from "./dto/update-comment.dto";
+import { CommentQueryDto } from "./dto/comment-query.dto";
 
-@Controller('comments')
+@Controller("comments")
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Post()
-  async create(@Req() req: any, @Body() body: { poemId: number; text: string }) {
-    return this.commentsService.create(req.user.id, body.poemId, body.text);
+  @Post("poem/:poemId")
+  async create(
+    @Param("poemId", ParseIntPipe) poemId: number,
+    @Req() req: any,
+    @Body() createCommentDto: CreateCommentDto,
+  ) {
+    return this.commentsService.create(
+      req.user.id,
+      poemId,
+      createCommentDto.text,
+      createCommentDto.parentId,
+    );
   }
 
-  @Get('poem/:poemId')
-  async findByPoem(@Param('poemId', ParseIntPipe) poemId: number) {
+  @Get("poem/:poemId")
+  async findByPoem(@Param("poemId", ParseIntPipe) poemId: number) {
     return this.commentsService.findByPoem(poemId);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Put(':id')
+  @Put(":id")
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param("id", ParseIntPipe) id: number,
     @Req() req: any,
-    @Body() body: { text: string },
+    @Body() updateCommentDto: UpdateCommentDto,
   ) {
-    return this.commentsService.update(id, req.user.id, body.text);
+    return this.commentsService.update(id, req.user.id, updateCommentDto.text);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete(':id')
-  async delete(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+  @Delete(":id")
+  async delete(@Param("id", ParseIntPipe) id: number, @Req() req: any) {
     return this.commentsService.delete(id, req.user.id);
+  }
+
+  @Get("poem/:poemId/count")
+  async getCommentCount(@Param("poemId", ParseIntPipe) poemId: number) {
+    const count = await this.commentsService.getCommentCount(poemId);
+    return { count };
   }
 }

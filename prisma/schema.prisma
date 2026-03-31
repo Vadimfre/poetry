@@ -43,13 +43,19 @@ model User {
 
   comments  Comment[]
   favorites Favorite[]
+  likes     Like[]
+  tokens    Token[]
 }
 
 model Token {
-  id String @id @default(uuid())
+  id    String @id @default(uuid())
+  email String
 
-  email     String
-  token     String    @unique
+  token String @unique
+
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id])
+
   type      TokenType
   expiresIn DateTime
 }
@@ -82,28 +88,94 @@ model Category {
 
 // Стихотворение
 model Poem {
-  id          Int      @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   title       String
-  slug        String   @unique
-  content     String   @db.Text
-  description String?  @db.Text
+  slug        String  @unique
+  content     String  @db.Text
+  description String? @db.Text
   authorId    Int
   year        Int?
   videoUrl    String?
-  views       Int      @default(0)
-  likes       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  views          Int @default(0)
+  likesCount     Int @default(0)
+  commentsCount  Int @default(0)
+  favoritesCount Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   author     Author     @relation(fields: [authorId], references: [id])
   categories Category[] @relation("PoemCategories")
-  comments   Comment[]
-  favorites  Favorite[]
-  holidays   Holiday[] @relation("HolidayPoems")
+  holidays   Holiday[]  @relation("HolidayPoems")
+
+  favorites Favorite[]
+  likes     Like[]
+  comments  Comment[]
 
   @@index([authorId])
 }
 
+model Like {
+  id Int @id @default(autoincrement())
+
+  userId Int
+  poemId Int
+
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  poem      Poem     @relation(fields: [poemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, poemId])
+  @@index([poemId])
+}
+
+// Комментарий к стихотворению
+model Comment {
+  id        Int      @id @default(autoincrement())
+  text      String   @db.Text
+  userId    Int
+  poemId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  parentId  Int? // 🔥 ВОТ ЭТО
+
+  user User @relation(fields: [userId], references: [id])
+  poem Poem @relation(fields: [poemId], references: [id], onDelete: Cascade)
+
+  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies Comment[] @relation("CommentReplies")
+
+  @@index([poemId])
+  @@index([userId])
+}
+
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  poemId    Int
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  poem Poem @relation(fields: [poemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, poemId])
+  @@index([userId])
+  @@index([poemId])
+}
+
+model View {
+  id     Int      @id @default(autoincrement())
+  poemId Int
+  userId Int?
+  ip     String? // оригинальный IP (опционально, для аналитики)
+  ipHash String? // хэш IP для уникальности (sha256)
+  date   DateTime @default(now()) // дата просмотра (без времени, но используем DateTime)
+
+  createdAt DateTime @default(now())
+
+  @@index([poemId])
+}
 
 // Праздник
 model Holiday {
@@ -127,36 +199,7 @@ model Holiday {
   @@index([month, day])
 }
 
-// Комментарий к стихотворению
-model Comment {
-  id        Int      @id @default(autoincrement())
-  text      String   @db.Text
-  userId    Int
-  poemId    Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id])
-  poem Poem @relation(fields: [poemId], references: [id], onDelete: Cascade)
-
-  @@index([poemId])
-  @@index([userId])
-}
-
 // Избранное
-model Favorite {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  poemId    Int
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id])
-  poem Poem @relation(fields: [poemId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, poemId])
-  @@index([userId])
-  @@index([poemId])
-}
 
 // Слайды сезонов для главного слайдера
 model SeasonSlide {
