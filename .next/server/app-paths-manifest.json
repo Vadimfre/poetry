@@ -1,5 +1,0 @@
-{
-  "/page": "app/page.js",
-  "/author/[slug]/page": "app/author/[slug]/page.js",
-  "/auth/new-verification/page": "app/auth/new-verification/page.js"
-}

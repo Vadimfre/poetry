@@ -61,9 +61,8 @@ export default function SeasonCalendar({
 
   const handleCloseModal = () => {
     setModalOpen(false);
-    // Сбросить выбранный день
     if (selectedDay) {
-      handleDayClick(selectedDay); // это сбросит выделение, т.к. день уже выбран
+      handleDayClick(selectedDay);
     }
   };
 

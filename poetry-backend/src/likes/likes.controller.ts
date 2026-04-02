@@ -10,6 +10,8 @@ import {
 } from "@nestjs/common";
 import { LikesService } from "./likes.service";
 import { JwtAuthGuard } from "@/auth/jwt-auth.guard";
+import { RolesGuard } from "@/auth/roles.guard";
+import { Roles } from "@/auth/roles.decorator";
 
 @Controller("likes")
 export class LikesController {
@@ -36,5 +38,12 @@ export class LikesController {
   @Get(":poemId/count")
   async getLikesCount(@Param("poemId", ParseIntPipe) poemId: number) {
     return this.likesService.getLikesCount(poemId);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("ADMIN", "SUPER_ADMIN")
+  @Post("recalculate-all")
+  async recalculateAll() {
+    return this.likesService.recalculateAllLikesCounts();
   }
 }

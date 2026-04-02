@@ -19,6 +19,7 @@ import { AuthorsModule } from "./authors/authors.module";
 import { SeasonSlidesModule } from "./season-slides/season-slides.module";
 import { LikesModule } from "./likes/likes.module";
 import { ViewsModule } from "./views/views.module";
+import { FavoritesModule } from "./favorites/favorites.module";
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { ViewsModule } from "./views/views.module";
     AuthorsModule,
     SeasonSlidesModule,
     LikesModule,
+    FavoritesModule,
     ViewsModule,
   ],
   controllers: [AppController],

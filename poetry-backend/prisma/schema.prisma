@@ -114,6 +114,9 @@ model Poem {
   comments  Comment[]
 
   @@index([authorId])
+  @@index([likesCount])
+  @@index([favoritesCount])
+  @@index([likesCount, favoritesCount])
 }
 
 model Like {
@@ -123,10 +126,12 @@ model Like {
   poemId Int
 
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   poem      Poem     @relation(fields: [poemId], references: [id], onDelete: Cascade)
 
   @@unique([userId, poemId])
+  @@index([userId, createdAt])
+  @@index([poemId, createdAt])
   @@index([poemId])
 }
 
@@ -140,7 +145,7 @@ model Comment {
   updatedAt DateTime @updatedAt
   parentId  Int? // 🔥 ВОТ ЭТО
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   poem Poem @relation(fields: [poemId], references: [id], onDelete: Cascade)
 
   parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
@@ -156,24 +161,30 @@ model Favorite {
   poemId    Int
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   poem Poem @relation(fields: [poemId], references: [id], onDelete: Cascade)
 
   @@unique([userId, poemId])
+  @@index([userId, createdAt])
+  @@index([poemId, createdAt])
   @@index([userId])
   @@index([poemId])
 }
 
 model View {
-  id     Int      @id @default(autoincrement())
+  id     Int  @id @default(autoincrement())
   poemId Int
   userId Int?
-  ip     String? // оригинальный IP (опционально, для аналитики)
+
+  ip     String?
   ipHash String? // хэш IP для уникальности (sha256)
-  date   DateTime @default(now()) // дата просмотра (без времени, но используем DateTime)
+
+  date DateTime @default(now()) // дата просмотра (без времени, но используем DateTime)
 
   createdAt DateTime @default(now())
 
+  @@unique([poemId, userId, date])
+  @@unique([poemId, ipHash, date])
   @@index([poemId])
 }
 

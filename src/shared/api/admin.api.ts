@@ -11,6 +11,21 @@ import type {
   CreateAuthorDto,
   CreateCategoryDto,
   UploadVideoResponse,
+  AdminComment,
+  AdminCommentsResponse,
+  UpdateCommentDto,
+  AdminLike,
+  AdminLikesResponse,
+  LikesStatistics,
+  AdminView,
+  AdminViewsResponse,
+  ViewsAnalytics,
+  AdminHoliday,
+  CreateHolidayDto,
+  UpdateHolidayDto,
+  AdminSeasonSlide,
+  CreateSeasonSlideDto,
+  UpdateSeasonSlideDto,
 } from "../types/admin.types";
 
 export const adminApi = {
@@ -97,5 +112,168 @@ export const adminApi = {
 
   deleteUser: async (userId: number): Promise<void> => {
     await apiClient.delete(`/admin/users/${userId}`);
+  },
+
+  // Комментарии
+  getComments: async (
+    page: number = 1,
+    limit: number = 20,
+    userId?: number,
+    poemId?: number,
+  ): Promise<AdminCommentsResponse> => {
+    const params = new URLSearchParams();
+    params.append("page", page.toString());
+    params.append("limit", limit.toString());
+    if (userId) params.append("userId", userId.toString());
+    if (poemId) params.append("poemId", poemId.toString());
+    const response = await apiClient.get<AdminCommentsResponse>(
+      `/admin/comments?${params.toString()}`,
+    );
+    return response.data;
+  },
+
+  getCommentById: async (id: number): Promise<AdminComment> => {
+    const response = await apiClient.get<AdminComment>(`/admin/comments/${id}`);
+    return response.data;
+  },
+
+  updateComment: async (
+    id: number,
+    data: UpdateCommentDto,
+  ): Promise<AdminComment> => {
+    const response = await apiClient.put<AdminComment>(
+      `/admin/comments/${id}`,
+      data,
+    );
+    return response.data;
+  },
+
+  deleteComment: async (id: number): Promise<void> => {
+    await apiClient.delete(`/admin/comments/${id}`);
+  },
+
+  bulkDeleteComments: async (ids: number[]): Promise<void> => {
+    await apiClient.post("/admin/comments/bulk-delete", { ids });
+  },
+
+  // Лайки
+  getLikes: async (
+    page: number = 1,
+    limit: number = 20,
+    userId?: number,
+    poemId?: number,
+  ): Promise<AdminLikesResponse> => {
+    const params = new URLSearchParams();
+    params.append("page", page.toString());
+    params.append("limit", limit.toString());
+    if (userId) params.append("userId", userId.toString());
+    if (poemId) params.append("poemId", poemId.toString());
+    const response = await apiClient.get<AdminLikesResponse>(
+      `/admin/likes?${params.toString()}`,
+    );
+    return response.data;
+  },
+
+  getLikesStatistics: async (): Promise<LikesStatistics> => {
+    const response = await apiClient.get<LikesStatistics>(
+      "/admin/likes/statistics",
+    );
+    return response.data;
+  },
+
+  deleteLike: async (id: number): Promise<void> => {
+    await apiClient.delete(`/admin/likes/${id}`);
+  },
+
+  // Просмотры
+  getViews: async (
+    page: number = 1,
+    limit: number = 20,
+    poemId?: number,
+  ): Promise<AdminViewsResponse> => {
+    const params = new URLSearchParams();
+    params.append("page", page.toString());
+    params.append("limit", limit.toString());
+    if (poemId) params.append("poemId", poemId.toString());
+    const response = await apiClient.get<AdminViewsResponse>(
+      `/admin/views?${params.toString()}`,
+    );
+    return response.data;
+  },
+
+  getViewsAnalytics: async (): Promise<ViewsAnalytics> => {
+    const response = await apiClient.get<ViewsAnalytics>(
+      "/admin/views/analytics",
+    );
+    return response.data;
+  },
+
+  getViewsByPoem: async (poemId: number): Promise<AdminView[]> => {
+    const response = await apiClient.get<AdminView[]>(
+      `/admin/views/poem/${poemId}`,
+    );
+    return response.data;
+  },
+
+  // Праздники (заглушки - endpoints будут добавлены позже)
+  getHolidays: async (): Promise<AdminHoliday[]> => {
+    const response = await apiClient.get<AdminHoliday[]>("/admin/holidays");
+    return response.data;
+  },
+
+  createHoliday: async (data: CreateHolidayDto): Promise<AdminHoliday> => {
+    const response = await apiClient.post<AdminHoliday>(
+      "/admin/holidays",
+      data,
+    );
+    return response.data;
+  },
+
+  updateHoliday: async (
+    id: number,
+    data: UpdateHolidayDto,
+  ): Promise<AdminHoliday> => {
+    const response = await apiClient.put<AdminHoliday>(
+      `/admin/holidays/${id}`,
+      data,
+    );
+    return response.data;
+  },
+
+  deleteHoliday: async (id: number): Promise<void> => {
+    await apiClient.delete(`/admin/holidays/${id}`);
+  },
+
+  // Сезонные слайды (заглушки)
+  getSeasonSlides: async (): Promise<AdminSeasonSlide[]> => {
+    const response = await apiClient.get<AdminSeasonSlide[]>(
+      "/admin/season-slides",
+    );
+    return response.data;
+  },
+
+  createSeasonSlide: async (
+    data: CreateSeasonSlideDto,
+  ): Promise<AdminSeasonSlide> => {
+    const response = await apiClient.post<AdminSeasonSlide>(
+      "/admin/season-slides",
+      data,
+    );
+    return response.data;
+  },
+
+  updateSeasonSlide: async (
+    id: number,
+    data: UpdateSeasonSlideDto,
+  ): Promise<AdminSeasonSlide> => {
+    const response = await apiClient.put<AdminSeasonSlide>(
+      `/admin/season-slides/${id}`,
+      data,
+    );
+    return response.data;
+  },
+
+  deleteSeasonSlide: async (id: number): Promise<void> => {
+    await apiClient.delete(`/admin/season-slides/${id}`);
   },
 };

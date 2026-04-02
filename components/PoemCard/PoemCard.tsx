@@ -42,6 +42,7 @@ export function PoemCard({
   onToggleSave,
 }: PoemCardProps) {
   const hasLongContent = poem.content.split("\n").length > 6;
+  
 
   return (
     <div className={styles.card}>

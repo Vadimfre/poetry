@@ -7,7 +7,6 @@ import DotsNavigation from "@/src/features/season-slider/ui/DotsNavigation";
 import NavigationArrows from "@/src/features/season-slider/ui/NavigationArrows";
 import ProgressBar from "@/src/features/season-slider/ui/ProgressBar";
 import { SeasonSlide } from "@/src/features/season-slider/ui/SeasonSlide";
-import { useState } from "react";
 
 export default function SeasonSlider() {
   const { data: slides, isLoading } = useSeasonSlides();
@@ -33,7 +32,7 @@ export default function SeasonSlider() {
   }
 
   return (
-    <div className={styles.slider}>
+    <div className={`${styles.slider} ${styles.hasSlides}`}>
       <div className={styles.slidesContainer}>
         {slides.map((slide, index) => (
           <SeasonSlide

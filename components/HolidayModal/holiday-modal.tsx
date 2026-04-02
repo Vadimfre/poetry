@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useHolidayModal } from "../../src/features/holidays/model/use-holidays-modal";
-import { Holiday } from "@/src/shared";
+import { Holiday, Poem } from "@/src/shared";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, Share2, Sparkles, X } from "lucide-react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -20,12 +20,45 @@ import { EmptyState } from "@/src/features/holidays/ui/empty-state";
 import { InfoTab } from "@/src/features/holidays/ui/info-tab";
 import { HeroSection } from "@/src/features/holidays/ui/hero-section";
 import styles from "./HolidayModal.module.css";
+import { useOptimisticLike } from "@/src/shared/hooks/use-optimistic-like";
 
 interface HolidayModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   holiday: Holiday | null;
   loading?: boolean;
+}
+
+function PoemCardWithLike({
+  poem,
+  index,
+  isExpanded,
+  isSaved,
+  onToggleExpand,
+  onToggleSave,
+}: {
+  poem: Poem;
+  index: number;
+  isExpanded: boolean;
+  isSaved: boolean;
+  onToggleExpand: () => void;
+  onToggleSave: () => void;
+}) {
+  const { isLiked, likeCount, toggleLike } = useOptimisticLike(poem.id);
+
+  return (
+    <PoemCard
+      poem={poem}
+      index={index}
+      isExpanded={isExpanded}
+      isLiked={isLiked}
+      isSaved={isSaved}
+      totalLikes={likeCount}
+      onToggleExpand={onToggleExpand}
+      onToggleLike={toggleLike}
+      onToggleSave={onToggleSave}
+    />
+  );
 }
 
 export function HolidayModal({
@@ -40,11 +73,8 @@ export function HolidayModal({
     seasonStyle,
     setActiveTab,
     toggleExpandPoem,
-    toggleLike,
     toggleSave,
-    isPoemLiked,
     isPoemSaved,
-    getPoemLikes,
   } = useHolidayModal(holiday);
 
   return (
@@ -94,16 +124,13 @@ export function HolidayModal({
                       <div className={styles.poemsContainer}>
                         {holiday.poems.length > 0 ? (
                           holiday.poems.map((poem, index) => (
-                            <PoemCard
+                            <PoemCardWithLike
                               key={poem.id}
                               poem={poem}
                               index={index}
                               isExpanded={expandedPoem === poem.id}
-                              isLiked={isPoemLiked(poem.id)}
                               isSaved={isPoemSaved(poem.id)}
-                              totalLikes={getPoemLikes(poem.id, poem.likes)}
                               onToggleExpand={() => toggleExpandPoem(poem.id)}
-                              onToggleLike={() => toggleLike(poem.id)}
                               onToggleSave={() => toggleSave(poem.id)}
                             />
                           ))
@@ -186,5 +213,4 @@ function TabsHeader({ poemsCount }: { poemsCount: number }) {
   );
 }
 
-// Re-export types for external usage
 export type { Holiday, Poem, Author, Category } from "@/src/shared";

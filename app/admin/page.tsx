@@ -8,12 +8,28 @@ import type {
   AdminStats,
   AdminUser,
   CreatePoemDto,
+  AdminComment,
+  AdminCommentsResponse,
+  AdminLike,
+  AdminLikesResponse,
+  AdminView,
+  AdminViewsResponse,
+  LikesStatistics,
+  ViewsAnalytics,
 } from "@/src/shared/types/admin.types";
 import type { Poem, Author } from "@/src/shared/types/poem.types";
 import type { Category } from "@/src/shared/types/category.types";
 import styles from "./admin.module.css";
 
-type Tab = "dashboard" | "poems" | "users";
+type Tab =
+  | "dashboard"
+  | "poems"
+  | "users"
+  | "comments"
+  | "likes"
+  | "views"
+  | "holidays"
+  | "seasonSlides";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -41,6 +57,26 @@ export default function AdminPage() {
   });
   const [uploadingVideo, setUploadingVideo] = useState(false);
 
+  // Новые состояния для расширенных сущностей
+  const [comments, setComments] = useState<AdminComment[]>([]);
+  const [commentsTotal, setCommentsTotal] = useState(0);
+  const [commentsPage, setCommentsPage] = useState(1);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+
+  const [likes, setLikes] = useState<AdminLike[]>([]);
+  const [likesTotal, setLikesTotal] = useState(0);
+  const [likesPage, setLikesPage] = useState(1);
+  const [likesLoading, setLikesLoading] = useState(false);
+  const [likesStats, setLikesStats] = useState<LikesStatistics | null>(null);
+
+  const [views, setViews] = useState<AdminView[]>([]);
+  const [viewsTotal, setViewsTotal] = useState(0);
+  const [viewsPage, setViewsPage] = useState(1);
+  const [viewsLoading, setViewsLoading] = useState(false);
+  const [viewsAnalytics, setViewsAnalytics] = useState<ViewsAnalytics | null>(
+    null,
+  );
+
   const isAdmin = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
   const isSuperAdmin = user?.role === "SUPER_ADMIN";
 
@@ -54,6 +90,25 @@ export default function AdminPage() {
 
     loadData();
   }, [isAuthenticated, router]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    // Загружаем данные для активной вкладки
+    switch (activeTab) {
+      case "comments":
+        loadComments(commentsPage);
+        break;
+      case "likes":
+        loadLikes(likesPage);
+        break;
+      case "views":
+        loadViews(viewsPage);
+        break;
+      default:
+        // Для других вкладок данные уже загружены
+        break;
+    }
+  }, [activeTab, isAuthenticated, commentsPage, likesPage, viewsPage]);
 
   const loadData = async () => {
     try {
@@ -149,7 +204,7 @@ export default function AdminPage() {
       description: poem.description || "",
       authorId: poem.authorId,
       year: poem.year || undefined,
-      categoryId: poem.categoryId,
+      categoryId: poem.categories[0]?.id || 0,
       videoUrl: poem.videoUrl || "",
     });
     setShowPoemForm(true);
@@ -181,6 +236,103 @@ export default function AdminPage() {
       loadData();
     } catch (err: any) {
       alert("Ошибка: " + err.message);
+    }
+  };
+
+  // Функции для комментариев
+  const loadComments = async (page: number = 1) => {
+    try {
+      setCommentsLoading(true);
+      const response = await adminApi.getComments(page, 20);
+      setComments(response.comments);
+      setCommentsTotal(response.total);
+      setCommentsPage(response.page);
+    } catch (err: any) {
+      alert("Ошибка загрузки комментариев: " + err.message);
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
+
+  const handleEditComment = async (id: number) => {
+    const newText = prompt("Введите новый текст комментария");
+    if (!newText) return;
+    try {
+      await adminApi.updateComment(id, { text: newText });
+      alert("Комментарий обновлен");
+      loadComments(commentsPage);
+    } catch (err: any) {
+      alert("Ошибка обновления: " + err.message);
+    }
+  };
+
+  const handleDeleteComment = async (id: number) => {
+    if (!confirm("Удалить комментарий?")) return;
+    try {
+      await adminApi.deleteComment(id);
+      alert("Комментарий удален");
+      loadComments(commentsPage);
+    } catch (err: any) {
+      alert("Ошибка удаления: " + err.message);
+    }
+  };
+
+  // Функции для лайков
+  const loadLikes = async (page: number = 1) => {
+    try {
+      setLikesLoading(true);
+      const response = await adminApi.getLikes(page, 20);
+      setLikes(response.likes);
+      setLikesTotal(response.total);
+      setLikesPage(response.page);
+    } catch (err: any) {
+      alert("Ошибка загрузки лайков: " + err.message);
+    } finally {
+      setLikesLoading(false);
+    }
+  };
+
+  const loadLikesStatistics = async () => {
+    try {
+      const stats = await adminApi.getLikesStatistics();
+      setLikesStats(stats);
+    } catch (err: any) {
+      alert("Ошибка загрузки статистики: " + err.message);
+    }
+  };
+
+  const handleDeleteLike = async (id: number) => {
+    if (!confirm("Удалить лайк?")) return;
+    try {
+      await adminApi.deleteLike(id);
+      alert("Лайк удален");
+      loadLikes(likesPage);
+    } catch (err: any) {
+      alert("Ошибка удаления: " + err.message);
+    }
+  };
+
+  // Функции для просмотров
+  const loadViews = async (page: number = 1) => {
+    try {
+      setViewsLoading(true);
+      const response = await adminApi.getViews(page, 20);
+      setViews(response.views);
+      setViewsTotal(response.total);
+      setViewsPage(response.page);
+    } catch (err: any) {
+      alert("Ошибка загрузки просмотров: " + err.message);
+    } finally {
+      setViewsLoading(false);
+    }
+  };
+
+  const loadViewsAnalytics = async () => {
+    try {
+      const analytics = await adminApi.getViewsAnalytics();
+      setViewsAnalytics(analytics);
+    } catch (err: any) {
+      alert("Ошибка загрузки аналитики: " + err.message);
     }
   };
 
@@ -245,6 +397,24 @@ export default function AdminPage() {
             👥 Пользователи
           </button>
         )}
+        <button
+          className={`${styles.navBtn} ${activeTab === "comments" ? styles.active : ""}`}
+          onClick={() => setActiveTab("comments")}
+        >
+          💬 Комментарии
+        </button>
+        <button
+          className={`${styles.navBtn} ${activeTab === "likes" ? styles.active : ""}`}
+          onClick={() => setActiveTab("likes")}
+        >
+          ❤️ Лайки
+        </button>
+        <button
+          className={`${styles.navBtn} ${activeTab === "views" ? styles.active : ""}`}
+          onClick={() => setActiveTab("views")}
+        >
+          👁️ Просмотры
+        </button>
         <button className={styles.backBtn} onClick={() => router.push("/")}>
           ← На сайт
         </button>
@@ -463,7 +633,7 @@ export default function AdminPage() {
                       {poem.year && `(${poem.year})`}
                     </p>
                     <span className={styles.poemCategory}>
-                      {poem.category?.name}
+                      {poem.categories[0]?.name || "Без категории"}
                     </span>
                     {poem.videoUrl && (
                       <span className={styles.hasVideo}>🎬 Видео</span>
@@ -529,6 +699,240 @@ export default function AdminPage() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Комментарии */}
+        {activeTab === "comments" && (
+          <div className={styles.commentsSection}>
+            <h2>Управление комментариями</h2>
+            <div className={styles.sectionHeader}>
+              <p>Всего комментариев: {commentsTotal}</p>
+              <button
+                className={styles.addBtn}
+                onClick={() => loadComments(commentsPage)}
+                disabled={commentsLoading}
+              >
+                {commentsLoading ? "Загрузка..." : "Обновить"}
+              </button>
+            </div>
+            {comments.length === 0 ? (
+              <p>Нет комментариев</p>
+            ) : (
+              <div className={styles.commentsList}>
+                {comments.map((comment) => (
+                  <div key={comment.id} className={styles.commentItem}>
+                    <div className={styles.commentInfo}>
+                      <h4>Комментарий #{comment.id}</h4>
+                      <p>{comment.text}</p>
+                      <div className={styles.commentMeta}>
+                        <span>
+                          👤 {comment.user.name || comment.user.email}
+                        </span>
+                        <span>📝 Стих: {comment.poem.title}</span>
+                        <span>
+                          📅 {new Date(comment.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                    <div className={styles.commentActions}>
+                      <button onClick={() => handleEditComment(comment.id)}>
+                        ✏️
+                      </button>
+                      <button onClick={() => handleDeleteComment(comment.id)}>
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className={styles.pagination}>
+              <button
+                disabled={commentsPage <= 1}
+                onClick={() => {
+                  const newPage = commentsPage - 1;
+                  setCommentsPage(newPage);
+                  loadComments(newPage);
+                }}
+              >
+                ← Назад
+              </button>
+              <span>Страница {commentsPage}</span>
+              <button
+                disabled={commentsPage * 20 >= commentsTotal}
+                onClick={() => {
+                  const newPage = commentsPage + 1;
+                  setCommentsPage(newPage);
+                  loadComments(newPage);
+                }}
+              >
+                Вперед →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Лайки */}
+        {activeTab === "likes" && (
+          <div className={styles.likesSection}>
+            <h2>Управление лайками</h2>
+            <div className={styles.sectionHeader}>
+              <p>Всего лайков: {likesTotal}</p>
+              <button
+                className={styles.addBtn}
+                onClick={() => loadLikes(likesPage)}
+                disabled={likesLoading}
+              >
+                {likesLoading ? "Загрузка..." : "Обновить"}
+              </button>
+              <button className={styles.statsBtn} onClick={loadLikesStatistics}>
+                📊 Статистика
+              </button>
+            </div>
+            {likes.length === 0 ? (
+              <p>Нет лайков</p>
+            ) : (
+              <div className={styles.likesList}>
+                {likes.map((like) => (
+                  <div key={like.id} className={styles.likeItem}>
+                    <div className={styles.likeInfo}>
+                      <h4>Лайк #{like.id}</h4>
+                      <div className={styles.likeMeta}>
+                        <span>👤 {like.user.name || like.user.email}</span>
+                        <span>📝 Стих: {like.poem.title}</span>
+                        <span>
+                          📅 {new Date(like.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                    <div className={styles.likeActions}>
+                      <button onClick={() => handleDeleteLike(like.id)}>
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className={styles.pagination}>
+              <button
+                disabled={likesPage <= 1}
+                onClick={() => {
+                  const newPage = likesPage - 1;
+                  setLikesPage(newPage);
+                  loadLikes(newPage);
+                }}
+              >
+                ← Назад
+              </button>
+              <span>Страница {likesPage}</span>
+              <button
+                disabled={likesPage * 20 >= likesTotal}
+                onClick={() => {
+                  const newPage = likesPage + 1;
+                  setLikesPage(newPage);
+                  loadLikes(newPage);
+                }}
+              >
+                Вперед →
+              </button>
+            </div>
+            {likesStats && (
+              <div className={styles.statsPanel}>
+                <h3>Статистика лайков</h3>
+                <p>Всего лайков: {likesStats.totalLikes}</p>
+                <div>
+                  <h4>Топ стихов:</h4>
+                  <ul>
+                    {likesStats.topPoems.map((poem) => (
+                      <li key={poem.poemId}>
+                        {poem.title} - {poem.likes} лайков
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Просмотры */}
+        {activeTab === "views" && (
+          <div className={styles.viewsSection}>
+            <h2>Управление просмотрами</h2>
+            <div className={styles.sectionHeader}>
+              <p>Всего просмотров: {viewsTotal}</p>
+              <button
+                className={styles.addBtn}
+                onClick={() => loadViews(viewsPage)}
+                disabled={viewsLoading}
+              >
+                {viewsLoading ? "Загрузка..." : "Обновить"}
+              </button>
+              <button className={styles.statsBtn} onClick={loadViewsAnalytics}>
+                📊 Аналитика
+              </button>
+            </div>
+            {views.length === 0 ? (
+              <p>Нет просмотров</p>
+            ) : (
+              <div className={styles.viewsList}>
+                {views.map((view) => (
+                  <div key={view.id} className={styles.viewItem}>
+                    <div className={styles.viewInfo}>
+                      <h4>Просмотр #{view.id}</h4>
+                      <div className={styles.viewMeta}>
+                        <span>📝 Стих: {view.poem.title}</span>
+                        <span>🔐 Хэш IP: {view.ipHash.substring(0, 8)}...</span>
+                        <span>
+                          📅 {new Date(view.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className={styles.pagination}>
+              <button
+                disabled={viewsPage <= 1}
+                onClick={() => {
+                  const newPage = viewsPage - 1;
+                  setViewsPage(newPage);
+                  loadViews(newPage);
+                }}
+              >
+                ← Назад
+              </button>
+              <span>Страница {viewsPage}</span>
+              <button
+                disabled={viewsPage * 20 >= viewsTotal}
+                onClick={() => {
+                  const newPage = viewsPage + 1;
+                  setViewsPage(newPage);
+                  loadViews(newPage);
+                }}
+              >
+                Вперед →
+              </button>
+            </div>
+            {viewsAnalytics && (
+              <div className={styles.statsPanel}>
+                <h3>Аналитика просмотров</h3>
+                <p>Всего просмотров: {viewsAnalytics.totalViews}</p>
+                <div>
+                  <h4>Топ стихов:</h4>
+                  <ul>
+                    {viewsAnalytics.topPoems.map((poem) => (
+                      <li key={poem.poemId}>
+                        {poem.title} - {poem.views} просмотров
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>

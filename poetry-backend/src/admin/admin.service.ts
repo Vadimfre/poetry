@@ -1,7 +1,12 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import * as fs from 'fs';
-import * as path from 'path';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import * as fs from "fs";
+import * as path from "path";
 
 @Injectable()
 export class AdminService {
@@ -23,7 +28,7 @@ export class AdminService {
     // Проверяем уникальность slug
     const existing = await this.prisma.poem.findUnique({ where: { slug } });
     if (existing) {
-      throw new BadRequestException('Верш з такой назвай ужо існуе');
+      throw new BadRequestException("Верш з такой назвай ужо існуе");
     }
 
     const { categoryId, ...rest } = data;
@@ -57,7 +62,7 @@ export class AdminService {
   ) {
     const poem = await this.prisma.poem.findUnique({ where: { id } });
     if (!poem) {
-      throw new NotFoundException('Верш не знойдзены');
+      throw new NotFoundException("Верш не знойдзены");
     }
 
     const updateData: any = { ...data };
@@ -88,12 +93,15 @@ export class AdminService {
   async deletePoem(id: number) {
     const poem = await this.prisma.poem.findUnique({ where: { id } });
     if (!poem) {
-      throw new NotFoundException('Стих не найден');
+      throw new NotFoundException("Стих не найден");
     }
 
     // Удаляем видео файл если есть
     if (poem.videoUrl) {
-      const videoPath = path.join(process.cwd(), poem.videoUrl.replace(/^\//, ''));
+      const videoPath = path.join(
+        process.cwd(),
+        poem.videoUrl.replace(/^\//, ""),
+      );
       if (fs.existsSync(videoPath)) {
         fs.unlinkSync(videoPath);
       }
@@ -114,7 +122,7 @@ export class AdminService {
           },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
   }
 
@@ -131,7 +139,7 @@ export class AdminService {
 
     const existing = await this.prisma.author.findUnique({ where: { slug } });
     if (existing) {
-      throw new BadRequestException('Аўтар з такім імем ужо існуе');
+      throw new BadRequestException("Аўтар з такім імем ужо існуе");
     }
 
     return this.prisma.author.create({
@@ -151,16 +159,13 @@ export class AdminService {
           },
         },
       },
-      orderBy: { name: 'asc' },
+      orderBy: { name: "asc" },
     });
   }
 
   // ========== CATEGORIES MANAGEMENT ==========
 
-  async createCategory(data: {
-    name: string;
-    description?: string;
-  }) {
+  async createCategory(data: { name: string; description?: string }) {
     const slug = this.generateSlug(data.name);
 
     return this.prisma.category.create({
@@ -180,7 +185,7 @@ export class AdminService {
           },
         },
       },
-      orderBy: { name: 'asc' },
+      orderBy: { name: "asc" },
     });
   }
 
@@ -201,24 +206,32 @@ export class AdminService {
           },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
   }
 
-  async setUserRole(adminEmail: string, userId: number, role: 'USER' | 'ADMIN') {
-    const targetUser = await this.prisma.user.findUnique({ where: { id: userId } });
+  async setUserRole(
+    adminEmail: string,
+    userId: number,
+    role: "USER" | "ADMIN",
+  ) {
+    const targetUser = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
     if (!targetUser) {
-      throw new NotFoundException('Пользователь не найден');
+      throw new NotFoundException("Пользователь не найден");
     }
 
     // Нельзя изменить роль суперадмина
-    if (targetUser.role === 'SUPER_ADMIN') {
-      throw new ForbiddenException('Нельзя изменить роль главного администратора');
+    if (targetUser.role === "SUPER_ADMIN") {
+      throw new ForbiddenException(
+        "Нельзя изменить роль главного администратора",
+      );
     }
 
     // Нельзя изменить свою роль
     if (targetUser.email === adminEmail) {
-      throw new ForbiddenException('Нельзя изменить свою роль');
+      throw new ForbiddenException("Нельзя изменить свою роль");
     }
 
     return this.prisma.user.update({
@@ -234,22 +247,371 @@ export class AdminService {
   }
 
   async deleteUser(adminEmail: string, userId: number) {
-    const targetUser = await this.prisma.user.findUnique({ where: { id: userId } });
+    const targetUser = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
     if (!targetUser) {
-      throw new NotFoundException('Пользователь не найден');
+      throw new NotFoundException("Пользователь не найден");
     }
 
     // Нельзя удалить суперадмина
-    if (targetUser.role === 'SUPER_ADMIN') {
-      throw new ForbiddenException('Нельзя удалить главного администратора');
+    if (targetUser.role === "SUPER_ADMIN") {
+      throw new ForbiddenException("Нельзя удалить главного администратора");
     }
 
     // Нельзя удалить себя
     if (targetUser.email === adminEmail) {
-      throw new ForbiddenException('Нельзя удалить себя');
+      throw new ForbiddenException("Нельзя удалить себя");
     }
 
     return this.prisma.user.delete({ where: { id: userId } });
+  }
+
+  // ========== COMMENTS MANAGEMENT ==========
+
+  async getAllComments(
+    page: number = 1,
+    limit: number = 20,
+    userId?: number,
+    poemId?: number,
+  ) {
+    const skip = (page - 1) * limit;
+    const where: any = {};
+    if (userId) where.userId = userId;
+    if (poemId) where.poemId = poemId;
+
+    const [comments, total] = await Promise.all([
+      this.prisma.comment.findMany({
+        where,
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              name: true,
+            },
+          },
+          poem: {
+            select: {
+              id: true,
+              title: true,
+              slug: true,
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      this.prisma.comment.count({ where }),
+    ]);
+
+    return {
+      comments,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async getCommentById(id: number) {
+    const comment = await this.prisma.comment.findUnique({
+      where: { id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+          },
+        },
+        poem: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+          },
+        },
+      },
+    });
+
+    if (!comment) {
+      throw new NotFoundException("Комментарий не найден");
+    }
+
+    return comment;
+  }
+
+  async updateComment(id: number, text: string) {
+    const comment = await this.prisma.comment.findUnique({ where: { id } });
+    if (!comment) {
+      throw new NotFoundException("Комментарий не найден");
+    }
+
+    return this.prisma.comment.update({
+      where: { id },
+      data: { text },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+          },
+        },
+        poem: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+          },
+        },
+      },
+    });
+  }
+
+  async deleteComment(id: number) {
+    const comment = await this.prisma.comment.findUnique({ where: { id } });
+    if (!comment) {
+      throw new NotFoundException("Комментарий не найден");
+    }
+
+    return this.prisma.comment.delete({ where: { id } });
+  }
+
+  async bulkDeleteComments(ids: number[]) {
+    const result = await this.prisma.comment.deleteMany({
+      where: { id: { in: ids } },
+    });
+
+    return { deletedCount: result.count };
+  }
+
+  // ========== LIKES MANAGEMENT ==========
+
+  async getAllLikes(
+    page: number = 1,
+    limit: number = 20,
+    userId?: number,
+    poemId?: number,
+  ) {
+    const pageNum = Number(page);
+    const limitNum = Number(limit);
+    const skip = (pageNum - 1) * limitNum;
+    const where: any = {};
+    if (userId) where.userId = userId;
+    if (poemId) where.poemId = poemId;
+
+    const [likes, total] = await Promise.all([
+      this.prisma.like.findMany({
+        where,
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              name: true,
+            },
+          },
+          poem: {
+            select: {
+              id: true,
+              title: true,
+              slug: true,
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limitNum,
+      }),
+      this.prisma.like.count({ where }),
+    ]);
+
+    return {
+      likes,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        pages: Math.ceil(total / limitNum),
+      },
+    };
+  }
+
+  async getLikesStatistics() {
+    const totalLikes = await this.prisma.like.count();
+    const likesByPoem = await this.prisma.poem.findMany({
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        _count: {
+          select: {
+            likes: true,
+          },
+        },
+      },
+      orderBy: {
+        likes: {
+          _count: "desc",
+        },
+      },
+      take: 10,
+    });
+
+    const likesByDay = await this.prisma.$queryRaw`
+      SELECT DATE(createdAt) as date, COUNT(*) as count
+      FROM \`Like\`
+      WHERE createdAt >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+      GROUP BY DATE(createdAt)
+      ORDER BY date DESC
+    `;
+
+    return {
+      totalLikes,
+      topPoems: likesByPoem,
+      dailyLikes: likesByDay,
+    };
+  }
+
+  async deleteLike(id: number) {
+    const like = await this.prisma.like.findUnique({ where: { id } });
+    if (!like) {
+      throw new NotFoundException("Лайк не найден");
+    }
+
+    return this.prisma.like.delete({ where: { id } });
+  }
+
+  // ========== VIEWS MANAGEMENT ==========
+
+  async getAllViews(page: number = 1, limit: number = 20, poemId?: number) {
+    const skip = (page - 1) * limit;
+    const where: any = {};
+    if (poemId) where.poemId = poemId;
+
+    const [views, total] = await Promise.all([
+      this.prisma.view.findMany({
+        where,
+        select: {
+          id: true,
+          poemId: true,
+          userId: true,
+          ip: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      this.prisma.view.count({ where }),
+    ]);
+
+    return {
+      views,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async getViewsAnalytics() {
+    const totalViews = await this.prisma.view.count();
+    const uniqueVisitors = await this.prisma.view.groupBy({
+      by: ["ip"],
+      _count: {
+        ip: true,
+      },
+    });
+
+    // Временное решение: топ стихов по просмотрам через группировку
+    const viewsByPoem = await this.prisma.view.groupBy({
+      by: ["poemId"],
+      _count: {
+        poemId: true,
+      },
+      orderBy: {
+        _count: {
+          poemId: "desc",
+        },
+      },
+      take: 10,
+    });
+
+    // Получаем детали стихов
+    const poemIds = viewsByPoem.map((v) => v.poemId);
+    const poems = await this.prisma.poem.findMany({
+      where: { id: { in: poemIds } },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+      },
+    });
+
+    const topPoems = poems.map((poem) => {
+      const viewCount =
+        viewsByPoem.find((v) => v.poemId === poem.id)?._count.poemId || 0;
+      return {
+        ...poem,
+        viewCount,
+      };
+    });
+
+    const viewsByDay = await this.prisma.$queryRaw`
+      SELECT DATE(createdAt) as date, COUNT(*) as count
+      FROM \`View\`
+      WHERE createdAt >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+      GROUP BY DATE(createdAt)
+      ORDER BY date DESC
+    `;
+
+    return {
+      totalViews,
+      uniqueVisitors: uniqueVisitors.length,
+      topPoems: viewsByPoem,
+      dailyViews: viewsByDay,
+    };
+  }
+
+  async getViewsByPoem(poemId: number) {
+    const poem = await this.prisma.poem.findUnique({
+      where: { id: poemId },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+      },
+    });
+
+    if (!poem) {
+      throw new NotFoundException("Стих не найден");
+    }
+
+    const views = await this.prisma.view.findMany({
+      where: { poemId },
+      select: {
+        id: true,
+        poemId: true,
+        userId: true,
+        ip: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return {
+      poem,
+      views,
+      count: views.length,
+    };
   }
 
   // ========== STATS ==========
@@ -264,7 +626,7 @@ export class AdminService {
       ]);
 
     const adminsCount = await this.prisma.user.count({
-      where: { role: { in: ['ADMIN', 'SUPER_ADMIN'] } },
+      where: { role: { in: ["ADMIN", "SUPER_ADMIN"] } },
     });
 
     return {
@@ -281,22 +643,53 @@ export class AdminService {
   private generateSlug(text: string): string {
     const translitMap: Record<string, string> = {
       // Русская и белорусская транслитерация
-      а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'yo', ж: 'zh',
-      з: 'z', и: 'i', й: 'y', к: 'k', л: 'l', м: 'm', н: 'n', о: 'o',
-      п: 'p', р: 'r', с: 's', т: 't', у: 'u', ф: 'f', х: 'kh', ц: 'ts',
-      ч: 'ch', ш: 'sh', щ: 'sch', ъ: '', ы: 'y', ь: '', э: 'e', ю: 'yu',
-      я: 'ya', ' ': '-',
+      а: "a",
+      б: "b",
+      в: "v",
+      г: "g",
+      д: "d",
+      е: "e",
+      ё: "yo",
+      ж: "zh",
+      з: "z",
+      и: "i",
+      й: "y",
+      к: "k",
+      л: "l",
+      м: "m",
+      н: "n",
+      о: "o",
+      п: "p",
+      р: "r",
+      с: "s",
+      т: "t",
+      у: "u",
+      ф: "f",
+      х: "kh",
+      ц: "ts",
+      ч: "ch",
+      ш: "sh",
+      щ: "sch",
+      ъ: "",
+      ы: "y",
+      ь: "",
+      э: "e",
+      ю: "yu",
+      я: "ya",
+      " ": "-",
       // Белорусские буквы
-      і: 'i', ў: 'u', ґ: 'g',
+      і: "i",
+      ў: "u",
+      ґ: "g",
     };
 
     return text
       .toLowerCase()
-      .split('')
+      .split("")
       .map((char) => translitMap[char] || char)
-      .join('')
-      .replace(/[^a-z0-9-]/g, '')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
+      .join("")
+      .replace(/[^a-z0-9-]/g, "")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
   }
 }

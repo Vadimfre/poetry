@@ -1,6 +1,11 @@
-import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import * as bcrypt from 'bcrypt';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+} from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class UsersService {
@@ -14,7 +19,7 @@ export class UsersService {
         id: true,
         email: true,
         name: true,
-        avatar: true, 
+        avatar: true,
         createdAt: true,
         _count: {
           select: {
@@ -26,7 +31,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException("User not found");
     }
 
     return user;
@@ -40,7 +45,10 @@ export class UsersService {
   }
 
   // Обновить профиль (имя, аватар)
-  async updateProfile(userId: number, data: { name?: string; avatar?: string }) {
+  async updateProfile(
+    userId: number,
+    data: { name?: string; avatar?: string },
+  ) {
     const user = await this.prisma.user.update({
       where: { id: userId },
       data,
@@ -62,13 +70,13 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException("User not found");
     }
 
     // Проверить пароль
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new BadRequestException('Неверный пароль');
+      throw new BadRequestException("Неверный пароль");
     }
 
     // Проверить, не занят ли email
@@ -77,7 +85,7 @@ export class UsersService {
     });
 
     if (existingUser && existingUser.id !== userId) {
-      throw new ConflictException('Email уже используется');
+      throw new ConflictException("Email уже используется");
     }
 
     const updatedUser = await this.prisma.user.update({
@@ -95,24 +103,33 @@ export class UsersService {
   }
 
   // Обновить пароль
-  async updatePassword(userId: number, currentPassword: string, newPassword: string) {
+  async updatePassword(
+    userId: number,
+    currentPassword: string,
+    newPassword: string,
+  ) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException("User not found");
     }
 
     // Проверить текущий пароль
-    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password,
+    );
     if (!isPasswordValid) {
-      throw new BadRequestException('Неверный текущий пароль');
+      throw new BadRequestException("Неверный текущий пароль");
     }
 
     // Проверить что новый пароль отличается
     if (currentPassword === newPassword) {
-      throw new BadRequestException('Новый пароль должен отличаться от текущего');
+      throw new BadRequestException(
+        "Новый пароль должен отличаться от текущего",
+      );
     }
 
     // Хэшировать новый пароль
@@ -123,8 +140,30 @@ export class UsersService {
       data: { password: hashedPassword },
     });
 
-    return { message: 'Пароль успешно изменён' };
+    return { message: "Пароль успешно изменён" };
   }
 
+  // users.service.ts — никакого импорта LikesService не нужно
+  async deleteUser(userId: number) {
+    const likes = await this.prisma.like.findMany({
+      where: { userId },
+      select: { poemId: true },
+    });
 
+    await this.prisma.user.delete({
+      where: { id: userId },
+    });
+
+    await Promise.all(
+      likes.map(async (like) => {
+        const count = await this.prisma.like.count({
+          where: { poemId: like.poemId },
+        });
+        await this.prisma.poem.update({
+          where: { id: like.poemId },
+          data: { likesCount: count },
+        });
+      }),
+    );
+  }
 }

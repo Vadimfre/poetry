@@ -1567,7 +1567,8 @@ Ave Maria! Мы з табой
   // ============ ПРАЗДНИКИ ============
   // Функция для получения изображения по сезону
   function getSeasonImage(month: number): string {
-    if (month === 12 || month === 1 || month === 2) return "/images/seasons/winter.jpg";
+    if (month === 12 || month === 1 || month === 2)
+      return "/images/seasons/winter.jpg";
     if (month >= 3 && month <= 5) return "/images/seasons/spring.jpg";
     if (month >= 6 && month <= 8) return "/images/seasons/summer.jpg";
     return "/images/seasons/autumn.jpg";
@@ -1575,77 +1576,262 @@ Ave Maria! Мы з табой
 
   // Описания праздников
   const holidayDescriptions: Record<string, string> = {
-    "Каляды": "Свята нараджэння Хрыста, якое адзначаецца 25 снежня. Традыцыйнае беларускае свята з каляднымі песнямі, віншаваннямі і багатым сталом.",
-    "Новы год": "Пачатак новага года, сустракаецца ў ноч з 31 снежня на 1 студзеня. Свята надзеі і новых пачаткаў.",
-    "Раство": "Хрысціянскае свята нараджэння Ісуса Хрыста, адзначаецца 7 студзеня па юліянскім календары.",
-    "Шчодры вечар": "Вечар перад Старым Новым годам (13 студзеня), калі гатуюць шчодрую вячэру і віншуюць адзін аднаго.",
-    "Стары Новы год": "Свята, якое адзначаецца ў ноч з 13 на 14 студзеня паводле юліянскага календара. Захавалася як традыцыйнае свята.",
-    "Вадохрышча": "Хрысціянскае свята Богаяўлення, адзначаецца 19 студзеня. Свята асвячэння вады і купання ў прарубі.",
-    "Дзень беларускай навукі": "Свята, прысвечанае дасягненням беларускіх навукоўцаў. Адзначаецца 25 студзеня.",
-    "Грамніцы": "Свята Стрэчання Гасподняга, адзначаецца 2 лютага. Традыцыйна асвячаюць свечкі (грамніцы).",
-    "Дзень памяці воінаў": "Дзень памяці воінаў-інтэрнацыяналістаў, якія загінулі ў Афганістане. Адзначаецца 15 лютага.",
-    "Дзень роднай мовы": "Свята беларускай мовы і культуры, адзначаецца 21 лютага. Прысвечана захаванню і развіццю роднай мовы.",
-    "Дзень абаронцаў Айчыны": "Свята ў гонар абаронцаў Радзімы, адзначаецца 23 лютага.",
-    "Дзень Канстытуцыі": "Дзень прыняцця Канстытуцыі Рэспублікі Беларусь, адзначаецца 15 сакавіка.",
-    "Сусветны дзень паэзіі": "Свята паэтаў і паэзіі ва ўсім свеце, адзначаецца 21 сакавіка.",
-    "Дзень яднання народаў": "Дзень яднання народаў Беларусі і Расіі, адзначаецца 2 красавіка.",
-    "Радаўніца": "Помніцкі дзень, калі наведваюць магілы продкаў. Адзначаецца на 9-ы дзень пасля Вялікадня.",
-    "Дзень Незалежнасці": "Галоўнае дзяржаўнае свята Беларусі, адзначаецца 3 ліпеня ў гонар вызвалення Мінска ад нямецкіх захопнікаў.",
-    "Купалле / Дзень нараджэння Янкі Купалы": "Народнае свята Купалле, якое супадае з днём нараджэння Янкі Купалы (7 ліпеня). Свята летняга сонцастаяння.",
-    "Дзень беларускага пісьменства": "Свята, прысвечанае беларускай пісьменнасці і культуры, адзначаецца 1 верасня.",
-    "Дзень нараджэння Максіма Танка": "Дзень нараджэння класіка беларускай літаратуры Максіма Танка (17 верасня).",
-    "Дзень нараджэння Якуба Коласа": "Дзень нараджэння класіка беларускай літаратуры Якуба Коласа (3 лістапада).",
+    Каляды:
+      "Свята нараджэння Хрыста, якое адзначаецца 25 снежня. Традыцыйнае беларускае свята з каляднымі песнямі, віншаваннямі і багатым сталом.",
+    "Новы год":
+      "Пачатак новага года, сустракаецца ў ноч з 31 снежня на 1 студзеня. Свята надзеі і новых пачаткаў.",
+    Раство:
+      "Хрысціянскае свята нараджэння Ісуса Хрыста, адзначаецца 7 студзеня па юліянскім календары.",
+    "Шчодры вечар":
+      "Вечар перад Старым Новым годам (13 студзеня), калі гатуюць шчодрую вячэру і віншуюць адзін аднаго.",
+    "Стары Новы год":
+      "Свята, якое адзначаецца ў ноч з 13 на 14 студзеня паводле юліянскага календара. Захавалася як традыцыйнае свята.",
+    Вадохрышча:
+      "Хрысціянскае свята Богаяўлення, адзначаецца 19 студзеня. Свята асвячэння вады і купання ў прарубі.",
+    "Дзень беларускай навукі":
+      "Свята, прысвечанае дасягненням беларускіх навукоўцаў. Адзначаецца 25 студзеня.",
+    Грамніцы:
+      "Свята Стрэчання Гасподняга, адзначаецца 2 лютага. Традыцыйна асвячаюць свечкі (грамніцы).",
+    "Дзень памяці воінаў":
+      "Дзень памяці воінаў-інтэрнацыяналістаў, якія загінулі ў Афганістане. Адзначаецца 15 лютага.",
+    "Дзень роднай мовы":
+      "Свята беларускай мовы і культуры, адзначаецца 21 лютага. Прысвечана захаванню і развіццю роднай мовы.",
+    "Дзень абаронцаў Айчыны":
+      "Свята ў гонар абаронцаў Радзімы, адзначаецца 23 лютага.",
+    "Дзень Канстытуцыі":
+      "Дзень прыняцця Канстытуцыі Рэспублікі Беларусь, адзначаецца 15 сакавіка.",
+    "Сусветны дзень паэзіі":
+      "Свята паэтаў і паэзіі ва ўсім свеце, адзначаецца 21 сакавіка.",
+    "Дзень яднання народаў":
+      "Дзень яднання народаў Беларусі і Расіі, адзначаецца 2 красавіка.",
+    Радаўніца:
+      "Помніцкі дзень, калі наведваюць магілы продкаў. Адзначаецца на 9-ы дзень пасля Вялікадня.",
+    "Дзень Незалежнасці":
+      "Галоўнае дзяржаўнае свята Беларусі, адзначаецца 3 ліпеня ў гонар вызвалення Мінска ад нямецкіх захопнікаў.",
+    "Купалле / Дзень нараджэння Янкі Купалы":
+      "Народнае свята Купалле, якое супадае з днём нараджэння Янкі Купалы (7 ліпеня). Свята летняга сонцастаяння.",
+    "Дзень беларускага пісьменства":
+      "Свята, прысвечанае беларускай пісьменнасці і культуры, адзначаецца 1 верасня.",
+    "Дзень нараджэння Максіма Танка":
+      "Дзень нараджэння класіка беларускай літаратуры Максіма Танка (17 верасня).",
+    "Дзень нараджэння Якуба Коласа":
+      "Дзень нараджэння класіка беларускай літаратуры Якуба Коласа (3 лістапада).",
   };
 
   const holidaysData = [
     // Зима
-    { day: 25, month: 12, name: "Каляды", poems: ["Ave Maria", "Звон кафедры"], image: getSeasonImage(12), description: holidayDescriptions["Каляды"] },
-    { day: 1, month: 1, name: "Новы год", poems: ["Дзед Мароз"], image: getSeasonImage(1), description: holidayDescriptions["Новы год"] },
-    { day: 7, month: 1, name: "Раство", poems: ["Ave Maria", "Звон кафедры"], image: getSeasonImage(1), description: holidayDescriptions["Раство"] },
-    { day: 13, month: 1, name: "Шчодры вечар", poems: ["Маразь, зоркі і коні"], image: getSeasonImage(1), description: holidayDescriptions["Шчодры вечар"] },
-    { day: 14, month: 1, name: "Стары Новы год", poems: ["Маразь, зоркі і коні"], image: getSeasonImage(1), description: holidayDescriptions["Стары Новы год"] },
-    { day: 19, month: 1, name: "Вадохрышча", poems: ["Калі рака шэпча"], image: getSeasonImage(1), description: holidayDescriptions["Вадохрышча"] },
-    { day: 25, month: 1, name: "Дзень беларускай навукі", poems: ["Чыстая лірыка"], image: getSeasonImage(1), description: holidayDescriptions["Дзень беларускай навукі"] },
-    { day: 2, month: 2, name: "Грамніцы", poems: ["Зіма", "Маразь"], image: getSeasonImage(2), description: holidayDescriptions["Грамніцы"] },
-    { day: 15, month: 2, name: "Дзень памяці воінаў", poems: ["Будзь цвёрды"], image: getSeasonImage(2), description: holidayDescriptions["Дзень памяці воінаў"] },
-    { day: 21, month: 2, name: "Дзень роднай мовы", poems: ["А хто там ідзе", "Родная мова"], image: getSeasonImage(2), description: holidayDescriptions["Дзень роднай мовы"] },
-    { day: 23, month: 2, name: "Дзень абаронцаў Айчыны", poems: ["Будзь цвёрды"], image: getSeasonImage(2), description: holidayDescriptions["Дзень абаронцаў Айчыны"] },
+    {
+      day: 25,
+      month: 12,
+      name: "Каляды",
+      poems: ["Ave Maria", "Звон кафедры"],
+      image: getSeasonImage(12),
+      description: holidayDescriptions["Каляды"],
+    },
+    {
+      day: 1,
+      month: 1,
+      name: "Новы год",
+      poems: ["Дзед Мароз"],
+      image: getSeasonImage(1),
+      description: holidayDescriptions["Новы год"],
+    },
+    {
+      day: 7,
+      month: 1,
+      name: "Раство",
+      poems: ["Ave Maria", "Звон кафедры"],
+      image: getSeasonImage(1),
+      description: holidayDescriptions["Раство"],
+    },
+    {
+      day: 13,
+      month: 1,
+      name: "Шчодры вечар",
+      poems: ["Маразь, зоркі і коні"],
+      image: getSeasonImage(1),
+      description: holidayDescriptions["Шчодры вечар"],
+    },
+    {
+      day: 14,
+      month: 1,
+      name: "Стары Новы год",
+      poems: ["Маразь, зоркі і коні"],
+      image: getSeasonImage(1),
+      description: holidayDescriptions["Стары Новы год"],
+    },
+    {
+      day: 19,
+      month: 1,
+      name: "Вадохрышча",
+      poems: ["Калі рака шэпча"],
+      image: getSeasonImage(1),
+      description: holidayDescriptions["Вадохрышча"],
+    },
+    {
+      day: 25,
+      month: 1,
+      name: "Дзень беларускай навукі",
+      poems: ["Чыстая лірыка"],
+      image: getSeasonImage(1),
+      description: holidayDescriptions["Дзень беларускай навукі"],
+    },
+    {
+      day: 2,
+      month: 2,
+      name: "Грамніцы",
+      poems: ["Зіма", "Маразь"],
+      image: getSeasonImage(2),
+      description: holidayDescriptions["Грамніцы"],
+    },
+    {
+      day: 15,
+      month: 2,
+      name: "Дзень памяці воінаў",
+      poems: ["Будзь цвёрды"],
+      image: getSeasonImage(2),
+      description: holidayDescriptions["Дзень памяці воінаў"],
+    },
+    {
+      day: 21,
+      month: 2,
+      name: "Дзень роднай мовы",
+      poems: ["А хто там ідзе", "Родная мова"],
+      image: getSeasonImage(2),
+      description: holidayDescriptions["Дзень роднай мовы"],
+    },
+    {
+      day: 23,
+      month: 2,
+      name: "Дзень абаронцаў Айчыны",
+      poems: ["Будзь цвёрды"],
+      image: getSeasonImage(2),
+      description: holidayDescriptions["Дзень абаронцаў Айчыны"],
+    },
     // Вясна
-    { day: 15, month: 3, name: "Дзень Канстытуцыі", poems: ["А хто там ідзе"], image: getSeasonImage(3), description: holidayDescriptions["Дзень Канстытуцыі"] },
-    { day: 21, month: 3, name: "Сусветны дзень паэзіі", poems: ["Чыстая лірыка", "Маладыя гады"], image: getSeasonImage(3), description: holidayDescriptions["Сусветны дзень паэзіі"] },
-    { day: 2, month: 4, name: "Дзень яднання народаў", poems: ["Родная мова"], image: getSeasonImage(4), description: holidayDescriptions["Дзень яднання народаў"] },
-    { day: 7, month: 5, name: "Радаўніца", poems: ["Звон кафедры", "Памяць"], image: getSeasonImage(5), description: holidayDescriptions["Радаўніца"] },
+    {
+      day: 15,
+      month: 3,
+      name: "Дзень Канстытуцыі",
+      poems: ["А хто там ідзе"],
+      image: getSeasonImage(3),
+      description: holidayDescriptions["Дзень Канстытуцыі"],
+    },
+    {
+      day: 21,
+      month: 3,
+      name: "Сусветны дзень паэзіі",
+      poems: ["Чыстая лірыка", "Маладыя гады"],
+      image: getSeasonImage(3),
+      description: holidayDescriptions["Сусветны дзень паэзіі"],
+    },
+    {
+      day: 2,
+      month: 4,
+      name: "Дзень яднання народаў",
+      poems: ["Родная мова"],
+      image: getSeasonImage(4),
+      description: holidayDescriptions["Дзень яднання народаў"],
+    },
+    {
+      day: 7,
+      month: 5,
+      name: "Радаўніца",
+      poems: ["Звон кафедры", "Памяць"],
+      image: getSeasonImage(5),
+      description: holidayDescriptions["Радаўніца"],
+    },
     // Лета
-    { day: 3, month: 7, name: "Дзень Незалежнасці", poems: ["А хто там ідзе", "Спадчына"], image: getSeasonImage(7), description: holidayDescriptions["Дзень Незалежнасці"] },
-    { day: 7, month: 7, name: "Купалле / Дзень нараджэння Янкі Купалы", poems: ["Гукі Купалы", "А хто там ідзе"], image: getSeasonImage(7), description: holidayDescriptions["Купалле / Дзень нараджэння Янкі Купалы"] },
+    {
+      day: 3,
+      month: 7,
+      name: "Дзень Незалежнасці",
+      poems: ["А хто там ідзе", "Спадчына"],
+      image: getSeasonImage(7),
+      description: holidayDescriptions["Дзень Незалежнасці"],
+    },
+    {
+      day: 7,
+      month: 7,
+      name: "Купалле / Дзень нараджэння Янкі Купалы",
+      poems: ["Гукі Купалы", "А хто там ідзе"],
+      image: getSeasonImage(7),
+      description:
+        holidayDescriptions["Купалле / Дзень нараджэння Янкі Купалы"],
+    },
     // Восень
-    { day: 1, month: 9, name: "Дзень беларускага пісьменства", poems: ["Родная мова", "Спадчына"], image: getSeasonImage(9), description: holidayDescriptions["Дзень беларускага пісьменства"] },
-    { day: 17, month: 9, name: "Дзень нараджэння Максіма Танка", poems: ["Горкі, салодкі хлеб"], image: getSeasonImage(9), description: holidayDescriptions["Дзень нараджэння Максіма Танка"] },
-    { day: 3, month: 11, name: "Дзень нараджэння Якуба Коласа", poems: ["Вы пачуеце Коласа", "Дзед Мароз"], image: getSeasonImage(11), description: holidayDescriptions["Дзень нараджэння Якуба Коласа"] },
+    {
+      day: 1,
+      month: 9,
+      name: "Дзень беларускага пісьменства",
+      poems: ["Родная мова", "Спадчына"],
+      image: getSeasonImage(9),
+      description: holidayDescriptions["Дзень беларускага пісьменства"],
+    },
+    {
+      day: 17,
+      month: 9,
+      name: "Дзень нараджэння Максіма Танка",
+      poems: ["Горкі, салодкі хлеб"],
+      image: getSeasonImage(9),
+      description: holidayDescriptions["Дзень нараджэння Максіма Танка"],
+    },
+    {
+      day: 3,
+      month: 11,
+      name: "Дзень нараджэння Якуба Коласа",
+      poems: ["Вы пачуеце Коласа", "Дзед Мароз"],
+      image: getSeasonImage(11),
+      description: holidayDescriptions["Дзень нараджэння Якуба Коласа"],
+    },
   ];
 
   // Функция для создания slug из названия
   function createSlug(name: string): string {
     return name
       .toLowerCase()
-      .replace(/[^a-zа-яёўі0-9\s]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/[ё]/g, 'yo')
-      .replace(/[ў]/g, 'w')
-      .replace(/[і]/g, 'i')
+      .replace(/[^a-zа-яёўі0-9\s]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/[ё]/g, "yo")
+      .replace(/[ў]/g, "w")
+      .replace(/[і]/g, "i")
       .replace(/[а-я]/g, (char) => {
         const mapping: Record<string, string> = {
-          'а': 'a', 'б': 'b', 'в': 'v', 'г': 'h', 'д': 'd',
-          'е': 'e', 'ж': 'zh', 'з': 'z', 'і': 'i', 'й': 'j',
-          'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o',
-          'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u',
-          'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh',
-          'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya',
+          а: "a",
+          б: "b",
+          в: "v",
+          г: "h",
+          д: "d",
+          е: "e",
+          ж: "zh",
+          з: "z",
+          і: "i",
+          й: "j",
+          к: "k",
+          л: "l",
+          м: "m",
+          н: "n",
+          о: "o",
+          п: "p",
+          р: "r",
+          с: "s",
+          т: "t",
+          у: "u",
+          ф: "f",
+          х: "kh",
+          ц: "ts",
+          ч: "ch",
+          ш: "sh",
+          ы: "y",
+          ь: "",
+          э: "e",
+          ю: "yu",
+          я: "ya",
         };
         return mapping[char] || char;
       })
-      .replace(/--+/g, '-')
-      .replace(/^-|-$/g, '');
+      .replace(/--+/g, "-")
+      .replace(/^-|-$/g, "");
   }
 
   // Определение сезона по месяцу
@@ -1662,11 +1848,13 @@ Ave Maria! Мы з табой
     const season = getSeason(holidayData.month);
 
     // Находим стихи по названиям
-    const poemSlugs = holidayData.poems.map(poemTitle => {
-      // Сопоставление названий стихов с slug из poemsData
-      const found = poemsData.find(p => p.title === poemTitle);
-      return found ? found.slug : null;
-    }).filter(Boolean) as string[];
+    const poemSlugs = holidayData.poems
+      .map((poemTitle) => {
+        // Сопоставление названий стихов с slug из poemsData
+        const found = poemsData.find((p) => p.title === poemTitle);
+        return found ? found.slug : null;
+      })
+      .filter(Boolean) as string[];
 
     const poems = await prisma.poem.findMany({
       where: { slug: { in: poemSlugs } },
@@ -1682,7 +1870,7 @@ Ave Maria! Мы з табой
         image: holidayData.image,
         description: holidayData.description,
         poems: {
-          set: poems.map(p => ({ id: p.id })),
+          set: poems.map((p) => ({ id: p.id })),
         },
       },
       create: {
@@ -1694,11 +1882,13 @@ Ave Maria! Мы з табой
         image: holidayData.image,
         description: holidayData.description,
         poems: {
-          connect: poems.map(p => ({ id: p.id })),
+          connect: poems.map((p) => ({ id: p.id })),
         },
       },
     });
-    console.log(`✅ Created holiday: ${holiday.name} (${holiday.day}.${holiday.month})`);
+    console.log(
+      `✅ Created holiday: ${holiday.name} (${holiday.day}.${holiday.month})`,
+    );
   }
 
   console.log("✅ Created holidays");
@@ -1732,6 +1922,15 @@ Ave Maria! Мы з табой
       order: 3,
       isActive: true,
     },
+    {
+      title: "Вясна",
+      subtitle: "Вясеннiя дні",
+      season: Season.AUTUMN,
+      imageUrl: "/images/seasons/autumn.jpg",
+      altText: "Autumn",
+      order: 4,
+      isActive: true,
+    },
   ];
 
   for (const slideData of seasonSlidesData) {
@@ -1740,7 +1939,7 @@ Ave Maria! Мы з табой
         season_order: {
           season: slideData.season,
           order: slideData.order,
-        }
+        },
       },
       update: slideData,
       create: slideData,

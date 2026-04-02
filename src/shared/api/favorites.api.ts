@@ -1,42 +1,25 @@
-import { Favorite, Poem } from "../types";
 import { apiClient } from "./client";
-
-export interface FavoriteWithPoem extends Favorite {
-  poem: Poem;
-}
+import { FavoriteWithPoem } from "../types";
 
 export const favoritesApi = {
-  // Получить все избранные стихи пользователя
-  getAll: async (): Promise<FavoriteWithPoem[]> => {
-    const response = await apiClient.get<FavoriteWithPoem[]>("/favorites");
+  toggle: async (
+    poemId: number,
+  ): Promise<{ isFavorite: boolean; count: number }> => {
+    const response = await apiClient.post(`/favorites/poems/${poemId}/toggle`);
     return response.data;
   },
 
-  // Добавить в избранное
-  add: async (poemId: number): Promise<Favorite> => {
-    const response = await apiClient.post<Favorite>(`/favorites/${poemId}`);
+  getStatus: async (poemId: number): Promise<{ isFavorite: boolean }> => {
+    const response = await apiClient.get(`/favorites/poems/${poemId}/status`);
     return response.data;
   },
 
-  // Удалить из избранного
+  getMyFavorites: async (): Promise<FavoriteWithPoem[]> => {
+    const response = await apiClient.get("/favorites/my");
+    return response.data;
+  },
+
   remove: async (poemId: number): Promise<void> => {
-    await apiClient.delete(`/favorites/${poemId}`);
-  },
-
-  // Проверить, в избранном ли стих
-  check: async (poemId: number): Promise<{ isFavorite: boolean }> => {
-    const response = await apiClient.get<{ isFavorite: boolean }>(
-      `/favorites/check/${poemId}`,
-    );
-    return response.data;
-  },
-
-  // Toggle избранное
-  toggle: async (poemId: number, isFavorite: boolean): Promise<void> => {
-    if (isFavorite) {
-      await favoritesApi.remove(poemId);
-    } else {
-      await favoritesApi.add(poemId);
-    }
+    await apiClient.delete(`/favorites/poems/${poemId}`);
   },
 };

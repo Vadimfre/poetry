@@ -1,4 +1,3 @@
-import PoemViewSection from '@/components/PoemViewSection/PoemViewSection'
 
 interface PageProps {
   params: {
