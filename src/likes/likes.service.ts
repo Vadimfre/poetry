@@ -96,7 +96,10 @@ export class LikesService {
     });
   }
 
-  async isLikedByUser(userId: number, poemId: number): Promise<boolean> {
+  async isLikedByUser(
+    userId: number,
+    poemId: number,
+  ): Promise<{ liked: boolean }> {
     const like = await this.prisma.like.findUnique({
       where: {
         userId_poemId: {
@@ -106,19 +109,45 @@ export class LikesService {
       },
     });
 
-    return !!like;
+    return { liked: !!like }; // ← оборачиваем в объект
   }
 
-  async getLikesCount(poemId: number): Promise<number> {
-    const poem = await this.prisma.poem.findUnique({
-      where: { id: poemId },
-      select: { likesCount: true },
+  async getLikesCount(poemId: number): Promise<{ likesCount: number }> {
+    const likesCount = await this.prisma.like.count({
+      where: { poemId },
     });
 
-    if (!poem) {
-      throw new NotFoundException("Стихотворение не найдено");
-    }
+    return { likesCount };
+  }
 
-    return poem.likesCount;
+  async recalculateLikesCount(poemId: number): Promise<void> {
+    const count = await this.prisma.like.count({
+      where: { poemId },
+    });
+
+    await this.prisma.poem.update({
+      where: { id: poemId },
+      data: { likesCount: count },
+    });
+  }
+  async recalculateAllLikesCounts() {
+    const poems = await this.prisma.poem.findMany({
+      select: { id: true },
+    });
+
+    await Promise.all(
+      poems.map(async (poem) => {
+        const count = await this.prisma.like.count({
+          where: { poemId: poem.id },
+        });
+
+        await this.prisma.poem.update({
+          where: { id: poem.id },
+          data: { likesCount: count },
+        });
+      }),
+    );
+
+    return { message: `Пересчитано ${poems.length} стихов` };
   }
 }
