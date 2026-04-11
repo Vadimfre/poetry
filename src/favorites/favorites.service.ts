@@ -80,17 +80,40 @@ export class FavoritesService {
     });
   }
 
-  async isFavorite(userId: number, poemId: number): Promise<boolean> {
-    const favorite = await this.prisma.favorite.findUnique({
-      where: {
-        userId_poemId: {
-          userId,
-          poemId,
-        },
-      },
+  async favoriteStatus(
+    userId: number,
+    poemId: number,
+  ): Promise<{
+    isFavorite: boolean;
+    favoritesCount: number;
+  }> {
+    const [favorite, poem] = await Promise.all([
+      this.prisma.favorite.findUnique({
+        where: { userId_poemId: { userId, poemId } },
+      }),
+      this.prisma.poem.findUnique({
+        where: { id: poemId },
+        select: { favoritesCount: true },
+      }),
+    ]);
+
+    return {
+      isFavorite: !!favorite,
+      favoritesCount: poem?.favoritesCount || 0,
+    };
+  }
+
+  async getFavoritesCount(poemId: number): Promise<{ favoritesCount: number }> {
+    const poem = await this.prisma.poem.findUnique({
+      where: { id: poemId },
+      select: { favoritesCount: true },
     });
 
-    return !!favorite;
+    if (!poem) {
+      throw new NotFoundException("Стихотворение не найдено");
+    }
+
+    return { favoritesCount: poem.favoritesCount };
   }
 
   async getUserFavorites(userId: number): Promise<FavoriteResponseDto[]> {
@@ -112,21 +135,32 @@ export class FavoritesService {
   }
 
   async removeFavorite(userId: number, poemId: number): Promise<void> {
-    const favorite = await this.prisma.favorite.findUnique({
-      where: {
-        userId_poemId: {
-          userId,
-          poemId,
+    return this.prisma.$transaction(async (tx) => {
+      const favorite = await tx.favorite.findUnique({
+        where: {
+          userId_poemId: {
+            userId,
+            poemId,
+          },
         },
-      },
-    });
+      });
 
-    if (!favorite) {
-      throw new NotFoundException("Запись в избранном не найдена");
-    }
+      if (!favorite) {
+        throw new NotFoundException("Запись в избранном не найдена");
+      }
 
-    await this.prisma.favorite.delete({
-      where: { id: favorite.id },
+      await tx.favorite.delete({
+        where: { id: favorite.id },
+      });
+
+      await tx.poem.update({
+        where: { id: poemId },
+        data: {
+          favoritesCount: {
+            decrement: 1,
+          },
+        },
+      });
     });
   }
 }

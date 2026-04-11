@@ -11,26 +11,20 @@ export class LikesService {
     userId: number,
     poemId: number,
   ): Promise<ToggleLikeResponseDto> {
-    const poem = await this.prisma.poem.findUnique({
-      where: { id: poemId },
-      select: { id: true, likesCount: true },
-    });
+    const [existingLike, poem] = await Promise.all([
+      this.prisma.like.findUnique({
+        where: { userId_poemId: { userId, poemId } },
+      }),
+      this.prisma.poem.findUnique({
+        where: { id: poemId },
+      }),
+    ]);
 
     if (!poem) {
       throw new NotFoundException("Стихотворение не найдено");
     }
 
     return this.prisma.$transaction(async (tx) => {
-      // Проверяем лайк внутри транзакции (актуальное состояние)
-      const existingLike = await tx.like.findUnique({
-        where: {
-          userId_poemId: {
-            userId,
-            poemId,
-          },
-        },
-      });
-
       // Если лайк уже есть — удаляем
       if (existingLike) {
         await tx.like.delete({
@@ -118,6 +112,36 @@ export class LikesService {
     });
 
     return { likesCount };
+  }
+
+  async removeLike(userId: number, poemId: number): Promise<void> {
+    return this.prisma.$transaction(async (tx) => {
+      const like = await this.prisma.like.findUnique({
+        where: {
+          userId_poemId: {
+            userId,
+            poemId,
+          },
+        },
+      });
+
+      if (!like) {
+        throw new NotFoundException("Запись в лайкнутом не найдена");
+      }
+
+      await tx.like.delete({
+        where: { id: like.id },
+      });
+
+      await tx.poem.update({
+        where: { id: poemId },
+        data: {
+          likesCount: {
+            decrement: 1,
+          },
+        },
+      });
+    });
   }
 
   async recalculateLikesCount(poemId: number): Promise<void> {

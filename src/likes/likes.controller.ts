@@ -40,6 +40,13 @@ export class LikesController {
     return this.likesService.getLikesCount(poemId);
   }
 
+  async removeLike(
+    @Req() req: any,
+    @Param("poemId", ParseIntPipe) poemId: number,
+  ) {
+    return this.likesService.removeLike(req.user.id, poemId);
+  }
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles("ADMIN", "SUPER_ADMIN")
   @Post("recalculate-all")

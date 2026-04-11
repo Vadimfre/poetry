@@ -1,35 +1,35 @@
 import {
   Controller,
-  Post,
   Get,
   Param,
   ParseIntPipe,
   Req,
+  Res,
+  UseGuards,
 } from "@nestjs/common";
+import { Response } from "express";
 import { ViewsService } from "./views.service";
+import { IpExtractionGuard } from "./guards/ip-extraction.guard";
 
 @Controller("views")
 export class ViewsController {
   constructor(private readonly viewsService: ViewsService) {}
 
-  // 📌 Добавить просмотр (работает и для гостей)
-  @Post(":poemId")
-  async addView(
+  @Get(":poemId")
+  @UseGuards(IpExtractionGuard)
+  async getOrAddView(
     @Param("poemId", ParseIntPipe) poemId: number,
     @Req() req: any,
+    @Res() res: Response,
   ) {
-    const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.ip;
-
-    return this.viewsService.addView(
+    const result = await this.viewsService.getOrAddView(
       poemId,
-      req.user?.id, // может быть undefined (гость)
-      ip,
+      req.user?.id,
+      req.extractedIp,
     );
-  }
 
-  // 📊 Получить количество просмотров
-  @Get(":poemId/count")
-  async getViewsCount(@Param("poemId", ParseIntPipe) poemId: number) {
-    return this.viewsService.getViewsCount(poemId);
+    this.viewsService.setCacheHeaders(res);
+
+    return res.json(result);
   }
 }

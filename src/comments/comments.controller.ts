@@ -9,13 +9,11 @@ import {
   UseGuards,
   Req,
   ParseIntPipe,
-  Query,
 } from "@nestjs/common";
 import { CommentsService } from "./comments.service";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { CreateCommentDto } from "./dto/create-comment.dto";
 import { UpdateCommentDto } from "./dto/update-comment.dto";
-import { CommentQueryDto } from "./dto/comment-query.dto";
 
 @Controller("comments")
 export class CommentsController {

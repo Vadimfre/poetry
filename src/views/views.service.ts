@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { Response } from "express";
 import { PrismaService } from "../prisma/prisma.service";
 import { createHash } from "crypto";
 
@@ -18,7 +19,7 @@ export class ViewsService {
     return d;
   }
 
-  async addView(
+  async getOrAddView(
     poemId: number,
     userId?: number,
     ip?: string,
@@ -70,16 +71,13 @@ export class ViewsService {
     }
   }
 
-  async getViewsCount(poemId: number): Promise<number> {
-    const poem = await this.prisma.poem.findUnique({
-      where: { id: poemId },
-      select: { views: true },
-    });
+  extractIp(req: any): string {
+    return req.headers["x-forwarded-for"]?.split(",")[0] || req.ip;
+  }
 
-    if (!poem) {
-      throw new NotFoundException("Стихотворение не найдено");
-    }
-
-    return poem.views;
+  setCacheHeaders(res: Response): void {
+    res.set("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.set("Pragma", "no-cache");
+    res.set("Expires", "0");
   }
 }

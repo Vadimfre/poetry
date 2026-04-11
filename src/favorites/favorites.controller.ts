@@ -34,10 +34,9 @@ export class FavoritesController {
   async getFavoriteStatus(
     @Param("poemId", ParseIntPipe) poemId: number,
     @Req() req: any,
-  ): Promise<{ isFavorite: boolean }> {
+  ): Promise<{ isFavorite: boolean; favoritesCount: number }> {
     const userId = req.user.id;
-    const isFavorite = await this.favoritesService.isFavorite(userId, poemId);
-    return { isFavorite };
+    return this.favoritesService.favoriteStatus(userId, poemId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -45,6 +44,13 @@ export class FavoritesController {
   async getMyFavorites(@Req() req: any): Promise<FavoriteResponseDto[]> {
     const userId = req.user.id;
     return this.favoritesService.getUserFavorites(userId);
+  }
+
+  @Get("poem/:poemId/count")
+  async getFavoritesCount(
+    @Param("poemId", ParseIntPipe) poemId: number,
+  ): Promise<{ favoritesCount: number }> {
+    return this.favoritesService.getFavoritesCount(poemId);
   }
 
   @UseGuards(JwtAuthGuard)

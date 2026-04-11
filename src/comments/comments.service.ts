@@ -25,7 +25,7 @@ export class CommentsService {
         throw new NotFoundException("Стихотворение не найдено");
       }
 
-      // 2. Проверка parent
+      // 2. Проверка parentId
       if (parentId) {
         const parentComment = await prisma.comment.findUnique({
           where: { id: parentId },
@@ -33,12 +33,12 @@ export class CommentsService {
         });
 
         if (!parentComment) {
-          throw new NotFoundException("Родительский комментарий не найден");
+          throw new NotFoundException("Комментарий для ответа не найден");
         }
 
         if (parentComment.poemId !== poemId) {
           throw new ForbiddenException(
-            "Родительский комментарий принадлежит другому стихотворению",
+            "Комментарий для ответа принадлежит другому стихотворению",
           );
         }
       }
@@ -79,26 +79,16 @@ export class CommentsService {
   // 🔍 FIND
   async findByPoem(poemId: number) {
     return this.prisma.comment.findMany({
-      where: { poemId, parentId: null },
+      where: { poemId },
       include: {
-        user: {
+        user: { select: { id: true, name: true, avatar: true } },
+        parent: {
           select: {
             id: true,
-            name: true,
-            avatar: true,
+            text: true,
+            userId: true,
+            user: { select: { id: true, name: true, avatar: true } },
           },
-        },
-        replies: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                avatar: true,
-              },
-            },
-          },
-          orderBy: { createdAt: "asc" },
         },
       },
       orderBy: { createdAt: "desc" },

@@ -137,22 +137,24 @@ model Like {
 
 // Комментарий к стихотворению
 model Comment {
-  id        Int      @id @default(autoincrement())
-  text      String   @db.Text
-  userId    Int
-  poemId    Int
+  id   Int    @id @default(autoincrement())
+  text String @db.Text
+
+  userId   Int
+  poemId   Int
+  parentId Int?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  parentId  Int? // 🔥 ВОТ ЭТО
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   poem Poem @relation(fields: [poemId], references: [id], onDelete: Cascade)
 
-  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
-  replies Comment[] @relation("CommentReplies")
+  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Comment[] @relation("CommentReplies")
 
-  @@index([poemId])
-  @@index([userId])
+  @@index([poemId, createdAt])
+  @@index([userId, createdAt])
 }
 
 model Favorite {
