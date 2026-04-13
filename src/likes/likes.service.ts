@@ -32,60 +32,39 @@ export class LikesService {
             id: existingLike.id,
           },
         });
-
-        const updatedPoem = await tx.poem.update({
-          where: { id: poemId },
-          data: {
-            likesCount: {
-              decrement: 1,
+      } else {
+        // Если лайка нет — пытаемся создать
+        try {
+          await tx.like.create({
+            data: {
+              userId,
+              poemId,
             },
-          },
-          select: {
-            likesCount: true,
-          },
-        });
-
-        return {
-          liked: false,
-          likesCount: updatedPoem.likesCount,
-        };
-      }
-
-      // Если лайка нет — пытаемся создать
-      try {
-        await tx.like.create({
-          data: {
-            userId,
-            poemId,
-          },
-        });
-      } catch (error) {
-        // Если поймали unique constraint — лайк уже существует (race condition)
-        if (
-          error instanceof Prisma.PrismaClientKnownRequestError &&
-          error.code === "P2002"
-        ) {
-          // В этом случае просто считаем, что лайк уже был
-        } else {
-          throw error;
+          });
+        } catch (error) {
+          if (
+            error instanceof Prisma.PrismaClientKnownRequestError &&
+            error.code === "P2002"
+          ) {
+            // race condition — лайк уже существует
+          } else {
+            throw error;
+          }
         }
       }
 
-      const updatedPoem = await tx.poem.update({
+      // Считаем реальное количество лайков из таблицы
+      const realCount = await tx.like.count({ where: { poemId } });
+
+      // Синхронизируем денормализованный счётчик
+      await tx.poem.update({
         where: { id: poemId },
-        data: {
-          likesCount: {
-            increment: 1,
-          },
-        },
-        select: {
-          likesCount: true,
-        },
+        data: { likesCount: realCount },
       });
 
       return {
-        liked: true,
-        likesCount: updatedPoem.likesCount,
+        liked: !existingLike,
+        likesCount: realCount,
       };
     });
   }
@@ -116,7 +95,7 @@ export class LikesService {
 
   async removeLike(userId: number, poemId: number): Promise<void> {
     return this.prisma.$transaction(async (tx) => {
-      const like = await this.prisma.like.findUnique({
+      const like = await tx.like.findUnique({
         where: {
           userId_poemId: {
             userId,
@@ -133,13 +112,11 @@ export class LikesService {
         where: { id: like.id },
       });
 
+      const realCount = await tx.like.count({ where: { poemId } });
+
       await tx.poem.update({
         where: { id: poemId },
-        data: {
-          likesCount: {
-            decrement: 1,
-          },
-        },
+        data: { likesCount: realCount },
       });
     });
   }

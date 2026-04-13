@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { Response } from "express";
 import { PrismaService } from "../prisma/prisma.service";
+import { Prisma } from "@prisma/client";
 import { createHash } from "crypto";
 
 @Injectable()
@@ -35,10 +36,35 @@ export class ViewsService {
     }
 
     const date = this.getStartOfDay();
+
+    // 2. Проверяем, был ли уже просмотр сегодня
+    //    Авторизованный — по userId, аноним — по ipHash
+    let existingView = null;
+
+    if (userId) {
+      existingView = await this.prisma.view.findFirst({
+        where: { poemId, userId, date },
+      });
+    }
+
+    if (!existingView) {
+      const ipHash = ip ? this.hashIp(ip) : null;
+      if (ipHash) {
+        existingView = await this.prisma.view.findFirst({
+          where: { poemId, ipHash, date },
+        });
+      }
+    }
+
+    // 3. Если просмотр уже был — просто возвращаем текущий счётчик
+    if (existingView) {
+      return { views: poem.views };
+    }
+
+    // 4. Создаём просмотр
     const ipHash = ip ? this.hashIp(ip) : null;
 
     try {
-      // 2. Пытаемся создать просмотр
       await this.prisma.view.create({
         data: {
           poemId,
@@ -49,7 +75,7 @@ export class ViewsService {
         },
       });
 
-      // 3. Если создали → увеличиваем счётчик
+      // 5. Увеличиваем счётчик
       const updated = await this.prisma.poem.update({
         where: { id: poemId },
         data: {
@@ -62,12 +88,18 @@ export class ViewsService {
 
       return { views: updated.views };
     } catch (e) {
-      const updated = await this.prisma.poem.findUnique({
-        where: { id: poemId },
-        select: { views: true },
-      });
-
-      return { views: updated.views };
+      // Ловим только unique constraint violation (race condition)
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === "P2002"
+      ) {
+        const current = await this.prisma.poem.findUnique({
+          where: { id: poemId },
+          select: { views: true },
+        });
+        return { views: current!.views };
+      }
+      throw e;
     }
   }
 

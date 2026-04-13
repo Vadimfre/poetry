@@ -484,7 +484,18 @@ export class AdminService {
       throw new NotFoundException("Лайк не найден");
     }
 
-    return this.prisma.like.delete({ where: { id } });
+    return this.prisma.$transaction(async (tx) => {
+      await tx.like.delete({ where: { id } });
+
+      await tx.poem.update({
+        where: { id: like.poemId },
+        data: {
+          likesCount: {
+            decrement: 1,
+          },
+        },
+      });
+    });
   }
 
   // ========== VIEWS MANAGEMENT ==========
@@ -502,12 +513,13 @@ export class AdminService {
           poemId: true,
           userId: true,
           ip: true,
+          ipHash: true,
           createdAt: true,
         },
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,
-      }),
+    }),
       this.prisma.view.count({ where }),
     ]);
 
@@ -578,6 +590,20 @@ export class AdminService {
       uniqueVisitors: uniqueVisitors.length,
       topPoems: viewsByPoem,
       dailyViews: viewsByDay,
+    };
+  }
+
+  async resetAllViews() {
+    const [deletedViews, updatedPoems] = await Promise.all([
+      this.prisma.view.deleteMany(),
+      this.prisma.poem.updateMany({
+        data: { views: 0 },
+      }),
+    ]);
+
+    return {
+      deletedViewsCount: deletedViews.count,
+      resetPoemsCount: updatedPoems.count,
     };
   }
 

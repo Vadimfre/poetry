@@ -10,13 +10,14 @@ import {
 import { Response } from "express";
 import { ViewsService } from "./views.service";
 import { IpExtractionGuard } from "./guards/ip-extraction.guard";
+import { OptionalJwtAuthGuard } from "../auth/optional-jwt-auth.guard";
 
 @Controller("views")
 export class ViewsController {
   constructor(private readonly viewsService: ViewsService) {}
 
   @Get(":poemId")
-  @UseGuards(IpExtractionGuard)
+  @UseGuards(OptionalJwtAuthGuard, IpExtractionGuard)
   async getOrAddView(
     @Param("poemId", ParseIntPipe) poemId: number,
     @Req() req: any,

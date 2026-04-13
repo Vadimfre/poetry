@@ -20,6 +20,7 @@ import { SeasonSlidesModule } from "./season-slides/season-slides.module";
 import { LikesModule } from "./likes/likes.module";
 import { ViewsModule } from "./views/views.module";
 import { FavoritesModule } from "./favorites/favorites.module";
+import { InteractionsModule } from './interactions/interactions.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { FavoritesModule } from "./favorites/favorites.module";
     LikesModule,
     FavoritesModule,
     ViewsModule,
+    InteractionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

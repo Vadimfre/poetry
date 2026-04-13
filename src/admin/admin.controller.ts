@@ -240,6 +240,12 @@ export class AdminController {
     return this.adminService.getViewsAnalytics();
   }
 
+  @Delete("views/reset")
+  @Roles("ADMIN", "SUPER_ADMIN")
+  async resetAllViews() {
+    return this.adminService.resetAllViews();
+  }
+
   @Get("views/poem/:poemId")
   @Roles("ADMIN", "SUPER_ADMIN")
   async getViewsByPoem(@Param("poemId", ParseIntPipe) poemId: number) {
