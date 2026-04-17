@@ -150,8 +150,8 @@ model Comment {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   poem Poem @relation(fields: [poemId], references: [id], onDelete: Cascade)
 
-  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  children  Comment[] @relation("CommentReplies")
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  children Comment[] @relation("CommentReplies")
 
   @@index([poemId, createdAt])
   @@index([userId, createdAt])
@@ -212,8 +212,6 @@ model Holiday {
   @@index([month, day])
 }
 
-// Избранное
-
 // Слайды сезонов для главного слайдера
 model SeasonSlide {
   id        String   @id @default(cuid())
@@ -228,4 +226,48 @@ model SeasonSlide {
   updatedAt DateTime @updatedAt
 
   @@unique([season, order])
+}
+
+model Quiz {
+  id        String     @id @default(uuid())
+  title     String
+  imageUrl  String
+  questions Question[]
+}
+
+model Question {
+  id     String @id @default(uuid())
+  quizId String
+  quiz   Quiz   @relation(fields: [quizId], references: [id])
+
+  text String
+
+  items Item[]
+  zones Zone[]
+
+  @@index([quizId])
+}
+
+model Item {
+  id         String   @id @default(uuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id])
+
+  content String
+
+  correctZoneId String
+  correctZone   Zone   @relation(fields: [correctZoneId], references: [id])
+
+  @@index([questionId])
+}
+
+model Zone {
+  id         String   @id @default(uuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id])
+
+  content String
+  items   Item[]
+
+  @@index([questionId])
 }

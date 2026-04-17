@@ -4,7 +4,6 @@ import {
   Param,
   Query,
   ParseIntPipe,
-  UseGuards,
   Req,
 } from "@nestjs/common";
 import { PoemsService } from "./poems.service";
@@ -21,7 +20,7 @@ export class PoemsController {
   ) {
     return this.poemsService.findAll(parseInt(page), parseInt(limit));
   }
-
+  
   @Get("search")
   async search(@Query("q") query: string) {
     return this.poemsService.search(query);
@@ -43,8 +42,9 @@ export class PoemsController {
     return this.poemsService.findBySlug(slug, userId);
   }
 
-  @Get("category/:categorySlug")
+  @Get("category/slug/:categorySlug")
   async findByCategorySlug(@Param("categorySlug") categorySlug: string) {
+    
     return this.poemsService.findByCategorySlug(categorySlug);
   }
 

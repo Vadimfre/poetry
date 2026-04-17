@@ -1,7 +1,11 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { Pool } from 'pg';
+import "dotenv/config"
+import { Injectable, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
+import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
 
 @Injectable()
 export class PrismaService
@@ -9,22 +13,16 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   constructor() {
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-    const adapter = new PrismaPg(pool);
-    
-    super({
-      adapter,
-      log: ['query', 'info', 'warn', 'error'],
-    });
+    super({ adapter });
   }
 
   async onModuleInit() {
     await this.$connect();
-    console.log('✅ Prisma connected to database');
+    console.log("✅ Prisma connected to database");
   }
 
   async onModuleDestroy() {
     await this.$disconnect();
-    console.log('❌ Prisma disconnected from database');
+    console.log("❌ Prisma disconnected from database");
   }
 }

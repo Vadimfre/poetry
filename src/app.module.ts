@@ -21,6 +21,7 @@ import { LikesModule } from "./likes/likes.module";
 import { ViewsModule } from "./views/views.module";
 import { FavoritesModule } from "./favorites/favorites.module";
 import { InteractionsModule } from './interactions/interactions.module';
+import { QuizsModule } from './quizs/quizs.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { InteractionsModule } from './interactions/interactions.module';
     FavoritesModule,
     ViewsModule,
     InteractionsModule,
+    QuizsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
