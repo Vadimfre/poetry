@@ -1923,8 +1923,8 @@ Ave Maria! Мы з табой
       isActive: true,
     },
     {
-      title: "Вясна",
-      subtitle: "Вясеннiя дні",
+      title: "Восень",
+      subtitle: "Листа - пад",
       season: Season.AUTUMN,
       imageUrl: "/images/seasons/autumn.jpg",
       altText: "Autumn",
@@ -1947,6 +1947,156 @@ Ave Maria! Мы з табой
   }
 
   console.log("✅ Created season slides");
+
+  // ============ КВИЗЫ ============
+
+  // Квиз 1: MATCH — соотнеси автора с произведением
+  const quiz1 = await prisma.quiz.create({
+    data: {
+      title: "Аўтар і твор",
+      imageUrl: "/images/quizzes/author-work.jpg",
+      questions: {
+        create: {
+          text: "Спалучы аўтара з яго творам",
+          type: "MATCH",
+          zones: {
+            create: [
+              { content: "А хто там ідзе?", order: 0 },
+              { content: "Мой родны кут", order: 1 },
+              { content: "Слуцкія ткачыхі", order: 2 },
+              { content: "Каласы пад сярпом тваім", order: 3 },
+            ],
+          },
+          items: {
+            create: [
+              { content: "Янка Купала", order: 0 },
+              { content: "Якуб Колас", order: 1 },
+              { content: "Максім Багдановіч", order: 2 },
+              { content: "Уладзімір Караткевіч", order: 3 },
+            ],
+          },
+        },
+      },
+    },
+    include: {
+      questions: { include: { items: true, zones: true } },
+    },
+  });
+
+  // Создаём ItemZone для квиза 1 (после создания, чтобы получить реальные ID)
+  const quiz1Question = quiz1.questions[0];
+  const quiz1CorrectMappings = [
+    { itemIdx: 0, zoneIdx: 0 }, // Купала → А хто там ідзе?
+    { itemIdx: 1, zoneIdx: 1 }, // Колас → Мой родны кут
+    { itemIdx: 2, zoneIdx: 2 }, // Багдановіч → Слуцкія ткачыхі
+    { itemIdx: 3, zoneIdx: 3 }, // Караткевіч → Каласы пад сярпом тваім
+  ];
+  for (const m of quiz1CorrectMappings) {
+    await prisma.itemZone.create({
+      data: {
+        itemId: quiz1Question.items[m.itemIdx].id,
+        zoneId: quiz1Question.zones[m.zoneIdx].id,
+        isCorrect: true,
+      },
+    });
+  }
+  console.log("✅ Created quiz 1: Аўтар і твор (MATCH)");
+
+  // Квиз 2: ORDER — расположи по хронологии
+  const quiz2 = await prisma.quiz.create({
+    data: {
+      title: "Храналогія паэтаў",
+      imageUrl: "/images/quizzes/chronology.jpg",
+      questions: {
+        create: {
+          text: "Размесці паэтаў у храналагічным парадку (ад старэйшага да малодшага)",
+          type: "ORDER",
+          items: {
+            create: [
+              { content: "Франтішак Багушэвіч", order: 0 },
+              { content: "Янка Купала", order: 1 },
+              { content: "Максім Багдановіч", order: 2 },
+              { content: "Пятрусь Броўка", order: 3 },
+              { content: "Рыгор Барадулін", order: 4 },
+            ],
+          },
+        },
+      },
+    },
+    include: {
+      questions: { include: { items: true } },
+    },
+  });
+  console.log("✅ Created quiz 2: Храналогія паэтаў (ORDER)");
+
+  // Квиз 3: FILL — вставь пропущенное слово
+  const quiz3 = await prisma.quiz.create({
+    data: {
+      title: "Устаў пропушчанае слова",
+      imageUrl: "/images/quizzes/fill-blank.jpg",
+      questions: {
+        create: [
+          {
+            text: "Устаў пропушчанае слова ў радок Янкі Купалы",
+            type: "FILL",
+            zones: {
+              create: [
+                { content: "ідзе", order: 0 },
+                { content: "нясуць", order: 1 },
+                { content: "звацца", order: 2 },
+              ],
+            },
+            items: {
+              create: [
+                { content: "А хто там ___?", order: 0 },
+                { content: "А што яны ___ на худых плячах?", order: 1 },
+                { content: "Людзьмі ___", order: 2 },
+              ],
+            },
+          },
+          {
+            text: "Устаў пропушчанае слова ў радкі Якуба Коласа",
+            type: "FILL",
+            zones: {
+              create: [
+                { content: "кут", order: 0 },
+                { content: "ракой", order: 1 },
+                { content: "вясна", order: 2 },
+              ],
+            },
+            items: {
+              create: [
+                { content: "Мой родны ___", order: 0 },
+                { content: "Над ___ шырокай", order: 1 },
+                { content: "Ой ___, красна", order: 2 },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    include: {
+      questions: { include: { items: true, zones: true } },
+    },
+  });
+
+  // Создаём ItemZone для квиза 3 (FILL — каждый item → одна правильная zone)
+  for (const question of quiz3.questions) {
+    const correctMappings = question.items.map((_, idx) => ({
+      itemIdx: idx,
+      zoneIdx: idx,
+    }));
+    for (const m of correctMappings) {
+      await prisma.itemZone.create({
+        data: {
+          itemId: question.items[m.itemIdx].id,
+          zoneId: question.zones[m.zoneIdx].id,
+          isCorrect: true,
+        },
+      });
+    }
+  }
+  console.log("✅ Created quiz 3: Устаў пропушчанае слова (FILL)");
 
   console.log("✅ Created 50+ Belarusian poems");
   console.log("🎉 Seeding completed successfully!");

@@ -5,8 +5,16 @@ import {
   ValidateNested,
   IsNumber,
   IsOptional,
+  IsEnum,
+  IsBoolean,
 } from "class-validator";
 import { Type } from "class-transformer";
+
+enum QuestionType {
+  MATCH = "MATCH",
+  ORDER = "ORDER",
+  FILL = "FILL",
+}
 
 class ItemDto {
   @IsString()
@@ -14,19 +22,39 @@ class ItemDto {
   content: string;
 
   @IsNumber()
-  correctZoneIndex: number; // индекс зоны в массиве zones вопроса
+  @IsOptional()
+  order?: number;
 }
 
 class ZoneDto {
   @IsString()
   @IsNotEmpty()
   content: string;
+
+  @IsNumber()
+  @IsOptional()
+  order?: number;
+}
+
+class CorrectMappingDto {
+  @IsNumber()
+  itemIndex: number;
+
+  @IsNumber()
+  zoneIndex: number;
+
+  @IsBoolean()
+  @IsOptional()
+  isCorrect?: boolean;
 }
 
 class QuestionDto {
   @IsString()
   @IsNotEmpty()
   text: string;
+
+  @IsEnum(QuestionType)
+  type: QuestionType;
 
   @IsArray()
   @ValidateNested({ each: true })
@@ -37,6 +65,11 @@ class QuestionDto {
   @ValidateNested({ each: true })
   @Type(() => ZoneDto)
   zones: ZoneDto[];
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CorrectMappingDto)
+  correctMappings: CorrectMappingDto[];
 }
 
 export class CreateQuizDto {

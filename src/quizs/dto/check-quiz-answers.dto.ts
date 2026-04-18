@@ -1,18 +1,37 @@
-import { IsArray, IsString, IsNotEmpty, ValidateNested } from "class-validator";
+import {
+  IsArray,
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsNumber,
+  ValidateNested,
+} from "class-validator";
 import { Type } from "class-transformer";
 
-class AnswerMappingDto {
+class AnswerDto {
   @IsString()
   @IsNotEmpty()
   questionId: string;
 
+  @IsString()
   @IsNotEmpty()
-  mapping: Record<string, string>;
+  itemId: string;
+
+  @IsString()
+  @IsOptional()
+  zoneId?: string;
+
+  @IsNumber()
+  @IsOptional()
+  order?: number;
+
+  @IsOptional()
+  content?: string;
 }
 
 export class CheckQuizAnswersDto {
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => AnswerMappingDto)
-  answers: AnswerMappingDto[];
+  @Type(() => AnswerDto)
+  answers: AnswerDto[];
 }

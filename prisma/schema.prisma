@@ -241,6 +241,9 @@ model Question {
   quiz   Quiz   @relation(fields: [quizId], references: [id])
 
   text String
+  type QuestionType
+
+  content Json?
 
   items Item[]
   zones Zone[]
@@ -254,9 +257,9 @@ model Item {
   question   Question @relation(fields: [questionId], references: [id])
 
   content String
+  order   Int?
 
-  correctZoneId String
-  correctZone   Zone   @relation(fields: [correctZoneId], references: [id])
+  itemZones ItemZone[]
 
   @@index([questionId])
 }
@@ -267,7 +270,44 @@ model Zone {
   question   Question @relation(fields: [questionId], references: [id])
 
   content String
-  items   Item[]
+  order   Int?
+
+  itemZones ItemZone[]
 
   @@index([questionId])
+}
+
+model ItemZone {
+  id String @id @default(uuid())
+
+  itemId String
+  zoneId String
+
+  item Item @relation(fields: [itemId], references: [id])
+  zone Zone @relation(fields: [zoneId], references: [id])
+
+  isCorrect Boolean @default(true)
+  order Int?
+
+  @@unique([itemId, zoneId])
+  @@index([itemId])
+  @@index([zoneId])
+}
+
+model UserAnswer {
+  id String @id @default(uuid())
+
+  questionId String
+  itemId     String
+  zoneId     String?
+
+  order Int?
+
+  isCorrect Boolean?
+}
+
+enum QuestionType {
+  MATCH // автор → произведение
+  ORDER // хронология
+  FILL // вставь пропуски
 }

@@ -1,42 +1,44 @@
 import { PrismaService } from "@/prisma/prisma.service";
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { CheckQuizAnswersDto } from "./dto/check-quiz-answers.dto";
-import { CreateQuizDto } from "./dto/create-quiz.dto";
-import { UpdateQuizDto } from "./dto/update-quiz.dto";
-
-const QUIZ_INCLUDE = {
-  questions: {
-    include: {
-      items: true,
-      zones: true,
-    },
-  },
-} as const;
+import { QuestionValidators } from "./helpers/question-validators";
 
 @Injectable()
 export class QuizsService {
+  private validator = new QuestionValidators();
+
   constructor(private prisma: PrismaService) {}
+
+  private mapQuiz(quiz: any) {
+    return {
+      id: quiz.id,
+      title: quiz.title,
+      imageUrl: quiz.imageUrl,
+      questionsCount: quiz._count.questions,
+    };
+  }
 
   // ========== READ ==========
 
   async getAllQuizzes() {
-    const quizs = await this.prisma.quiz.findMany({
+    const quizzes = await this.prisma.quiz.findMany({
       select: {
         id: true,
         title: true,
         imageUrl: true,
+        _count: {
+          select: {
+            questions: true,
+          },
+        },
       },
     });
 
-    if (quizs.length === 0) {
+    if (quizzes.length === 0) {
       throw new NotFoundException("Quizs not found");
     }
 
-    return quizs;
+    return quizzes.map(this.mapQuiz);
   }
 
   async getQuizById(id: string) {
@@ -46,8 +48,8 @@ export class QuizsService {
         questions: {
           include: {
             items: {
-              omit: {
-                correctZoneId: true,
+              include: {
+                itemZones: true,
               },
             },
             zones: true,
@@ -62,136 +64,19 @@ export class QuizsService {
     return quiz;
   }
 
-  // ========== CREATE (transaction: zones first, then items with real IDs) ==========
-
-  async createQuiz(dto: CreateQuizDto) {
-    return this.prisma.$transaction(async (tx) => {
-      const quiz = await tx.quiz.create({
-        data: { title: dto.title, imageUrl: dto.imageUrl },
-      });
-
-      for (const q of dto.questions) {
-        const question = await tx.question.create({
-          data: { quizId: quiz.id, text: q.text },
-        });
-
-        // Create zones first to get real IDs
-        const zoneIds: string[] = [];
-        for (const z of q.zones) {
-          const zone = await tx.zone.create({
-            data: { questionId: question.id, content: z.content },
-          });
-          zoneIds.push(zone.id);
-        }
-
-        // Create items with correctZoneId resolved from correctZoneIndex
-        for (const item of q.items) {
-          await tx.item.create({
-            data: {
-              questionId: question.id,
-              content: item.content,
-              correctZoneId: zoneIds[item.correctZoneIndex],
-            },
-          });
-        }
-      }
-
-      return tx.quiz.findUnique({
-        where: { id: quiz.id },
-        include: QUIZ_INCLUDE,
-      });
-    });
-  }
-
-  // ========== UPDATE (full replace in transaction) ==========
-
-  async updateQuiz(id: string, dto: UpdateQuizDto) {
-    const quiz = await this.prisma.quiz.findUnique({ where: { id } });
-    if (!quiz) throw new NotFoundException("Quiz not found");
-
-    if (!dto.questions) {
-      return this.prisma.quiz.update({
-        where: { id },
-        data: { title: dto.title, imageUrl: dto.imageUrl },
-        include: QUIZ_INCLUDE,
-      });
-    }
-
-    return this.prisma.$transaction(async (tx) => {
-      // Delete old questions + items + zones
-      const oldQuestions = await tx.question.findMany({
-        where: { quizId: id },
-        select: { id: true },
-      });
-      const questionIds = oldQuestions.map((q) => q.id);
-
-      if (questionIds.length > 0) {
-        await tx.item.deleteMany({
-          where: { questionId: { in: questionIds } },
-        });
-        await tx.zone.deleteMany({
-          where: { questionId: { in: questionIds } },
-        });
-        await tx.question.deleteMany({ where: { id: { in: questionIds } } });
-      }
-
-      // Update title
-      await tx.quiz.update({
-        where: { id },
-        data: { title: dto.title, imageUrl: dto.imageUrl },
-      });
-
-      // Recreate questions with zones-first approach
-      for (const q of dto.questions) {
-        const question = await tx.question.create({
-          data: { quizId: id, text: q.text },
-        });
-
-        const zoneIds: string[] = [];
-        for (const z of q.zones) {
-          const zone = await tx.zone.create({
-            data: { questionId: question.id, content: z.content },
-          });
-          zoneIds.push(zone.id);
-        }
-
-        for (const item of q.items) {
-          await tx.item.create({
-            data: {
-              questionId: question.id,
-              content: item.content,
-              correctZoneId: zoneIds[item.correctZoneIndex],
-            },
-          });
-        }
-      }
-
-      return tx.quiz.findUnique({
-        where: { id },
-        include: QUIZ_INCLUDE,
-      });
-    });
-  }
-
-  // ========== DELETE ==========
-
-  async deleteQuiz(id: string) {
-    const quiz = await this.prisma.quiz.findUnique({ where: { id } });
-    if (!quiz) throw new NotFoundException("Quiz not found");
-
-    await this.prisma.quiz.delete({ where: { id } });
-    return { message: "Quiz deleted" };
-  }
-
   // ========== CHECK ANSWERS ==========
-
   async checkQuizAnswers(quizId: string, dto: CheckQuizAnswersDto) {
     const quiz = await this.prisma.quiz.findUnique({
       where: { id: quizId },
       include: {
         questions: {
           include: {
-            items: true,
+            items: {
+              include: {
+                itemZones: true,
+              },
+            },
+            zones: true,
           },
         },
       },
@@ -201,32 +86,28 @@ export class QuizsService {
       throw new NotFoundException("Quiz not found");
     }
 
-    let correctCount = 0;
+    const answersByQuestion = new Map<string, typeof dto.answers>();
+
+    for (const answer of dto.answers) {
+      if (!answersByQuestion.has(answer.questionId)) {
+        answersByQuestion.set(answer.questionId, []);
+      }
+      answersByQuestion.get(answer.questionId)!.push(answer);
+    }
+
     let total = 0;
+    let correct = 0;
 
     for (const question of quiz.questions) {
-      const userAnswer = dto.answers.find((a) => a.questionId === question.id);
+      const userAnswers = answersByQuestion.get(question.id) || [];
 
-      if (!userAnswer) {
-        throw new BadRequestException(
-          `Missing answer for question ${question.id}`,
-        );
-      }
+      total += 1;
 
-      for (const item of question.items) {
-        total++;
+      const isCorrect = this.validator.checkQuestion(question, userAnswers);
 
-        const userZone = userAnswer.mapping[item.id];
-
-        if (item.correctZoneId === userZone) {
-          correctCount++;
-        }
-      }
+      if (isCorrect) correct++;
     }
-    return {
-      isCorrect: correctCount === total,
-      correctCount,
-      total,
-    };
+
+    return { total, correct };
   }
 }
