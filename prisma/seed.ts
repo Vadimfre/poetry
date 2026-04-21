@@ -1950,125 +1950,213 @@ Ave Maria! Мы з табой
 
   // ============ КВИЗЫ ============
 
-  // Квиз 1: MATCH — соотнеси автора с произведением
+  // Квиз 1: MATCH — Аўтар і твор
   const quiz1 = await prisma.quiz.create({
     data: {
       title: "Аўтар і твор",
+      description: "Спалучы аўтара з яго творам",
+      icon: "✍️",
+      color: "#FF6B6B",
       imageUrl: "/images/quizzes/author-work.jpg",
-      questions: {
-        create: {
-          text: "Спалучы аўтара з яго творам",
-          type: "MATCH",
-          zones: {
-            create: [
-              { content: "А хто там ідзе?", order: 0 },
-              { content: "Мой родны кут", order: 1 },
-              { content: "Слуцкія ткачыхі", order: 2 },
-              { content: "Каласы пад сярпом тваім", order: 3 },
-            ],
-          },
-          items: {
-            create: [
-              { content: "Янка Купала", order: 0 },
-              { content: "Якуб Колас", order: 1 },
-              { content: "Максім Багдановіч", order: 2 },
-              { content: "Уладзімір Караткевіч", order: 3 },
-            ],
-          },
-        },
-      },
-    },
-    include: {
-      questions: { include: { items: true, zones: true } },
-    },
-  });
-
-  // Создаём ItemZone для квиза 1 (после создания, чтобы получить реальные ID)
-  const quiz1Question = quiz1.questions[0];
-  const quiz1CorrectMappings = [
-    { itemIdx: 0, zoneIdx: 0 }, // Купала → А хто там ідзе?
-    { itemIdx: 1, zoneIdx: 1 }, // Колас → Мой родны кут
-    { itemIdx: 2, zoneIdx: 2 }, // Багдановіч → Слуцкія ткачыхі
-    { itemIdx: 3, zoneIdx: 3 }, // Караткевіч → Каласы пад сярпом тваім
-  ];
-  for (const m of quiz1CorrectMappings) {
-    await prisma.itemZone.create({
-      data: {
-        itemId: quiz1Question.items[m.itemIdx].id,
-        zoneId: quiz1Question.zones[m.zoneIdx].id,
-        isCorrect: true,
-      },
-    });
-  }
-  console.log("✅ Created quiz 1: Аўтар і твор (MATCH)");
-
-  // Квиз 2: ORDER — расположи по хронологии
-  const quiz2 = await prisma.quiz.create({
-    data: {
-      title: "Храналогія паэтаў",
-      imageUrl: "/images/quizzes/chronology.jpg",
-      questions: {
-        create: {
-          text: "Размесці паэтаў у храналагічным парадку (ад старэйшага да малодшага)",
-          type: "ORDER",
-          items: {
-            create: [
-              { content: "Франтішак Багушэвіч", order: 0 },
-              { content: "Янка Купала", order: 1 },
-              { content: "Максім Багдановіч", order: 2 },
-              { content: "Пятрусь Броўка", order: 3 },
-              { content: "Рыгор Барадулін", order: 4 },
-            ],
-          },
-        },
-      },
-    },
-    include: {
-      questions: { include: { items: true } },
-    },
-  });
-  console.log("✅ Created quiz 2: Храналогія паэтаў (ORDER)");
-
-  // Квиз 3: FILL — вставь пропущенное слово
-  const quiz3 = await prisma.quiz.create({
-    data: {
-      title: "Устаў пропушчанае слова",
-      imageUrl: "/images/quizzes/fill-blank.jpg",
       questions: {
         create: [
           {
-            text: "Устаў пропушчанае слова ў радок Янкі Купалы",
-            type: "FILL",
+            text: "Знайдзі аўтараў класічных твораў",
+            type: "MATCH",
             zones: {
               create: [
-                { content: "ідзе", order: 0 },
-                { content: "нясуць", order: 1 },
-                { content: "звацца", order: 2 },
+                { content: "А хто там ідзе?", order: 0 },
+                { content: "Мой родны кут", order: 1 },
+                { content: "Слуцкія ткачыхі", order: 2 },
+                { content: "Каласы пад сярпом тваім", order: 3 },
               ],
             },
             items: {
               create: [
-                { content: "А хто там ___?", order: 0 },
-                { content: "А што яны ___ на худых плячах?", order: 1 },
-                { content: "Людзьмі ___", order: 2 },
+                { content: "Янка Купала", order: 0 },
+                { content: "Якуб Колас", order: 1 },
+                { content: "Максім Багдановіч", order: 2 },
+                { content: "Уладзімір Караткевіч", order: 3 },
               ],
             },
           },
           {
-            text: "Устаў пропушчанае слова ў радкі Якуба Коласа",
-            type: "FILL",
+            text: "Спалучы паэму з яе аўтарам",
+            type: "MATCH",
             zones: {
               create: [
-                { content: "кут", order: 0 },
-                { content: "ракой", order: 1 },
-                { content: "вясна", order: 2 },
+                { content: "Новая зямля", order: 0 },
+                { content: "Магіла льва", order: 1 },
+                { content: "Курган", order: 2 },
+                { content: "Тарас на Парнасе", order: 3 },
               ],
             },
             items: {
               create: [
-                { content: "Мой родны ___", order: 0 },
-                { content: "Над ___ шырокай", order: 1 },
-                { content: "Ой ___, красна", order: 2 },
+                { content: "Якуб Колас", order: 0 },
+                { content: "Янка Купала", order: 1 },
+                { content: "Янка Купала", order: 2 },
+                { content: "Канстанцін Вераніцын", order: 3 },
+              ],
+            },
+          },
+          {
+            text: "Хто напісаў гэтыя вершы?",
+            type: "MATCH",
+            zones: {
+              create: [
+                { content: "Зорка Венера", order: 0 },
+                { content: "Спадчына", order: 1 },
+                { content: "Жураўлі на Палессе ляцяць", order: 2 },
+                { content: "Два званы", order: 3 },
+              ],
+            },
+            items: {
+              create: [
+                { content: "Максім Багдановіч", order: 0 },
+                { content: "Янка Купала", order: 1 },
+                { content: "Аркадзь Куляшоў", order: 2 },
+                { content: "Уладзімір Караткевіч", order: 3 },
+              ],
+            },
+          },
+          {
+            text: "Знайдзі аўтараў раманаў",
+            type: "MATCH",
+            zones: {
+              create: [
+                { content: "Дзікае паляванне караля Стаха", order: 0 },
+                { content: "Людзі на балоце", order: 1 },
+                { content: "На ростанях", order: 2 },
+                { content: "Сэрца на далоні", order: 3 },
+              ],
+            },
+            items: {
+              create: [
+                { content: "Уладзімір Караткевіч", order: 0 },
+                { content: "Іван Мележ", order: 1 },
+                { content: "Якуб Колас", order: 2 },
+                { content: "Іван Шамякін", order: 3 },
+              ],
+            },
+          },
+          {
+            text: "Спалучы п'есу з драматургам",
+            type: "MATCH",
+            zones: {
+              create: [
+                { content: "Паўлінка", order: 0 },
+                { content: "Пінская шляхта", order: 1 },
+                { content: "Раскіданае гняздо", order: 2 },
+                { content: "Трыбунал", order: 3 },
+              ],
+            },
+            items: {
+              create: [
+                { content: "Янка Купала", order: 0 },
+                { content: "Вінцэнт Дунін-Марцінкевіч", order: 1 },
+                { content: "Янка Купала", order: 2 },
+                { content: "Андрэй Макаёнак", order: 3 },
+              ],
+            },
+          },
+          {
+            text: "Хто напісаў гэтыя зборнікі вершаў?",
+            type: "MATCH",
+            zones: {
+              create: [
+                { content: "Вянок", order: 0 },
+                { content: "Жалейка", order: 1 },
+                { content: "Песні жальбы", order: 2 },
+                { content: "Дудка беларуская", order: 3 },
+              ],
+            },
+            items: {
+              create: [
+                { content: "Максім Багдановіч", order: 0 },
+                { content: "Янка Купала", order: 1 },
+                { content: "Якуб Колас", order: 2 },
+                { content: "Францішак Багушэвіч", order: 3 },
+              ],
+            },
+          },
+          {
+            text: "Знайдзі аўтараў апавяданняў",
+            type: "MATCH",
+            zones: {
+              create: [
+                { content: "Цётка", order: 0 },
+                { content: "Апошні", order: 1 },
+                { content: "Салавей", order: 2 },
+                { content: "Немаўля", order: 3 },
+              ],
+            },
+            items: {
+              create: [
+                { content: "Алаіза Пашкевіч", order: 0 },
+                { content: "Максім Гарэцкі", order: 1 },
+                { content: "Змітрок Бядуля", order: 2 },
+                { content: "Кузьма Чорны", order: 3 },
+              ],
+            },
+          },
+          {
+            text: "Спалучы верш з паэтам",
+            type: "MATCH",
+            zones: {
+              create: [
+                { content: "Беларусам", order: 0 },
+                { content: "Мая дарога", order: 1 },
+                { content: "Спатканне", order: 2 },
+                { content: "Радзіма", order: 3 },
+              ],
+            },
+            items: {
+              create: [
+                { content: "Францішак Багушэвіч", order: 0 },
+                { content: "Аркадзь Куляшоў", order: 1 },
+                { content: "Максім Танк", order: 2 },
+                { content: "Пятрусь Броўка", order: 3 },
+              ],
+            },
+          },
+          {
+            text: "Хто аўтар гэтых твораў?",
+            type: "MATCH",
+            zones: {
+              create: [
+                { content: "Чырвоны ліхтарык", order: 0 },
+                { content: "Маці", order: 1 },
+                { content: "Сымон-музыка", order: 2 },
+                { content: "Дзед і баба", order: 3 },
+              ],
+            },
+            items: {
+              create: [
+                { content: "Рыгор Барадулін", order: 0 },
+                { content: "Кузьма Чорны", order: 1 },
+                { content: "Якуб Колас", order: 2 },
+                { content: "Янка Сіпакоў", order: 3 },
+              ],
+            },
+          },
+          {
+            text: "Знайдзі аўтараў паэм",
+            type: "MATCH",
+            zones: {
+              create: [
+                { content: "Сцяг брыгады", order: 0 },
+                { content: "Хатынская аповесць", order: 1 },
+                { content: "Могілкі", order: 2 },
+                { content: "Адплата", order: 3 },
+              ],
+            },
+            items: {
+              create: [
+                { content: "Аркадзь Куляшоў", order: 0 },
+                { content: "Алесь Адамовіч", order: 1 },
+                { content: "Янка Купала", order: 2 },
+                { content: "Пімен Панчанка", order: 3 },
               ],
             },
           },
@@ -2080,17 +2168,591 @@ Ave Maria! Мы з табой
     },
   });
 
-  // Создаём ItemZone для квиза 3 (FILL — каждый item → одна правильная zone)
-  for (const question of quiz3.questions) {
-    const correctMappings = question.items.map((_, idx) => ({
-      itemIdx: idx,
-      zoneIdx: idx,
-    }));
-    for (const m of correctMappings) {
+  // ItemZone для квиза 1 (MATCH: item[i] → zone[i])
+  for (const question of quiz1.questions) {
+    for (let i = 0; i < question.items.length; i++) {
       await prisma.itemZone.create({
         data: {
-          itemId: question.items[m.itemIdx].id,
-          zoneId: question.zones[m.zoneIdx].id,
+          itemId: question.items[i].id,
+          zoneId: question.zones[i].id,
+          isCorrect: true,
+        },
+      });
+    }
+  }
+  console.log("✅ Created quiz 1: Аўтар і твор (MATCH)");
+
+  // Квиз 2: ORDER — Храналогія паэтаў
+  const quiz2 = await prisma.quiz.create({
+    data: {
+      title: "Храналогія паэтаў",
+      description: "Размесці паэтаў на шкале часу",
+      icon: "📅",
+      color: "#4ECDC4",
+      imageUrl: "/images/quizzes/chronology.jpg",
+      questions: {
+        create: [
+          {
+            text: "Размесці класікаў на шкале часу",
+            type: "ORDER",
+            content: { timelineStart: 1840, timelineEnd: 1920 },
+            items: {
+              create: [
+                {
+                  content: "Францішак Багушэвіч",
+                  order: 0,
+                  year: 1840,
+                  imageUrl: "/images/poets/bagushevich.jpg",
+                  subtitle: "1840-1900",
+                },
+                {
+                  content: "Янка Купала",
+                  order: 1,
+                  year: 1882,
+                  imageUrl: "/images/poets/kupala.jpg",
+                  subtitle: "1882-1942",
+                },
+                {
+                  content: "Якуб Колас",
+                  order: 2,
+                  year: 1882,
+                  imageUrl: "/images/poets/kolas.jpg",
+                  subtitle: "1882-1956",
+                },
+                {
+                  content: "Максім Багдановіч",
+                  order: 3,
+                  year: 1891,
+                  imageUrl: "/images/poets/bagdanovich.jpg",
+                  subtitle: "1891-1917",
+                },
+              ],
+            },
+          },
+          {
+            text: "Пакаленне паэтаў 20-х гадоў",
+            type: "ORDER",
+            content: { timelineStart: 1895, timelineEnd: 1920 },
+            items: {
+              create: [
+                {
+                  content: "Змітрок Бядуля",
+                  order: 0,
+                  year: 1886,
+                  imageUrl: "/images/poets/byadulya.jpg",
+                  subtitle: "1886-1941",
+                },
+                {
+                  content: "Максім Гарэцкі",
+                  order: 1,
+                  year: 1893,
+                  imageUrl: "/images/poets/garetski.jpg",
+                  subtitle: "1893-1938",
+                },
+                {
+                  content: "Кандрат Крапіва",
+                  order: 2,
+                  year: 1896,
+                  imageUrl: "/images/poets/krapiva.jpg",
+                  subtitle: "1896-1991",
+                },
+                {
+                  content: "Кузьма Чорны",
+                  order: 3,
+                  year: 1900,
+                  imageUrl: "/images/poets/chorny.jpg",
+                  subtitle: "1900-1944",
+                },
+              ],
+            },
+          },
+          {
+            text: "Паэты-франтавікі",
+            type: "ORDER",
+            content: { timelineStart: 1905, timelineEnd: 1930 },
+            items: {
+              create: [
+                {
+                  content: "Пятрусь Броўка",
+                  order: 0,
+                  year: 1905,
+                  imageUrl: "/images/poets/brouka.jpg",
+                  subtitle: "1905-1980",
+                },
+                {
+                  content: "Максім Танк",
+                  order: 1,
+                  year: 1912,
+                  imageUrl: "/images/poets/tank.jpg",
+                  subtitle: "1912-1995",
+                },
+                {
+                  content: "Аркадзь Куляшоў",
+                  order: 2,
+                  year: 1914,
+                  imageUrl: "/images/poets/kulyashou.jpg",
+                  subtitle: "1914-1978",
+                },
+                {
+                  content: "Пімен Панчанка",
+                  order: 3,
+                  year: 1917,
+                  imageUrl: "/images/poets/panchanka.jpg",
+                  subtitle: "1917-1995",
+                },
+              ],
+            },
+          },
+          {
+            text: "Пасляваенныя паэты",
+            type: "ORDER",
+            content: { timelineStart: 1920, timelineEnd: 1945 },
+            items: {
+              create: [
+                {
+                  content: "Васіль Быкаў",
+                  order: 0,
+                  year: 1924,
+                  imageUrl: "/images/poets/bykau.jpg",
+                  subtitle: "1924-2003",
+                },
+                {
+                  content: "Іван Мележ",
+                  order: 1,
+                  year: 1921,
+                  imageUrl: "/images/poets/melezh.jpg",
+                  subtitle: "1921-1976",
+                },
+                {
+                  content: "Уладзімір Караткевіч",
+                  order: 2,
+                  year: 1930,
+                  imageUrl: "/images/poets/karatkevich.jpg",
+                  subtitle: "1930-1984",
+                },
+                {
+                  content: "Рыгор Барадулін",
+                  order: 3,
+                  year: 1935,
+                  imageUrl: "/images/poets/baradulin.jpg",
+                  subtitle: "1935-2014",
+                },
+              ],
+            },
+          },
+          {
+            text: "Шасцідзесятнікі",
+            type: "ORDER",
+            content: { timelineStart: 1930, timelineEnd: 1950 },
+            items: {
+              create: [
+                {
+                  content: "Анатоль Вярцінскі",
+                  order: 0,
+                  year: 1931,
+                  imageUrl: "/images/poets/viartsinski.jpg",
+                  subtitle: "1931-2012",
+                },
+                {
+                  content: "Ніл Гілевіч",
+                  order: 1,
+                  year: 1931,
+                  imageUrl: "/images/poets/gilevich.jpg",
+                  subtitle: "1931-2016",
+                },
+                {
+                  content: "Янка Сіпакоў",
+                  order: 2,
+                  year: 1936,
+                  imageUrl: "/images/poets/sipakau.jpg",
+                  subtitle: "1936-2011",
+                },
+                {
+                  content: "Генадзь Бураўкін",
+                  order: 3,
+                  year: 1936,
+                  imageUrl: "/images/poets/buraulkin.jpg",
+                  subtitle: "1936-2014",
+                },
+              ],
+            },
+          },
+          {
+            text: "Пісьменнікі-празаікі",
+            type: "ORDER",
+            content: { timelineStart: 1920, timelineEnd: 1945 },
+            items: {
+              create: [
+                {
+                  content: "Янка Брыль",
+                  order: 0,
+                  year: 1917,
+                  imageUrl: "/images/poets/bryl.jpg",
+                  subtitle: "1917-2006",
+                },
+                {
+                  content: "Іван Мележ",
+                  order: 1,
+                  year: 1921,
+                  imageUrl: "/images/poets/melezh.jpg",
+                  subtitle: "1921-1976",
+                },
+                {
+                  content: "Іван Шамякін",
+                  order: 2,
+                  year: 1921,
+                  imageUrl: "/images/poets/shamyakin.jpg",
+                  subtitle: "1921-2004",
+                },
+                {
+                  content: "Алесь Адамовіч",
+                  order: 3,
+                  year: 1927,
+                  imageUrl: "/images/poets/adamovich.jpg",
+                  subtitle: "1927-1994",
+                },
+              ],
+            },
+          },
+          {
+            text: "Жаночыя галасы беларускай паэзіі",
+            type: "ORDER",
+            content: { timelineStart: 1870, timelineEnd: 1950 },
+            items: {
+              create: [
+                {
+                  content: "Цётка",
+                  order: 0,
+                  year: 1876,
+                  imageUrl: "/images/poets/tsiotka.jpg",
+                  subtitle: "1876-1916",
+                },
+                {
+                  content: "Канстанцыя Буйло",
+                  order: 1,
+                  year: 1893,
+                  imageUrl: "/images/poets/builo.jpg",
+                  subtitle: "1893-1986",
+                },
+                {
+                  content: "Данута Бічэль",
+                  order: 2,
+                  year: 1938,
+                  imageUrl: "/images/poets/bichel.jpg",
+                  subtitle: "1938-н.ч.",
+                },
+                {
+                  content: "Яўгенія Янішчыц",
+                  order: 3,
+                  year: 1948,
+                  imageUrl: "/images/poets/yanishchyts.jpg",
+                  subtitle: "1948-1988",
+                },
+              ],
+            },
+          },
+          {
+            text: "Сучасныя беларускія паэты",
+            type: "ORDER",
+            content: { timelineStart: 1945, timelineEnd: 1975 },
+            items: {
+              create: [
+                {
+                  content: "Уладзімір Някляеў",
+                  order: 0,
+                  year: 1946,
+                  imageUrl: "/images/poets/nyaklyaeu.jpg",
+                  subtitle: "1946-н.ч.",
+                },
+                {
+                  content: "Леанід Дранько-Майсюк",
+                  order: 1,
+                  year: 1958,
+                  imageUrl: "/images/poets/dranko.jpg",
+                  subtitle: "1958-н.ч.",
+                },
+                {
+                  content: "Андрэй Хадановіч",
+                  order: 2,
+                  year: 1973,
+                  imageUrl: "/images/poets/khadanovich.jpg",
+                  subtitle: "1973-н.ч.",
+                },
+                {
+                  content: "Вальжына Морт",
+                  order: 3,
+                  year: 1981,
+                  imageUrl: "/images/poets/mort.jpg",
+                  subtitle: "1981-н.ч.",
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    include: {
+      questions: { include: { items: true } },
+    },
+  });
+  console.log("✅ Created quiz 2: Храналогія паэтаў (ORDER)");
+
+  // Квиз 3: FILL — Устаў пропушчанае слова
+  const quiz3 = await prisma.quiz.create({
+    data: {
+      title: "Устаў пропушчанае слова",
+      description: "Дапоўні радкі вядомых вершаў",
+      icon: "📝",
+      color: "#A78BFA",
+      imageUrl: "/images/quizzes/fill-blank.jpg",
+      questions: {
+        create: [
+          {
+            text: "Янка Купала - 'А хто там ідзе?'",
+            type: "FILL",
+            content: { answers: ["ідзе", "нясуць", "звацца"] },
+            zones: {
+              create: [
+                { content: "А хто там ___?", order: 0 },
+                { content: "А што яны ___ на худых плячах?", order: 1 },
+                { content: "Людзьмі ___ хочуць", order: 2 },
+              ],
+            },
+            items: {
+              create: [
+                { content: "ідзе", order: 0 },
+                { content: "нясуць", order: 1 },
+                { content: "звацца", order: 2 },
+              ],
+            },
+          },
+          {
+            text: "Якуб Колас - 'Мой родны кут'",
+            type: "FILL",
+            content: { answers: ["кут", "мілы", "ракой"] },
+            zones: {
+              create: [
+                { content: "Мой родны ___", order: 0 },
+                { content: "Як ___ мне тваіх лясоў", order: 1 },
+                { content: "Над ___ шырокай", order: 2 },
+              ],
+            },
+            items: {
+              create: [
+                { content: "кут", order: 0 },
+                { content: "мілы", order: 1 },
+                { content: "ракой", order: 2 },
+              ],
+            },
+          },
+          {
+            text: "Максім Багдановіч - 'Слуцкія ткачыхі'",
+            type: "FILL",
+            content: { answers: ["ніў", "маладая", "роднага"] },
+            zones: {
+              create: [
+                { content: "Ад родных ___ ткачыхі", order: 0 },
+                { content: "І тчэ, забыўшыся, ___ рука", order: 1 },
+                { content: "Цвяток ___ краю", order: 2 },
+              ],
+            },
+            items: {
+              create: [
+                { content: "ніў", order: 0 },
+                { content: "маладая", order: 1 },
+                { content: "роднага", order: 2 },
+              ],
+            },
+          },
+          {
+            text: "Максім Багдановіч - 'Зорка Венера'",
+            type: "FILL",
+            content: { answers: ["Венера", "Ціха", "ззянне"] },
+            zones: {
+              create: [
+                { content: "Зорка ___ узышла над зямлёю", order: 0 },
+                { content: "___ над сонным прасторам воднай", order: 1 },
+                { content: "Зіхаціць ___ яе залатое", order: 2 },
+              ],
+            },
+            items: {
+              create: [
+                { content: "Венера", order: 0 },
+                { content: "Ціха", order: 1 },
+                { content: "ззянне", order: 2 },
+              ],
+            },
+          },
+          {
+            text: "Янка Купала - 'Спадчына'",
+            type: "FILL",
+            content: { answers: ["вякоў", "застануся", "беражы"] },
+            zones: {
+              create: [
+                {
+                  content: "Ад прадзедаў спакон ___ мне засталася спадчына",
+                  order: 0,
+                },
+                { content: "Паміж сваіх я ___", order: 1 },
+                { content: "І ___ гэта ўсё святое", order: 2 },
+              ],
+            },
+            items: {
+              create: [
+                { content: "вякоў", order: 0 },
+                { content: "застануся", order: 1 },
+                { content: "беражы", order: 2 },
+              ],
+            },
+          },
+          {
+            text: "Цётка - 'Хрэст на свабоду'",
+            type: "FILL",
+            content: { answers: ["здзек", "веру", "праўды"] },
+            zones: {
+              create: [
+                { content: "Хоць ___ і цемра панавалі", order: 0 },
+                { content: "Мы ___ насілі ў грудзях", order: 1 },
+                { content: "Праменне ___ у нас гарыць", order: 2 },
+              ],
+            },
+            items: {
+              create: [
+                { content: "здзек", order: 0 },
+                { content: "веру", order: 1 },
+                { content: "праўды", order: 2 },
+              ],
+            },
+          },
+          {
+            text: "Аркадзь Куляшоў - 'Мая дарога'",
+            type: "FILL",
+            content: { answers: ["дарога", "цярністым", "спыніць"] },
+            zones: {
+              create: [
+                { content: "Мая ___ не будзе гладкай", order: 0 },
+                { content: "Па ___ шляху я іду", order: 1 },
+                { content: "Але ніхто мяне не ___", order: 2 },
+              ],
+            },
+            items: {
+              create: [
+                { content: "дарога", order: 0 },
+                { content: "цярністым", order: 1 },
+                { content: "спыніць", order: 2 },
+              ],
+            },
+          },
+          {
+            text: "Максім Танк - 'Спатканне'",
+            type: "FILL",
+            content: { answers: ["ціхі", "лятуннем", "стаялі"] },
+            zones: {
+              create: [
+                { content: "Быў ___ вечар. Замоўклі птушкі", order: 0 },
+                { content: "Над возерам ___ сінім", order: 1 },
+                { content: "Мы ___ ля берагоў", order: 2 },
+              ],
+            },
+            items: {
+              create: [
+                { content: "ціхі", order: 0 },
+                { content: "лятуннем", order: 1 },
+                { content: "стаялі", order: 2 },
+              ],
+            },
+          },
+          {
+            text: "Рыгор Барадулін - 'Трэба дома бываць часцей'",
+            type: "FILL",
+            content: { answers: ["дома", "дома", "знала"] },
+            zones: {
+              create: [
+                { content: "Трэба ___ бываць часцей", order: 0 },
+                { content: "Трэба ___ бываць часцей", order: 1 },
+                { content: "Каб душа не ___ самоты", order: 2 },
+              ],
+            },
+            items: {
+              create: [
+                { content: "дома", order: 0 },
+                { content: "дома", order: 1 },
+                { content: "знала", order: 2 },
+              ],
+            },
+          },
+          {
+            text: "Пятрусь Броўка - 'Радзіма'",
+            type: "FILL",
+            content: { answers: ["Радзіма", "бацькоў", "мілей"] },
+            zones: {
+              create: [
+                { content: "___ мая, дарагая", order: 0 },
+                { content: "Зямля ___ і святая", order: 1 },
+                { content: "Ты мне ___ за ўсё на свеце", order: 2 },
+              ],
+            },
+            items: {
+              create: [
+                { content: "Радзіма", order: 0 },
+                { content: "бацькоў", order: 1 },
+                { content: "мілей", order: 2 },
+              ],
+            },
+          },
+          {
+            text: "Васіль Быкаў - апавяданне 'Жураўліны крык'",
+            type: "FILL",
+            content: { answers: ["Жураўлі", "голас", "весткі"] },
+            zones: {
+              create: [
+                { content: "___ крычалі ў небе", order: 0 },
+                { content: "І ___ чуўся ў далечыні", order: 1 },
+                { content: "Як ___ аб нечым важным", order: 2 },
+              ],
+            },
+            items: {
+              create: [
+                { content: "Жураўлі", order: 0 },
+                { content: "голас", order: 1 },
+                { content: "весткі", order: 2 },
+              ],
+            },
+          },
+          {
+            text: "Ніл Гілевіч - 'Родная мова'",
+            type: "FILL",
+            content: { answers: ["Мова", "ўсё", "плоць"] },
+            zones: {
+              create: [
+                { content: "___ мая, родная мова", order: 0 },
+                { content: "Што ___ за цябе аддам", order: 1 },
+                { content: "Бо ты мне ___ і кроў", order: 2 },
+              ],
+            },
+            items: {
+              create: [
+                { content: "Мова", order: 0 },
+                { content: "ўсё", order: 1 },
+                { content: "плоць", order: 2 },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    include: {
+      questions: { include: { items: true, zones: true } },
+    },
+  });
+
+  // ItemZone для квиза 3 (FILL: item[i] → zone[i])
+  for (const question of quiz3.questions) {
+    for (let i = 0; i < question.items.length; i++) {
+      await prisma.itemZone.create({
+        data: {
+          itemId: question.items[i].id,
+          zoneId: question.zones[i].id,
           isCorrect: true,
         },
       });

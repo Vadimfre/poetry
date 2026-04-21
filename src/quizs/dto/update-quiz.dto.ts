@@ -79,6 +79,18 @@ export class UpdateQuizDto {
 
   @IsString()
   @IsOptional()
+  description?: string;
+
+  @IsString()
+  @IsOptional()
+  icon?: string;
+
+  @IsString()
+  @IsOptional()
+  color?: string;
+
+  @IsString()
+  @IsOptional()
   imageUrl?: string;
 
   @IsArray()

@@ -229,10 +229,13 @@ model SeasonSlide {
 }
 
 model Quiz {
-  id        String     @id @default(uuid())
-  title     String
-  imageUrl  String
-  questions Question[]
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  icon        String?
+  color       String?
+  imageUrl    String
+  questions   Question[]
 }
 
 model Question {
@@ -256,8 +259,11 @@ model Item {
   questionId String
   question   Question @relation(fields: [questionId], references: [id])
 
-  content String
-  order   Int?
+  content  String
+  order    Int?
+  year     Int?
+  imageUrl String?
+  subtitle String?
 
   itemZones ItemZone[]
 
@@ -287,7 +293,7 @@ model ItemZone {
   zone Zone @relation(fields: [zoneId], references: [id])
 
   isCorrect Boolean @default(true)
-  order Int?
+  order     Int?
 
   @@unique([itemId, zoneId])
   @@index([itemId])

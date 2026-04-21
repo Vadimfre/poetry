@@ -78,6 +78,18 @@ export class CreateQuizDto {
   title: string;
 
   @IsString()
+  @IsOptional()
+  description?: string;
+
+  @IsString()
+  @IsOptional()
+  icon?: string;
+
+  @IsString()
+  @IsOptional()
+  color?: string;
+
+  @IsString()
   @IsNotEmpty()
   imageUrl: string;
 

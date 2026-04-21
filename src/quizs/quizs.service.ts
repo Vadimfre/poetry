@@ -13,6 +13,9 @@ export class QuizsService {
     return {
       id: quiz.id,
       title: quiz.title,
+      description: quiz.description,
+      icon: quiz.icon,
+      color: quiz.color,
       imageUrl: quiz.imageUrl,
       questionsCount: quiz._count.questions,
     };
@@ -25,6 +28,9 @@ export class QuizsService {
       select: {
         id: true,
         title: true,
+        description: true,
+        icon: true,
+        color: true,
         imageUrl: true,
         _count: {
           select: {
@@ -52,7 +58,11 @@ export class QuizsService {
                 itemZones: true,
               },
             },
-            zones: true,
+            zones: {
+              include: {
+                itemZones: true,
+              },
+            },
           },
         },
       },
@@ -61,7 +71,21 @@ export class QuizsService {
     if (!quiz) {
       throw new NotFoundException("Quiz not found");
     }
-    return quiz;
+
+    // Strip isCorrect from itemZones to prevent cheating
+    const sanitizedQuestions = quiz.questions.map((question) => ({
+      ...question,
+      items: question.items.map((item) => ({
+        ...item,
+        itemZones: item.itemZones.map(({ isCorrect, ...zone }) => zone),
+      })),
+      zones: question.zones.map((zone) => ({
+        ...zone,
+        itemZones: zone.itemZones.map(({ isCorrect, ...iz }) => iz),
+      })),
+    }));
+
+    return { ...quiz, questions: sanitizedQuestions };
   }
 
   // ========== CHECK ANSWERS ==========
