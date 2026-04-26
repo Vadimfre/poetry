@@ -26,7 +26,7 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new ConflictException("Пользователь с таким email уже существует");
+      throw new ConflictException("Карыстальнік з такім email ужо існуе");
     }
 
     // Hash password
@@ -48,7 +48,7 @@ export class AuthService {
 
     return {
       message:
-        "Вы успешно зарегистрировались. Пожалуйста, проверьте свою почту и подтвердите свой аккаунт.",
+        "Вы паспяхова зарэгістраваліся. Калі ласка, праверце пошту і пацвердзіце свой акаўнт.",
       token,
       user: {
         id: user.id,
@@ -68,20 +68,20 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException("Неверные учетные данные");;
+      throw new UnauthorizedException("Няправільныя ўліковыя даныя");
     }
 
     // Verify password
     const isPasswordValid = await bcrypt.compare(dto.password, user.password);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException("Неверные учетные данные");
+      throw new UnauthorizedException("Няправільныя ўліковыя даныя");
     }
 
     if (!user.isVerified) {
       await this.emailConfirmationService.sendVerificationToken(user);
       throw new UnauthorizedException(
-        "Ваш email не подтвержден. Пожалуйста, проверьте свою почту и подтвердите свой аккаунт.",
+        "Ваш email не пацверджаны. Калі ласка, праверце пошту і пацвердзіце свой акаўнт.",
       );
     }
 
@@ -89,7 +89,7 @@ export class AuthService {
     const token = this.generateToken(user.id, user.email);
 
     return {
-      message: "Вход выполнен успешно",
+      message: "Уваход паспяховы",
       token,
       user: {
         id: user.id,
@@ -116,7 +116,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new BadRequestException("Пользователь не найден");
+      throw new BadRequestException("Карыстальнік не знойдзены");
     }
 
     return user;

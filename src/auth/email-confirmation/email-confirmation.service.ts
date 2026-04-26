@@ -31,7 +31,7 @@ export class EmailConfirmationService {
 
     if (!existingToken) {
       throw new NotFoundException(
-        "Токен подтверждения не найден. Пожалуйста убедитесь, что у вас правильный токен.",
+        "Токен пацверджання не знойдзены. Калі ласка, пераканайцеся, што ў вас правільны токен.",
       );
     }
 
@@ -39,7 +39,7 @@ export class EmailConfirmationService {
 
     if (hasExpired) {
       throw new BadRequestException(
-        "Токен подтверждения истек. Пожалуйста запросите новый токен.",
+        "Тэрмін дзеяння токена пацверджання скончыўся. Калі ласка, запытайце новы токен.",
       );
     }
 
@@ -49,12 +49,12 @@ export class EmailConfirmationService {
 
     if (!existingUser) {
       throw new NotFoundException(
-        "Пользователь не найден. Пожалуйста убедитесь, что вы ввели правильный email.",
+        "Карыстальнік не знойдзены. Калі ласка, пераканайцеся, што вы ўвялі правільны email.",
       );
     }
 
     if (existingUser.isVerified) {
-      throw new BadRequestException("Email уже подтвержден");
+      throw new BadRequestException("Email ужо пацверджаны");
     }
 
     const updatedUser = await this.prismaService.user.update({
@@ -77,7 +77,7 @@ export class EmailConfirmationService {
     const token = this.generateToken(updatedUser.id, updatedUser.email);
 
     return {
-      message: "Email успешно подтверждён. Вы вошли в систему.",
+      message: "Email паспяхова пацверджаны. Вы ўвайшлі ў сістэму.",
       token,
       user: updatedUser,
     };
@@ -96,9 +96,9 @@ export class EmailConfirmationService {
     await this.mailService.sendConfirmationMail(
       verificationToken.email,
       verificationToken.token,
-      );
-      
-      return true
+    );
+
+    return true;
   }
 
   public async generateVerificationToken(email: string) {

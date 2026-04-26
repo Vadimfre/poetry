@@ -8,6 +8,12 @@ import { createHash } from "crypto";
 export class ViewsService {
   constructor(private prisma: PrismaService) {}
 
+  private async getViewsCount(poemId: number): Promise<number> {
+    return this.prisma.view.count({
+      where: { poemId },
+    });
+  }
+
   private hashIp(ip: string): string {
     return createHash("sha256")
       .update(ip + (process.env.IP_HASH_SALT || ""))
@@ -18,6 +24,28 @@ export class ViewsService {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
     return d;
+  }
+
+  async getViews(poemId: number): Promise<{ views: number }> {
+    const poem = await this.prisma.poem.findUnique({
+      where: { id: poemId },
+      select: { views: true },
+    });
+
+    if (!poem) {
+      throw new NotFoundException("Стихотворение не найдено");
+    }
+
+    const views = await this.getViewsCount(poemId);
+    if (poem.views !== views) {
+      await this.prisma.poem.update({
+        where: { id: poemId },
+        data: { views },
+        select: { id: true },
+      });
+    }
+
+    return { views };
   }
 
   async getOrAddView(
@@ -56,48 +84,60 @@ export class ViewsService {
       }
     }
 
-    // 3. Если просмотр уже был — просто возвращаем текущий счётчик
+    // 3. Если просмотр уже был — возвращаем актуальный счётчик
     if (existingView) {
-      return { views: poem.views };
+      const views = await this.getViewsCount(poemId);
+      if (poem.views !== views) {
+        await this.prisma.poem.update({
+          where: { id: poemId },
+          data: { views },
+          select: { id: true },
+        });
+      }
+      return { views };
     }
 
     // 4. Создаём просмотр
     const ipHash = ip ? this.hashIp(ip) : null;
 
     try {
-      await this.prisma.view.create({
-        data: {
-          poemId,
-          userId: userId ?? null,
-          ip: ip ?? null,
-          ipHash,
-          date,
-        },
-      });
-
-      // 5. Увеличиваем счётчик
-      const updated = await this.prisma.poem.update({
-        where: { id: poemId },
-        data: {
-          views: {
-            increment: 1,
+      const views = await this.prisma.$transaction(async (tx) => {
+        await tx.view.create({
+          data: {
+            poemId,
+            userId: userId ?? null,
+            ip: ip ?? null,
+            ipHash,
+            date,
           },
-        },
-        select: { views: true },
+        });
+
+        const nextViews = await tx.view.count({ where: { poemId } });
+        await tx.poem.update({
+          where: { id: poemId },
+          data: { views: nextViews },
+          select: { id: true },
+        });
+
+        return nextViews;
       });
 
-      return { views: updated.views };
+      return { views };
     } catch (e) {
       // Ловим только unique constraint violation (race condition)
       if (
         e instanceof Prisma.PrismaClientKnownRequestError &&
         e.code === "P2002"
       ) {
-        const current = await this.prisma.poem.findUnique({
-          where: { id: poemId },
-          select: { views: true },
-        });
-        return { views: current!.views };
+        const views = await this.getViewsCount(poemId);
+        if (poem.views !== views) {
+          await this.prisma.poem.update({
+            where: { id: poemId },
+            data: { views },
+            select: { id: true },
+          });
+        }
+        return { views };
       }
       throw e;
     }

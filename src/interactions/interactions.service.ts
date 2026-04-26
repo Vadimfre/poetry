@@ -23,7 +23,7 @@ export class InteractionsService {
         userId
           ? this.favoritesService.favoriteStatus(userId, poemId)
           : { isFavorite: false, favoritesCount: 0 },
-        this.viewsService.getOrAddView(poemId, userId ?? undefined, ip),
+        this.viewsService.getViews(poemId),
         this.commentsService.getCommentCount(poemId),
       ]);
 
@@ -35,5 +35,9 @@ export class InteractionsService {
       views: views.views,
       commentsCount,
     };
+  }
+
+  async addView(poemId: number, userId?: number, ip?: string) {
+    return this.viewsService.getOrAddView(poemId, userId, ip);
   }
 }

@@ -14,23 +14,33 @@ export class MailService {
 
   public async sendConfirmationMail(email: string, token: string) {
     const domain = this.configService.getOrThrow("FRONTEND_URL");
-    const html = await render(ConfirmationTemplate({ domain, token }));
+    const template = ConfirmationTemplate({ domain, token });
+    const html = await render(template);
+    const text = await render(template, { plainText: true });
 
-    return this.sendMail(email, "Подтверждение почты", html);
+    return this.sendMail(email, "Подтверждение почты", html, text);
   }
 
   public async sendPasswordResetMail(email: string, token: string) {
     const domain = this.configService.getOrThrow("FRONTEND_URL");
-    const html = await render(ResetPasswordTemplate({ domain, token }));
+    const template = ResetPasswordTemplate({ domain, token });
+    const html = await render(template);
+    const text = await render(template, { plainText: true });
 
-    return this.sendMail(email, "Сброс пароля", html);
+    return this.sendMail(email, "Сброс пароля", html, text);
   }
 
-  public async sendMail(email: string, subject: string, html: string) {
+  public async sendMail(
+    email: string,
+    subject: string,
+    html: string,
+    text?: string,
+  ) {
     return this.mailerService.sendMail({
       to: email,
       subject,
       html,
+      text,
     });
   }
 }
