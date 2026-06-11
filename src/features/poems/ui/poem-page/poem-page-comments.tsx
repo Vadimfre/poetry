@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/src/shared/i18n";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle } from "lucide-react";
 import { Comments } from "@/src/features/comments";
@@ -15,6 +17,7 @@ export function PoemPageComments({
   commentsCount,
   isOpen,
 }: PoemPageCommentsProps) {
+  const { t } = useI18n();
   return (
     <AnimatePresence>
       {isOpen && (
@@ -28,15 +31,24 @@ export function PoemPageComments({
           <div className="mt-8">
             {/* Section header */}
             <motion.div
-              className="flex items-center gap-2 mb-6"
+              className="mb-6 flex items-center gap-3 rounded-[24px] border border-stone-200/70 bg-white/85 px-5 py-4 shadow-[0_14px_36px_rgba(76,57,35,0.08)] backdrop-blur-sm"
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.3, delay: 0.1 }}
             >
-              <MessageCircle className="w-5 h-5 text-blue-400" />
-              <h3 className="text-lg font-semibold text-white">Каментарыі</h3>
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 ring-1 ring-amber-100">
+                <MessageCircle className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h3 className="text-lg font-semibold text-stone-900">
+                  {t("commentsSection.title")}
+                </h3>
+                <p className="text-sm text-stone-500">
+                  {t("commentsSection.subtitle")}
+                </p>
+              </div>
               {commentsCount > 0 && (
-                <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
                   {commentsCount}
                 </span>
               )}
@@ -44,7 +56,7 @@ export function PoemPageComments({
 
             {/* Comments list */}
             <motion.div
-              className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden backdrop-blur-sm"
+              className="overflow-hidden rounded-[28px] border border-stone-200/80 bg-white/90 shadow-[0_24px_60px_rgba(76,57,35,0.08)] backdrop-blur-sm"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.15 }}

@@ -3,28 +3,29 @@
 import Link from "next/link";
 import styles from "./Quiz.module.css";
 import { useQuizzes } from "@/src/features/quiz";
+import { useI18n, usePlural } from "@/src/shared/i18n";
 
 export function QuizListClient() {
+  const { t } = useI18n();
+  const plural = usePlural();
   const { data: quizzesList, isLoading, error } = useQuizzes();
 
   if (isLoading) {
-    return <div>Загрузка...</div>;
+    return <div>{t("common.loading")}</div>;
   }
 
   if (error || !quizzesList) {
-    return <div>Памылка пры загрузцы квізаў</div>;
+    return <div>{t("quizzesPage.error")}</div>;
   }
 
   return (
     <main className={styles.container}>
       <div className={styles.header}>
         <Link href="/" className={styles.backLink}>
-          ← Назад
+          ← {t("common.back")}
         </Link>
-        <h1 className={styles.title}>Квізы</h1>
-        <p className={styles.subtitle}>
-          Праверце свае веды беларускай паэзіі ў інтэрактыўных заданнях
-        </p>
+        <h1 className={styles.title}>{t("quizzesPage.title")}</h1>
+        <p className={styles.subtitle}>{t("quizzesPage.subtitle")}</p>
       </div>
 
       <div className={styles.grid}>
@@ -47,13 +48,13 @@ export function QuizListClient() {
               <div className={styles.cardMeta}>
                 <span className={styles.questionCount}>
                   {quiz.questionsCount}{" "}
-                  {quiz.questionsCount === 1
-                    ? "пытанне"
-                    : quiz.questionsCount < 5
-                      ? "пытанні"
-                      : "пытанняў"}
+                  {plural(quiz.questionsCount, {
+                    one: "common.questionOne",
+                    few: "common.questionFew",
+                    many: "common.questionMany",
+                  })}
                 </span>
-                <span className={styles.playButton}>Гуляць →</span>
+                <span className={styles.playButton}>{t("quizzesPage.play")}</span>
               </div>
             </div>
             <div className={styles.cardGlow} />

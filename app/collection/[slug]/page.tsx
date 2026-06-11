@@ -4,6 +4,8 @@ import Header from '@/components/Header/Header';
 import { useCategory } from '@/src/features/categories';
 import { useQuery } from '@tanstack/react-query';
 import { poemsApi } from '@/src/shared/api';
+import { useLocaleQueryKey } from '@/src/shared/i18n/use-locale-query-key';
+import { useI18n, usePlural } from '@/src/shared/i18n';
 import Link from 'next/link';
 import styles from './collection.module.css';
 
@@ -14,15 +16,24 @@ interface PageProps {
 }
 
 export default function CollectionPage({ params }: PageProps) {
+  const { t } = useI18n();
+  const plural = usePlural();
   const { data: category, isLoading: isLoadingCategory, error } = useCategory(params.slug);
 
+  const poemsQueryKey = useLocaleQueryKey(['poems', 'category', params.slug]);
   const { data: poems, isLoading: isLoadingPoems } = useQuery({
-    queryKey: ['poems', 'category', params.slug],
+    queryKey: poemsQueryKey,
     queryFn: () => poemsApi.getByCategorySlug(params.slug),
     enabled: !!category,
   });
 
   const isLoading = isLoadingCategory || isLoadingPoems;
+  const poemCount = poems?.length || 0;
+  const poemWord = plural(poemCount, {
+    one: 'common.poemOne',
+    few: 'common.poemFew',
+    many: 'common.poemMany',
+  });
 
   if (isLoading) {
     return (
@@ -32,7 +43,7 @@ export default function CollectionPage({ params }: PageProps) {
           <div className="container">
             <div className={styles.loading}>
               <div className={styles.spinner}></div>
-              <p>Загрузка...</p>
+              <p>{t('collectionPage.loading')}</p>
             </div>
           </div>
         </main>
@@ -47,9 +58,11 @@ export default function CollectionPage({ params }: PageProps) {
         <main className={styles.main}>
           <div className="container">
             <div className={styles.notFound}>
-              <h1>Катэгорыя не знойдзена</h1>
-              <p>На жаль, такой катэгорыі не існуе.</p>
-              <Link href="/" className={styles.backLink}>← Вярнуцца на галоўную</Link>
+              <h1>{t('collectionPage.notFound')}</h1>
+              <p>{t('collectionPage.notFoundDesc')}</p>
+              <Link href="/" className={styles.backLink}>
+                ← {t('collectionPage.backHome')}
+              </Link>
             </div>
           </div>
         </main>
@@ -62,35 +75,39 @@ export default function CollectionPage({ params }: PageProps) {
       <Header />
       <main className={styles.main}>
         <div className="container">
-          {/* Header */}
           <div className={styles.header}>
-            <Link href="/" className={styles.backButton}>← Назад</Link>
+            <Link href="/" className={styles.backButton}>
+              ← {t('common.back')}
+            </Link>
             <div className={styles.headerContent}>
-              <span className={styles.label}>Кірунак паэзіі</span>
+              <span className={styles.label}>{t('collectionPage.label')}</span>
               <h1 className={styles.title}>{category.name.toUpperCase()}</h1>
               {category.description && (
                 <p className={styles.description}>{category.description}</p>
               )}
               <span className={styles.count}>
-                {poems?.length || 0} {getWordForm(poems?.length || 0)}
+                {poemCount} {poemWord}
               </span>
             </div>
           </div>
 
-          {/* Poems Grid */}
           {poems && poems.length > 0 ? (
             <div className={styles.poemsGrid}>
               {poems.map((poem, index) => (
-                <Link 
-                  href={`/poem/${poem.id}`} 
-                  key={poem.id} 
+                <Link
+                  href={`/poem/${poem.id}`}
+                  key={poem.id}
                   className={styles.poemCard}
                   style={{ animationDelay: `${index * 0.05}s` }}
                 >
-                  <div className={styles.poemNumber}>{String(index + 1).padStart(2, '0')}</div>
+                  <div className={styles.poemNumber}>
+                    {String(index + 1).padStart(2, '0')}
+                  </div>
                   <div className={styles.poemContent}>
                     <h3 className={styles.poemTitle}>{poem.title}</h3>
-                    <p className={styles.poemAuthor}>{poem.author?.name || 'Невядомы аўтар'}</p>
+                    <p className={styles.poemAuthor}>
+                      {poem.author?.name || t('common.unknownAuthor')}
+                    </p>
                     {poem.year && <span className={styles.poemYear}>{poem.year}</span>}
                   </div>
                   <div className={styles.poemPreview}>
@@ -102,17 +119,11 @@ export default function CollectionPage({ params }: PageProps) {
             </div>
           ) : (
             <div className={styles.empty}>
-              <p>У гэтай катэгорыі пакуль няма вершаў</p>
+              <p>{t('collectionPage.noPoems')}</p>
             </div>
           )}
         </div>
       </main>
     </>
   );
-}
-
-function getWordForm(count: number): string {
-  if (count === 1) return 'верш';
-  if (count >= 2 && count <= 4) return 'вершы';
-  return 'вершаў';
 }

@@ -23,6 +23,7 @@ import styles from "./HolidayModal.module.css";
 import { useOptimisticLike } from "@/src/shared/hooks/interactions";
 import { useOptimisticFavorite } from "@/src/shared/hooks/interactions";
 import { usePoemInteractions } from "@/src/shared/hooks/interactions";
+import { useI18n } from "@/src/shared/i18n";
 
 interface HolidayModalProps {
   open: boolean;
@@ -82,6 +83,7 @@ export function HolidayModal({
   holiday,
   loading,
 }: HolidayModalProps) {
+  const { t } = useI18n();
   const {
     expandedPoem,
     activeTab,
@@ -100,9 +102,11 @@ export function HolidayModal({
           aria-describedby={undefined}
         >
           <VisuallyHidden>
-            <DialogTitle>{holiday?.name ?? "Свята"}</DialogTitle>
+            <DialogTitle>
+              {holiday?.name ?? t("holiday.defaultName")}
+            </DialogTitle>
             <DialogDescription>
-              {holiday?.description ?? "Інфармацыя пра свята і звязаныя вершы"}
+              {holiday?.description ?? t("holiday.defaultDescription")}
             </DialogDescription>
           </VisuallyHidden>
 
@@ -114,7 +118,7 @@ export function HolidayModal({
               <BackgroundPattern />
 
               {/* Header Buttons */}
-              <HeaderButtons onClose={() => onOpenChange(false)} />
+              <HeaderButtons onClose={() => onOpenChange(false)} t={t} />
 
               {/* Main Content */}
               <div className={styles.mainContent}>
@@ -128,7 +132,7 @@ export function HolidayModal({
                     onValueChange={setActiveTab}
                     className="flex-1 flex flex-col"
                   >
-                    <TabsHeader poemsCount={holiday.poems.length} />
+                    <TabsHeader poemsCount={holiday.poems.length} t={t} />
 
                     <TabsContent
                       value="poems"
@@ -186,24 +190,36 @@ function BackgroundPattern() {
   );
 }
 
-function HeaderButtons({ onClose }: { onClose: () => void }) {
+function HeaderButtons({
+  onClose,
+  t,
+}: {
+  onClose: () => void;
+  t: (key: string, params?: Record<string, string | number>) => string;
+}) {
   return (
     <>
       <button
         onClick={onClose}
         className={styles.closeButton}
-        aria-label="Закрыць"
+        aria-label={t("holiday.close")}
       >
         <X className={styles.closeButtonIcon} />
       </button>
-      <button className={styles.shareButton} aria-label="Падзяліцца">
+      <button className={styles.shareButton} aria-label={t("holiday.share")}>
         <Share2 className={styles.shareButtonIcon} />
       </button>
     </>
   );
 }
 
-function TabsHeader({ poemsCount }: { poemsCount: number }) {
+function TabsHeader({
+  poemsCount,
+  t,
+}: {
+  poemsCount: number;
+  t: (key: string, params?: Record<string, string | number>) => string;
+}) {
   return (
     <div className={styles.tabsHeader}>
       <TabsList className={styles.tabsList}>
@@ -212,14 +228,14 @@ function TabsHeader({ poemsCount }: { poemsCount: number }) {
           className={`${styles.tabTriggerBase} data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-400 data-[state=active]:to-orange-500 data-[state=active]:text-slate-900 data-[state=active]:shadow-lg`}
         >
           <BookOpen className={styles.tabIcon} />
-          Вершы ({poemsCount})
+          {t("holiday.poemsTabCount", { count: poemsCount })}
         </TabsTrigger>
         <TabsTrigger
           value="info"
           className={`${styles.tabTriggerBase} data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-400 data-[state=active]:to-orange-500 data-[state=active]:text-slate-900 data-[state=active]:shadow-lg`}
         >
           <Sparkles className={styles.tabIcon} />
-          Пра свята
+          {t("holiday.aboutTab")}
         </TabsTrigger>
       </TabsList>
     </div>

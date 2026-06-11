@@ -1,15 +1,19 @@
+"use client";
+
 import Link from "next/link";
+import { useI18n } from "@/src/shared/i18n";
 import styles from "./StateScreen.module.css";
 
 interface LoadingStateProps {
   text?: string;
 }
 
-export function LoadingState({ text = "Загрузка..." }: LoadingStateProps) {
+export function LoadingState({ text }: LoadingStateProps) {
+  const { t } = useI18n();
   return (
     <div className={styles.stateScreen}>
       <div className={styles.loadingSpinner} />
-      <p className={styles.loadingText}>{text}</p>
+      <p className={styles.loadingText}>{text ?? t("common.loading")}</p>
     </div>
   );
 }
@@ -19,10 +23,8 @@ interface ErrorStateProps {
   description?: string;
 }
 
-export function ErrorState({
-  title = "Ошибка загрузки",
-  description = "Не удалось загрузить данные",
-}: ErrorStateProps) {
+export function ErrorState({ title, description }: ErrorStateProps) {
+  const { t } = useI18n();
   return (
     <div className={styles.stateScreen}>
       <div className={`${styles.stateIcon} ${styles.stateIconError}`}>
@@ -31,8 +33,10 @@ export function ErrorState({
           <path d="M12 8v4M12 16h.01" />
         </svg>
       </div>
-      <h2 className={styles.stateTitle}>{title}</h2>
-      <p className={styles.stateDescription}>{description}</p>
+      <h2 className={styles.stateTitle}>{title ?? t("common.error")}</h2>
+      <p className={styles.stateDescription}>
+        {description ?? t("common.errorGeneric")}
+      </p>
     </div>
   );
 }

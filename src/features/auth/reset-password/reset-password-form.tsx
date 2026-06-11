@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/src/shared/i18n";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AuthInput } from "../ui/auth-input";
@@ -11,6 +13,7 @@ import { useResetPasswordMutation } from "@/src/shared";
 import styles from './reset-password-form.module.css'
 
 export const ResetPasswordForm = () => {
+  const { t } = useI18n();
   const {
     register,
     handleSubmit,
@@ -35,17 +38,14 @@ export const ResetPasswordForm = () => {
 
       <div className={styles.card}>
         <div className={styles.header}>
-          <h1 className={styles.title}>Восстановление пароля</h1>
-          <p className={styles.subtitle}>
-            Введите email, связанный с вашим аккаунтом, и мы отправим вам ссылку
-            для сброса пароля.
-          </p>
+          <h1 className={styles.title}>{t("auth.resetPasswordTitle")}</h1>
+          <p className={styles.subtitle}>{t("authRecovery.resetDescription")}</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className={styles.form} noValidate>
           <div className={styles.inputWrapper}>
             <AuthInput
-              placeholder="Ваш email"
+              placeholder={t("auth.email")}
               type="email"
               {...register("email")}
               error={errors.email?.message}
@@ -58,15 +58,15 @@ export const ResetPasswordForm = () => {
             className={styles.submitButton}
           >
             {isLoadingReset && <span className={styles.loading}></span>}
-            {isLoadingReset ? "Отправка..." : "Отправить ссылку"}
+            {isLoadingReset ? t("authRecovery.sending") : t("authRecovery.sendLink")}
           </button>
         </form>
 
         <div className={styles.footer}>
           <p>
-            Вспомнили пароль?{" "}
+            {t("authRecovery.rememberPassword")}{" "}
             <a href="/" className={styles.link}>
-              Войти
+              {t("auth.signIn")}
             </a>
           </p> 
         </div>

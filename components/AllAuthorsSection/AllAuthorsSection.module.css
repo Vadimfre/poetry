@@ -47,9 +47,77 @@
 .subtitle {
   font-size: 17px;
   color: var(--secondary-color);
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 640px;
+  margin: 0 auto 24px;
   line-height: 1.6;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.primaryBtn,
+.secondaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.primaryBtn {
+  background: linear-gradient(135deg, #c49758 0%, #a67c3d 100%);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(166, 124, 61, 0.25);
+}
+
+.secondaryBtn {
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--primary-color);
+  border: 1px solid rgba(103, 84, 63, 0.12);
+}
+
+.primaryBtn:hover,
+.secondaryBtn:hover {
+  transform: translateY(-2px);
+}
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 40px;
+  padding: 20px 0;
+  border-top: 1px solid rgba(103, 84, 63, 0.08);
+  border-bottom: 1px solid rgba(103, 84, 63, 0.08);
+}
+
+.statItem {
+  text-align: center;
+}
+
+.statNumber {
+  display: block;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 4px;
+}
+
+.statLabel {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--secondary-color);
 }
 
 /* Grid */
@@ -110,14 +178,10 @@
   width: 120px;
   height: 150px;
   border-radius: 12px;
-  background: linear-gradient(135deg, var(--accent-color) 0%, #3b82f6 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 48px;
-  font-weight: 700;
-  color: white;
-  box-shadow: 0 8px 25px rgba(96, 165, 250, 0.3);
+  object-fit: cover;
+  display: block;
+  background: #e8eef4;
+  box-shadow: 0 8px 25px rgba(96, 165, 250, 0.2);
 }
 
 .info {
@@ -170,6 +234,10 @@
 @media (max-width: 900px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .statsRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   
   .title {

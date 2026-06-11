@@ -11,8 +11,12 @@ import {
 import { useUserStore } from "@/src/entities/user";
 import styles from "./settings.module.css";
 import { changePasswordSchema } from "@/src/shared";
+import { useI18n } from "@/src/shared/i18n";
 
 export default function SettingsPage() {
+  const { t, locale } = useI18n();
+  const dateLocale =
+    locale === "be" ? "be-BY" : locale === "ru" ? "ru-RU" : "en-US";
   const router = useRouter();
   const { user, isAuthenticated } = useUserStore();
   const { data: profile, isLoading: isLoadingProfile } = useProfile();
@@ -72,16 +76,16 @@ export default function SettingsPage() {
     try {
       await updateProfile.mutateAsync({ name });
       setIsEditingName(false);
-      showSuccess("Имя успешно обновлено!");
+      showSuccess(t("settings.nameUpdated"));
     } catch (err: any) {
-      showError(err.response?.data?.message || "Ошибка при обновлении имени");
+      showError(err.response?.data?.message || t("settings.updateNameError"));
     }
   };
 
   // Сохранить email
   const handleSaveEmail = async () => {
     if (!emailPassword) {
-      showError("Введите пароль для подтверждения");
+      showError(t("settings.enterPasswordConfirm"));
       return;
     }
 
@@ -89,21 +93,21 @@ export default function SettingsPage() {
       await updateEmail.mutateAsync({ email, password: emailPassword });
       setIsEditingEmail(false);
       setEmailPassword("");
-      showSuccess("Email успешно обновлён!");
+      showSuccess(t("settings.emailUpdated"));
     } catch (err: any) {
-      showError(err.response?.data?.message || "Ошибка при обновлении email");
+      showError(err.response?.data?.message || t("settings.updateEmailError"));
     }
   };
 
   // Сохранить пароль
   const handleSavePassword = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
-      showError("Заполните все поля");
+      showError(t("settings.fillAllFields"));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      showError("Пароли не совпадают");
+      showError(t("settings.passwordsMismatch"));
       return;
     }
 
@@ -125,9 +129,9 @@ export default function SettingsPage() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      showSuccess("Пароль успешно изменён!");
+      showSuccess(t("settings.passwordUpdated"));
     } catch (err: any) {
-      showError(err.response?.data?.message || "Ошибка при смене пароля");
+      showError(err.response?.data?.message || t("settings.updatePasswordError"));
     }
   };
 
@@ -136,13 +140,13 @@ export default function SettingsPage() {
     return (
       <div className={styles.container}>
         <div className={styles.notAuth}>
-          <h2>Войдите в аккаунт</h2>
-          <p>Для доступа к настройкам профиля необходимо войти</p>
+          <h2>{t("settings.loginTitle2")}</h2>
+          <p>{t("settings.loginDescription2")}</p>
           <button
             onClick={() => router.push("/")}
             className={styles.homeButton}
           >
-            На главную
+            {t("favorites.backHome")}
           </button>
         </div>
       </div>
@@ -166,12 +170,12 @@ export default function SettingsPage() {
         >
           <path d="M19 12H5M12 19l-7-7 7-7" />
         </svg>
-        Назад
+        {t("common.back")}
       </button>
 
       <div className={styles.header}>
-        <h1 className={styles.title}>Настройки профиля</h1>
-        <p className={styles.subtitle}>Управляйте своей учетной записью</p>
+        <h1 className={styles.title}>{t("settings.title")}</h1>
+        <p className={styles.subtitle}>{t("settings.subtitleAccount")}</p>
       </div>
 
       {/* Сообщения */}
@@ -211,7 +215,7 @@ export default function SettingsPage() {
       )}
 
       {isLoadingProfile ? (
-        <div className={styles.loading}>Загрузка...</div>
+        <div className={styles.loading}>{t("common.loading")}</div>
       ) : (
         <div className={styles.content}>
           {/* Profile Card */}
@@ -220,16 +224,24 @@ export default function SettingsPage() {
               <div className={styles.avatarLarge}>{avatarLetter}</div>
               <div className={styles.profileInfo}>
                 <h3 className={styles.profileName}>
-                  {profile?.name || user?.name || "Пользователь"}
+                  {profile?.name || user?.name || t("header.userFallback")}
                 </h3>
                 <p className={styles.profileEmail}>
                   {profile?.email || user?.email}
                 </p>
                 {profile?._count && (
                   <div className={styles.stats}>
-                    <span>{profile._count.favorites} избранных</span>
+                    <span>
+                      {t("settings.favoritesStat", {
+                        count: profile._count.favorites,
+                      })}
+                    </span>
                     <span>•</span>
-                    <span>{profile._count.comments} комментариев</span>
+                    <span>
+                      {t("settings.commentsStat", {
+                        count: profile._count.comments,
+                      })}
+                    </span>
                   </div>
                 )}
               </div>
@@ -239,13 +251,13 @@ export default function SettingsPage() {
           {/* Секция: Имя */}
           <div className={styles.section}>
             <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>Имя</h2>
+              <h2 className={styles.sectionTitle}>{t("settings.name")}</h2>
               {!isEditingName && (
                 <button
                   className={styles.editButton}
                   onClick={() => setIsEditingName(true)}
                 >
-                  Изменить
+                  {t("common.edit")}
                 </button>
               )}
             </div>
@@ -257,7 +269,7 @@ export default function SettingsPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className={styles.input}
-                  placeholder="Введите ваше имя"
+                  placeholder={t("settings.namePlaceholder")}
                 />
                 <div className={styles.editActions}>
                   <button
@@ -267,32 +279,34 @@ export default function SettingsPage() {
                       setName(profile?.name || user?.name || "");
                     }}
                   >
-                    Отмена
+                    {t("common.cancel")}
                   </button>
                   <button
                     className={styles.saveBtn}
                     onClick={handleSaveName}
                     disabled={updateProfile.isPending}
                   >
-                    {updateProfile.isPending ? "Сохранение..." : "Сохранить"}
+                    {updateProfile.isPending ? t("settings.saving") : t("common.save")}
                   </button>
                 </div>
               </div>
             ) : (
-              <p className={styles.fieldValue}>{name || "Не указано"}</p>
+              <p className={styles.fieldValue}>
+                {name || t("settings.notSpecified")}
+              </p>
             )}
           </div>
 
           {/* Секция: Email */}
           <div className={styles.section}>
             <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>Email</h2>
+              <h2 className={styles.sectionTitle}>{t("settings.email")}</h2>
               {!isEditingEmail && (
                 <button
                   className={styles.editButton}
                   onClick={() => setIsEditingEmail(true)}
                 >
-                  Изменить
+                  {t("common.edit")}
                 </button>
               )}
             </div>
@@ -311,7 +325,7 @@ export default function SettingsPage() {
                   value={emailPassword}
                   onChange={(e) => setEmailPassword(e.target.value)}
                   className={styles.input}
-                  placeholder="Введите пароль для подтверждения"
+                  placeholder={t("settings.emailPasswordPlaceholder")}
                 />
                 <div className={styles.editActions}>
                   <button
@@ -322,14 +336,14 @@ export default function SettingsPage() {
                       setEmailPassword("");
                     }}
                   >
-                    Отмена
+                    {t("common.cancel")}
                   </button>
                   <button
                     className={styles.saveBtn}
                     onClick={handleSaveEmail}
                     disabled={updateEmail.isPending}
                   >
-                    {updateEmail.isPending ? "Сохранение..." : "Сохранить"}
+                    {updateEmail.isPending ? t("settings.saving") : t("common.save")}
                   </button>
                 </div>
               </div>
@@ -341,13 +355,15 @@ export default function SettingsPage() {
           {/* Секция: Пароль */}
           <div className={styles.section}>
             <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>Пароль</h2>
+              <h2 className={styles.sectionTitle}>
+                {t("settings.passwordSection")}
+              </h2>
               {!isEditingPassword && (
                 <button
                   className={styles.editButton}
                   onClick={() => setIsEditingPassword(true)}
                 >
-                  Изменить
+                  {t("common.edit")}
                 </button>
               )}
             </div>
@@ -359,21 +375,21 @@ export default function SettingsPage() {
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   className={styles.input}
-                  placeholder="Текущий пароль"
+                  placeholder={t("settings.currentPasswordPlaceholder")}
                 />
                 <input
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   className={styles.input}
-                  placeholder="Новый пароль (мин. 6 символов)"
+                  placeholder={t("settings.newPasswordPlaceholder")}
                 />
                 <input
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className={styles.input}
-                  placeholder="Подтвердите новый пароль"
+                  placeholder={t("settings.confirmPasswordPlaceholder")}
                 />
                 <div className={styles.editActions}>
                   <button
@@ -385,7 +401,7 @@ export default function SettingsPage() {
                       setConfirmPassword("");
                     }}
                   >
-                    Отмена
+                    {t("common.cancel")}
                   </button>
                   <button
                     className={styles.saveBtn}
@@ -393,8 +409,8 @@ export default function SettingsPage() {
                     disabled={updatePassword.isPending}
                   >
                     {updatePassword.isPending
-                      ? "Сохранение..."
-                      : "Изменить пароль"}
+                      ? t("settings.saving")
+                      : t("settings.changePasswordAction")}
                   </button>
                 </div>
               </div>
@@ -406,9 +422,9 @@ export default function SettingsPage() {
           {/* Дата регистрации */}
           {profile?.createdAt && (
             <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Дата регистрации</h2>
+              <h2 className={styles.sectionTitle}>{t("settings.registeredAt")}</h2>
               <p className={styles.fieldValue}>
-                {new Date(profile.createdAt).toLocaleDateString("ru-RU", {
+                {new Date(profile.createdAt).toLocaleDateString(dateLocale, {
                   day: "numeric",
                   month: "long",
                   year: "numeric",

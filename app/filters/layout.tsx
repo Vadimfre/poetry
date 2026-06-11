@@ -2,7 +2,7 @@ import Header from '@/components/Header/Header'
 
 export const metadata = {
   title: 'Фильтры | Poetry',
-  description: 'Ваши фильтры стихотворений',
+  description: 'Фильтры творов по авторам, темам и параметрам',
 }
 
 export default function FiltersLayout({

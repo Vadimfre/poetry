@@ -12,9 +12,12 @@ import {
   ErrorState,
   EmptyState,
 } from "@/components/StateScreen/StateScreen";
+import { useI18n, usePlural } from "@/src/shared/i18n";
 import styles from "./favorites.module.css";
 
 export default function FavoritesPage() {
+  const { t } = useI18n();
+  const plural = usePlural();
   const router = useRouter();
   const { isAuthenticated } = useUserStore();
   const { favorites, isLoading, error } = useFavorites();
@@ -29,10 +32,10 @@ export default function FavoritesPage() {
       return (
         <EmptyState
           icon="auth"
-          title="Войдите в аккаунт"
-          description="Чтобы просматривать избранное, войдите в свой аккаунт"
+          title={t("favorites.loginTitle")}
+          description={t("favorites.loginDescription")}
           actionHref="/"
-          actionLabel="На главную"
+          actionLabel={t("favorites.backHome")}
         />
       );
     }
@@ -42,17 +45,17 @@ export default function FavoritesPage() {
     }
 
     if (error) {
-      return <ErrorState description="Не удалось загрузить избранное" />;
+      return <ErrorState description={t("favorites.loadError")} />;
     }
 
     if (favorites.length === 0) {
       return (
         <EmptyState
           icon="bookmark"
-          title="Нет избранных стихов"
-          description="Начните добавлять стихотворения в избранное, чтобы они появились здесь"
+          title={t("favorites.emptyTitle")}
+          description={t("favorites.emptyDescription")}
           actionHref="/"
-          actionLabel="Посмотреть стихи"
+          actionLabel={t("favorites.browsePoems")}
         />
       );
     }
@@ -69,7 +72,7 @@ export default function FavoritesPage() {
                 <h3 className={styles.cardTitle}>{favorite.poem.title}</h3>
                 <div className={styles.cardMeta}>
                   <span className={styles.cardAuthor}>
-                    {favorite.poem.author?.name || "Неизвестный автор"}
+                    {favorite.poem.author?.name || t("common.unknownAuthor")}
                   </span>
                   {favorite.poem.year && (
                     <>
@@ -92,7 +95,7 @@ export default function FavoritesPage() {
               <button
                 onClick={() => removeFavorite.mutate(favorite.poem.id)}
                 className={styles.removeButton}
-                title="Удалить из избранного"
+                title={t("favorites.remove")}
                 disabled={removeFavorite.isPending}
               >
                 <svg
@@ -126,16 +129,20 @@ export default function FavoritesPage() {
         >
           <path d="M19 12H5M12 19l-7-7 7-7" />
         </svg>
-        Назад
+        {t("favorites.back")}
       </button>
 
       <div className={styles.header}>
         <div className={styles.headerContent}>
-          <h1 className={styles.title}>Избранное</h1>
+          <h1 className={styles.title}>{t("favorites.title")}</h1>
           <p className={styles.subtitle}>
             {isAuthenticated && favorites.length > 0
-              ? `${favorites.length} ${getWord(favorites.length)}`
-              : "Ваши любимые стихотворения"}
+              ? `${favorites.length} ${plural(favorites.length, {
+                  one: "common.poemOne",
+                  few: "common.poemFew",
+                  many: "common.poemMany",
+                })}`
+              : t("favorites.subtitleDefault")}
           </p>
         </div>
       </div>
@@ -143,14 +150,4 @@ export default function FavoritesPage() {
       {renderContent()}
     </div>
   );
-}
-
-function getWord(count: number): string {
-  const lastTwo = count % 100;
-  const lastOne = count % 10;
-
-  if (lastTwo >= 11 && lastTwo <= 19) return "стихотворений";
-  if (lastOne === 1) return "стихотворение";
-  if (lastOne >= 2 && lastOne <= 4) return "стихотворения";
-  return "стихотворений";
 }

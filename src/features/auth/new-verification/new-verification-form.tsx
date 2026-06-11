@@ -1,5 +1,6 @@
 "use client";
 
+import { useI18n, usePlural } from "@/src/shared/i18n";
 import { useVerificationMutation } from "@/src/shared";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -7,6 +8,8 @@ import { useRouter } from "next/navigation";
 import styles from "./new-verification-form.module.css";
 
 export function NewVerificationForm() {
+  const { t } = useI18n();
+  const plural = usePlural();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const [error, setError] = useState<string | null>(null);
@@ -24,10 +27,7 @@ export function NewVerificationForm() {
     calledRef.current = true;
 
     if (!token) {
-      const err =
-        "Токен подтверждения отсутствует. Пожалуйста, проверьте ссылку.";
-      setError(err);
-      console.error(err);
+      setError(t("authRecovery.tokenMissing"));
       return;
     }
 
@@ -46,7 +46,7 @@ export function NewVerificationForm() {
           });
         }, 1000);
       } catch (err: any) {
-        setError(err?.message || "Произошла ошибка при подтверждении.");
+        setError(err?.message || t("authRecovery.verifyError"));
       }
     };
 
@@ -66,13 +66,13 @@ export function NewVerificationForm() {
 
       <div className={styles.card}>
         <div className={styles.header}>
-          <h1 className={styles.title}>Подтверждение email</h1>
+          <h1 className={styles.title}>{t("auth.verifyEmailTitle")}</h1>
           <p className={styles.subtitle}>
             {showingSuccess
-              ? "Ваш email успешно подтверждён! Теперь вы можете пользоваться всеми возможностями аккаунта."
+              ? t("authRecovery.verifySuccess")
               : error
-                ? "Произошла ошибка при подтверждении."
-                : "Идёт проверка вашего токена подтверждения. Пожалуйста, подождите..."}
+                ? t("authRecovery.verifyError")
+                : t("authRecovery.verifying")}
           </p>
         </div>
 
@@ -85,18 +85,15 @@ export function NewVerificationForm() {
           ) : showingSuccess ? (
             <>
               <div className={styles.successIcon}>✓</div>
+              <p className={styles.message}>{t("authRecovery.congrats")}</p>
               <p className={styles.message}>
-                Поздравляем! Ваш аккаунт полностью активирован. Теперь вы можете
-                войти и начать использовать сервис.
-              </p>
-              <p className={styles.message}>
-                Перенаправление на главную страницу через{" "}
+                {t("authRecovery.redirectIn")}{" "}
                 <span className={styles.countdown}>{countdown}</span>{" "}
-                {countdown === 1
-                  ? "секунду"
-                  : countdown < 5
-                    ? "секунды"
-                    : "секунд"}
+                {plural(countdown, {
+                  one: "authRecovery.secondOne",
+                  few: "authRecovery.secondFew",
+                  many: "authRecovery.secondMany",
+                })}
                 ...
               </p>
             </>
@@ -104,7 +101,7 @@ export function NewVerificationForm() {
             <>
               <div className={styles.loadingSpinner}></div>
               <p className={styles.message}>
-                Проверяем ваш токен, это займёт несколько секунд...
+                {t("authRecovery.checkingToken")}
               </p>
             </>
           )}
@@ -116,7 +113,7 @@ export function NewVerificationForm() {
               href="/"
               className={`${styles.button} ${styles.primaryButton}`}
             >
-              Войти в аккаунт
+              {t("authRecovery.signInAccount")}
             </a>
           ) : error ? (
             <>
@@ -124,13 +121,13 @@ export function NewVerificationForm() {
                 href="/"
                 className={`${styles.button} ${styles.primaryButton}`}
               >
-                Зарегистрироваться
+                {t("auth.signUp")}
               </a>
               <a
                 href="/"
                 className={`${styles.button} ${styles.secondaryButton}`}
               >
-                Войти
+                {t("auth.signIn")}
               </a>
             </>
           ) : null}

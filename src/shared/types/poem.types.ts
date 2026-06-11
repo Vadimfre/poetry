@@ -43,6 +43,14 @@ export interface Poem {
 
   createdAt: string;
   updatedAt: string;
+
+  /** True when requested locale has no poem translation (public API) */
+  translationMissing?: boolean;
+
+  /** Raw i18n from admin API */
+  i18n?: Record<string, Record<string, string>>;
+
+  schoolGrades?: Array<{ grade: number; kind: string }>;
 }
 
 export interface PoemsResponse {

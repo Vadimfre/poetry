@@ -11,9 +11,11 @@ import {
   useFiltersPageState,
 } from "@/src/features/filters/model/use-filters-page";
 import { usePoems } from "@/src/shared/hooks/use-poemsSTRANCH";
+import { useI18n } from "@/src/shared/i18n";
 import styles from "./filters-page.module.css";
 
 export const FiltersPage = () => {
+  const { t } = useI18n();
   const router = useRouter();
 
   const { data: categories, isLoading: isCategoriesLoading } = useCategories();
@@ -74,31 +76,28 @@ export const FiltersPage = () => {
           >
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
-          Назад
+          {t("common.back")}
         </button>
 
         <header className={styles.header}>
           <div className={styles.headerLeft}>
-            <h1 className={styles.title}>Фильтры</h1>
-            <p className={styles.subtitle}>
-              Выбирай автора, направления, годы и сортировку — результаты будут
-              обновляться сразу.
-            </p>
+            <h1 className={styles.title}>{t("filters.title")}</h1>
+            <p className={styles.subtitle}>{t("filters.subtitleLong")}</p>
           </div>
 
           <div className={styles.headerRight}>
             <Link href="/favorites" className={styles.quickLink}>
-              Избранное
+              {t("header.favorites")}
             </Link>
             <Link href="/" className={styles.quickLinkSecondary}>
-              На главную
+              {t("filters.toHome")}
             </Link>
           </div>
         </header>
 
         {appliedChips.length > 0 && (
           <section className={styles.chipsSection}>
-            <div className={styles.chipsTitle}>Активные фильтры</div>
+            <div className={styles.chipsTitle}>{t("filters.activeFilters")}</div>
             <div className={styles.chips}>
               {appliedChips.map((chip) => (
                 <button
@@ -106,7 +105,7 @@ export const FiltersPage = () => {
                   type="button"
                   className={styles.chip}
                   onClick={chip.onRemove}
-                  title="Убрать"
+                  title={t("filters.removeChip")}
                 >
                   <span className={styles.chipLabel}>{chip.label}</span>
                   <span className={styles.chipX}>×</span>
@@ -119,40 +118,40 @@ export const FiltersPage = () => {
         <div className={styles.grid}>
           <aside className={styles.panel}>
             <div className={styles.panelHeader}>
-              <div className={styles.panelTitle}>Настройка</div>
+              <div className={styles.panelTitle}>{t("filters.panelTitle")}</div>
               <div className={styles.panelActions}>
                 <button
                   type="button"
                   className={styles.resetButton}
                   onClick={handleReset}
                 >
-                  Сбросить
+                  {t("filters.reset")}
                 </button>
                 <button
                   type="button"
                   className={styles.applyButton}
                   onClick={handleApply}
                 >
-                  Применить
+                  {t("filters.apply")}
                 </button>
               </div>
             </div>
 
             <div className={styles.field}>
-              <label className={styles.label}>Поиск</label>
+              <label className={styles.label}>{t("common.search")}</label>
               <div className={styles.searchRow}>
                 <input
                   className={styles.input}
                   value={draftQuery}
                   onChange={(e) => setDraftQuery(e.target.value)}
-                  placeholder="Название или автор..."
+                  placeholder={t("filters.searchPlaceholder")}
                 />
                 <button
                   type="button"
                   className={styles.iconButton}
                   onClick={() => setDraftQuery("")}
                   disabled={!draftQuery}
-                  title="Очистить"
+                  title={t("filters.clearSearch")}
                 >
                   ×
                 </button>
@@ -160,7 +159,7 @@ export const FiltersPage = () => {
             </div>
 
             <div className={styles.field}>
-              <label className={styles.label}>Автор</label>
+              <label className={styles.label}>{t("filters.author")}</label>
               <div className={styles.selectRow}>
                 <select
                   className={styles.select}
@@ -173,7 +172,7 @@ export const FiltersPage = () => {
                   }
                   disabled={isAuthorsLoading}
                 >
-                  <option value="">Любой</option>
+                  <option value="">{t("filters.anyAuthor")}</option>
                   {(authors || []).map((a) => (
                     <option key={a.id} value={a.slug}>
                       {a.name}
@@ -186,16 +185,16 @@ export const FiltersPage = () => {
                   onClick={handleOpenAuthor}
                   disabled={!state.selectedAuthorSlug}
                 >
-                  Перейти
+                  {t("filters.goTo")}
                 </button>
               </div>
             </div>
 
             <div className={styles.field}>
-              <label className={styles.label}>Направления</label>
+              <label className={styles.label}>{t("filters.directions")}</label>
               <div className={styles.categoriesBox}>
                 {isCategoriesLoading ? (
-                  <div className={styles.hint}>Загрузка направлений...</div>
+                  <div className={styles.hint}>{t("cardsSlider.loading")}</div>
                 ) : (
                   <div className={styles.categoriesGrid}>
                     {(categories || []).map((c) => {
@@ -230,13 +229,13 @@ export const FiltersPage = () => {
                     handleOpenCategory(state.selectedCategorySlugs[0])
                   }
                 >
-                  Открыть направление
+                  {t("filters.openDirection")}
                 </button>
               )}
             </div>
 
             <div className={styles.field}>
-              <label className={styles.label}>Год</label>
+              <label className={styles.label}>{t("common.year")}</label>
               <div className={styles.yearsRow}>
                 <input
                   className={styles.input}
@@ -245,7 +244,7 @@ export const FiltersPage = () => {
                   onChange={(e) =>
                     setState((prev) => ({ ...prev, yearFrom: e.target.value }))
                   }
-                  placeholder="От"
+                  placeholder={t("filters.yearFrom")}
                 />
                 <span className={styles.yearsDash}>—</span>
                 <input
@@ -255,13 +254,13 @@ export const FiltersPage = () => {
                   onChange={(e) =>
                     setState((prev) => ({ ...prev, yearTo: e.target.value }))
                   }
-                  placeholder="До"
+                  placeholder={t("filters.yearTo")}
                 />
               </div>
             </div>
 
             <div className={styles.field}>
-              <label className={styles.label}>Сортировка</label>
+              <label className={styles.label}>{t("filters.sortLabel")}</label>
               <div className={styles.sortGrid}>
                 <button
                   type="button"
@@ -272,7 +271,7 @@ export const FiltersPage = () => {
                     setState((prev) => ({ ...prev, sort: "popular" }))
                   }
                 >
-                  Популярные
+                  {t("filters.popular")}
                 </button>
                 <button
                   type="button"
@@ -281,7 +280,7 @@ export const FiltersPage = () => {
                   }`}
                   onClick={() => setState((prev) => ({ ...prev, sort: "new" }))}
                 >
-                  Сначала новые
+                  {t("filters.sortNew")}
                 </button>
                 <button
                   type="button"
@@ -290,7 +289,7 @@ export const FiltersPage = () => {
                   }`}
                   onClick={() => setState((prev) => ({ ...prev, sort: "old" }))}
                 >
-                  Сначала старые
+                  {t("filters.sortOld")}
                 </button>
               </div>
             </div>
@@ -301,7 +300,7 @@ export const FiltersPage = () => {
               <div>
                 <div className={styles.resultsTitle}>{resultsTitle}</div>
                 <div className={styles.resultsSubtitle}>
-                  Найдено: {filteredPoems.length}
+                  {t("filters.foundCount", { count: filteredPoems.length })}
                 </div>
               </div>
             </div>
@@ -310,22 +309,22 @@ export const FiltersPage = () => {
               {isLoading ? (
                 <div className={styles.emptyCard}>
                   <div className={styles.emptyTitle}>
-                    Загружаем стихотворения...
+                    {t("filters.loadingPoems")}
                   </div>
-                  <div className={styles.emptyText}>Подождите немного.</div>
+                  <div className={styles.emptyText}>{t("filters.waitMoment")}</div>
                 </div>
               ) : error ? (
                 <div className={styles.emptyCard}>
-                  <div className={styles.emptyTitle}>Ошибка</div>
+                  <div className={styles.emptyTitle}>{t("common.error")}</div>
                   <div className={styles.emptyText}>
-                    Не удалось загрузить список стихотворений.
+                    {t("filters.loadPoemsError")}
                   </div>
                 </div>
               ) : filteredPoems.length === 0 ? (
                 <div className={styles.emptyCard}>
-                  <div className={styles.emptyTitle}>Ничего не найдено</div>
+                  <div className={styles.emptyTitle}>{t("filters.noResults")}</div>
                   <div className={styles.emptyText}>
-                    Попробуйте изменить фильтры.
+                    {t("filters.tryChange")}
                   </div>
                 </div>
               ) : (
@@ -341,7 +340,7 @@ export const FiltersPage = () => {
                         <div className={styles.poemTitle}>{poem.title}</div>
                         <div className={styles.poemMeta}>
                           <span className={styles.poemAuthor}>
-                            {poem.author?.name || "Неизвестный автор"}
+                            {poem.author?.name || t("common.unknownAuthor")}
                           </span>
                           {poem.year && (
                             <span className={styles.poemYear}>{poem.year}</span>

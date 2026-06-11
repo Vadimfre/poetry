@@ -9,7 +9,7 @@ export interface PoetBubbleProps {
   id: string;
   name: string;
   subtitle?: string;
-  color?: string;
+  color?: string | null;
   disabled?: boolean;
   isPlaced?: boolean;
   onClick?: () => void;
@@ -18,7 +18,7 @@ export interface PoetBubbleProps {
 interface PoetBubbleBaseProps {
   name: string;
   subtitle?: string;
-  color?: string;
+  color?: string | null;
   disabled?: boolean;
   isDragging?: boolean;
   onClick?: (e: React.MouseEvent) => void;

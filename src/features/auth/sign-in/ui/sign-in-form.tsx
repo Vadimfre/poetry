@@ -6,6 +6,7 @@ import { loginSchema, type LoginFormData } from "@/src/shared/lib/validations";
 import styles from "../../auth.module.css";
 import { useSignIn } from "../..";
 import Link from "next/link";
+import { useI18n } from "@/src/shared/i18n";
 
 interface SignInFormProps {
   onSuccess?: () => void;
@@ -16,6 +17,7 @@ export const SignInForm = ({
   onSuccess,
   onSwitchToSignUp,
 }: SignInFormProps) => {
+  const { t } = useI18n();
   const {
     register,
     handleSubmit,
@@ -34,17 +36,16 @@ export const SignInForm = ({
 
   return (
     <div className={styles.authCard}>
-      <h1 className={styles.title}>УВАХОД</h1>
-      <p className={styles.subtitle}>З вяртаннем</p>
+      <h1 className={styles.title}>{t("auth.signInTitle")}</h1>
+      <p className={styles.subtitle}>{t("auth.signInSubtitle")}</p>
 
       <form
         onSubmit={handleSubmit(onSubmit)}
         className={styles.form}
         noValidate
       >
-        {/* EMAIL */}
         <div className={styles.inputGroup}>
-          <label className={styles.label}>EMAIL</label>
+          <label className={styles.label}>{t("auth.email")}</label>
           <input
             type="email"
             placeholder="your@email.com"
@@ -56,12 +57,11 @@ export const SignInForm = ({
           )}
         </div>
 
-        {/* PASSWORD */}
         <div className={styles.inputGroup}>
-          <label className={styles.label}>ПАРОЛЬ</label>
+          <label className={styles.label}>{t("auth.password")}</label>
           <input
             type="password"
-            placeholder="Увядзіце пароль"
+            placeholder={t("auth.passwordPlaceholder")}
             className={styles.input}
             {...register("password")}
           />
@@ -70,19 +70,16 @@ export const SignInForm = ({
           )}
         </div>
 
-        {/* FORGOT PASSWORD */}
         <div className={styles.forgotPassword}>
-          <Link href="/auth/reset-password">Забыліся пароль?</Link>
+          <Link href="/auth/reset-password">{t("auth.forgotPassword")}</Link>
         </div>
 
-        {/* ERROR */}
         {error && (
           <p className={styles.error} style={{ textAlign: "center" }}>
-            Няправільны email або пароль
+            {t("auth.wrongCredentials")}
           </p>
         )}
 
-        {/* SUBMIT */}
         <button
           type="submit"
           disabled={isPending}
@@ -90,19 +87,18 @@ export const SignInForm = ({
             isPending ? styles.submitButtonLoading : ""
           }`}
         >
-          {isPending ? "Уваход..." : "УВАЙСЦІ"}
+          {isPending ? t("auth.signingIn") : t("auth.signIn")}
         </button>
 
-        {/* SWITCH */}
         {onSwitchToSignUp && (
           <div className={styles.footer}>
-            Няма акаўнта?
+            {t("auth.noAccount")}
             <button
               type="button"
               onClick={onSwitchToSignUp}
               className={styles.footerLink}
             >
-              Зарэгістравацца
+              {t("auth.signUp")}
             </button>
           </div>
         )}

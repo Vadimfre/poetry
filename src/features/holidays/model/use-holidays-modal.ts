@@ -2,27 +2,16 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { Holiday, SEASON_COLORS, SeasonStyle } from "@/src/shared";
-import {
-  seasonConfig,
-  SlideSeason,
-} from "../../season-slider/season-slider-data";
 
 interface UseHolidayModalReturn {
-  // State
   expandedPoem: number | null;
   savedPoems: Set<number>;
   activeTab: string;
   seasonStyle: SeasonStyle;
-  months: string[];
-
-  // Actions
   setActiveTab: (tab: string) => void;
   toggleExpandPoem: (poemId: number) => void;
-  toggleLike: (poemId: number) => void;
   toggleSave: (poemId: number) => void;
-  isPoemLiked: (poemId: number) => boolean;
   isPoemSaved: (poemId: number) => boolean;
-  getPoemLikes: (poemId: number, baseLikes: number) => number;
 }
 
 export function useHolidayModal(
@@ -31,11 +20,6 @@ export function useHolidayModal(
   const [expandedPoem, setExpandedPoem] = useState<number | null>(null);
   const [savedPoems, setSavedPoems] = useState<Set<number>>(new Set());
   const [activeTab, setActiveTab] = useState("poems");
-
-  const months = useMemo(() => {
-    if (!holiday?.season) return [];
-    return seasonConfig[holiday.season.toLowerCase() as SlideSeason].months;
-  }, [holiday?.season]);
 
   const toggleExpandPoem = useCallback((poemId: number) => {
     setExpandedPoem((prev) => (prev === poemId ? null : poemId));
@@ -69,6 +53,5 @@ export function useHolidayModal(
     toggleExpandPoem,
     toggleSave,
     isPoemSaved,
-    months,
   };
 }

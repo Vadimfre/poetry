@@ -1,7 +1,7 @@
 .container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  color: #fff;
+  background: #f8f5f2;
+  color: #2c2c2c;
 }
 
 .loading,
@@ -14,7 +14,7 @@
 }
 
 .error {
-  color: #ff6b6b;
+  color: #e74c3c;
 }
 
 .header {
@@ -22,16 +22,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px 40px;
-  background: rgba(0, 0, 0, 0.3);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  border-bottom: 1px solid #e8e2dc;
 }
 
 .title {
   font-size: 24px;
   font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #2c2c2c;
 }
 
 .userInfo {
@@ -42,11 +40,13 @@
 
 .userName {
   font-weight: 500;
+  color: #2c2c2c;
 }
 
 .userRole {
   padding: 4px 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2c2c2c;
+  color: #fff;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
@@ -56,42 +56,43 @@
   display: flex;
   gap: 8px;
   padding: 16px 40px;
-  background: rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  border-bottom: 1px solid #e8e2dc;
 }
 
 .navBtn {
   padding: 10px 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #f4eeea;
+  border: 1px solid #e0d8d2;
   border-radius: 8px;
-  color: #fff;
+  color: #2c2c2c;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .navBtn:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: #ece4de;
 }
 
 .navBtn.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-color: transparent;
+  background: #2c2c2c;
+  border-color: #2c2c2c;
+  color: #fff;
 }
 
 .backBtn {
   margin-left: auto;
   padding: 10px 20px;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid #d0c8c0;
   border-radius: 8px;
-  color: #fff;
+  color: #2c2c2c;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .backBtn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: #f4eeea;
 }
 
 .main {
@@ -116,15 +117,16 @@
   align-items: center;
   gap: 8px;
   padding: 24px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  border: 1px solid #e8e2dc;
   border-radius: 16px;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(76, 57, 35, 0.04);
 }
 
 .statCard:hover {
   transform: translateY(-4px);
-  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(76, 57, 35, 0.1);
 }
 
 .statIcon {
@@ -134,13 +136,11 @@
 .statValue {
   font-size: 36px;
   font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #2c2c2c;
 }
 
 .statLabel {
-  color: rgba(255, 255, 255, 0.6);
+  color: #999;
   font-size: 14px;
 }
 
@@ -163,7 +163,7 @@
 
 .addBtn {
   padding: 12px 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2c2c2c;
   border: none;
   border-radius: 8px;
   color: #fff;
@@ -174,13 +174,13 @@
 
 .addBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 15px rgba(44, 44, 44, 0.25);
 }
 
 /* Poem Form */
 .poemForm {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  border: 1px solid #e8e2dc;
   border-radius: 16px;
   padding: 24px;
   margin-bottom: 24px;
@@ -198,7 +198,7 @@
 .formGroup label {
   display: block;
   margin-bottom: 8px;
-  color: rgba(255, 255, 255, 0.7);
+  color: #666;
   font-size: 14px;
 }
 
@@ -207,10 +207,10 @@
 .formGroup textarea {
   width: 100%;
   padding: 12px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #faf7f4;
+  border: 1px solid #e0d8d2;
   border-radius: 8px;
-  color: #fff;
+  color: #2c2c2c;
   font-size: 14px;
 }
 
@@ -218,7 +218,7 @@
 .formGroup select:focus,
 .formGroup textarea:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #8b7355;
 }
 
 .formGroup textarea {
@@ -239,7 +239,7 @@
 }
 
 .videoPath {
-  color: #667eea;
+  color: #8b7355;
   font-size: 12px;
 }
 
@@ -251,7 +251,7 @@
 
 .submitBtn {
   padding: 12px 32px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2c2c2c;
   border: none;
   border-radius: 8px;
   color: #fff;
@@ -262,9 +262,9 @@
 .cancelBtn {
   padding: 12px 32px;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid #d0c8c0;
   border-radius: 8px;
-  color: #fff;
+  color: #2c2c2c;
   cursor: pointer;
 }
 
@@ -280,14 +280,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  border: 1px solid #e8e2dc;
   border-radius: 12px;
   transition: all 0.3s ease;
 }
 
 .poemItem:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: #faf7f4;
 }
 
 .poemInfo h4 {
@@ -296,7 +296,7 @@
 }
 
 .poemInfo p {
-  color: rgba(255, 255, 255, 0.6);
+  color: #999;
   font-size: 14px;
   margin-bottom: 4px;
 }
@@ -304,10 +304,10 @@
 .poemCategory {
   display: inline-block;
   padding: 2px 8px;
-  background: rgba(102, 126, 234, 0.2);
+  background: rgba(139, 115, 85, 0.1);
   border-radius: 4px;
   font-size: 12px;
-  color: #667eea;
+  color: #8b7355;
 }
 
 .hasVideo {
@@ -322,15 +322,16 @@
 
 .poemActions button {
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.1);
+  background: #f4eeea;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s ease;
+  color: #2c2c2c;
 }
 
 .poemActions button:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: #ece4de;
 }
 
 /* Users Section */
@@ -355,8 +356,8 @@
   align-items: center;
   gap: 20px;
   padding: 16px 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  border: 1px solid #e8e2dc;
   border-radius: 12px;
 }
 
@@ -372,7 +373,7 @@
 }
 
 .userItemEmail {
-  color: rgba(255, 255, 255, 0.6);
+  color: #999;
   font-size: 14px;
 }
 
@@ -385,21 +386,24 @@
 }
 
 .userItemRole.super_admin {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: #e74c3c;
+  color: #fff;
 }
 
 .userItemRole.admin {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2c2c2c;
+  color: #fff;
 }
 
 .userItemRole.user {
-  background: rgba(255, 255, 255, 0.2);
+  background: #f4eeea;
+  color: #666;
 }
 
 .userItemStats {
   display: flex;
   gap: 16px;
-  color: rgba(255, 255, 255, 0.6);
+  color: #999;
   font-size: 14px;
 }
 
@@ -410,27 +414,27 @@
 
 .userItemActions button {
   padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #f4eeea;
+  border: 1px solid #e0d8d2;
   border-radius: 6px;
-  color: #fff;
+  color: #2c2c2c;
   font-size: 13px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .userItemActions button:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: #ece4de;
 }
 
 .userItemActions .deleteBtn {
-  background: rgba(255, 107, 107, 0.2);
-  border-color: rgba(255, 107, 107, 0.3);
-  color: #ff6b6b;
+  background: rgba(231, 76, 60, 0.08);
+  border-color: rgba(231, 76, 60, 0.2);
+  color: #e74c3c;
 }
 
 .userItemActions .deleteBtn:hover {
-  background: rgba(255, 107, 107, 0.3);
+  background: rgba(231, 76, 60, 0.15);
 }
 
 /* Comments Section */
@@ -457,23 +461,23 @@
 
 .sectionHeader p {
   margin: 0;
-  color: rgba(255, 255, 255, 0.7);
+  color: #999;
 }
 
 .addBtn,
 .statsBtn {
   padding: 10px 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #f4eeea;
+  border: 1px solid #e0d8d2;
   border-radius: 8px;
-  color: #fff;
+  color: #2c2c2c;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .addBtn:hover,
 .statsBtn:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: #ece4de;
 }
 
 .addBtn:disabled,
@@ -498,8 +502,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  border: 1px solid #e8e2dc;
   border-radius: 12px;
   transition: all 0.3s ease;
 }
@@ -507,7 +511,7 @@
 .commentItem:hover,
 .likeItem:hover,
 .viewItem:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: #faf7f4;
 }
 
 .commentInfo h4,
@@ -522,7 +526,7 @@
 .viewMeta {
   display: flex;
   gap: 16px;
-  color: rgba(255, 255, 255, 0.6);
+  color: #999;
   font-size: 14px;
 }
 
@@ -535,16 +539,17 @@
 .commentActions button,
 .likeActions button {
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.1);
+  background: #f4eeea;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s ease;
+  color: #2c2c2c;
 }
 
 .commentActions button:hover,
 .likeActions button:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: #ece4de;
 }
 
 .pagination {
@@ -557,10 +562,10 @@
 
 .pagination button {
   padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #f4eeea;
+  border: 1px solid #e0d8d2;
   border-radius: 6px;
-  color: #fff;
+  color: #2c2c2c;
   cursor: pointer;
 }
 
@@ -570,15 +575,15 @@
 }
 
 .pagination span {
-  color: rgba(255, 255, 255, 0.7);
+  color: #666;
 }
 
 .statsPanel {
   margin-top: 32px;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.05);
+  background: #ffffff;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid #e8e2dc;
 }
 
 .statsPanel h3 {
@@ -598,11 +603,150 @@
 
 .statsPanel li {
   padding: 8px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid #e8e2dc;
 }
 
 .statsPanel li:last-child {
   border-bottom: none;
+}
+
+.localeTabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.localeTab {
+  padding: 8px 16px;
+  border: 1px solid #e0d8d2;
+  border-radius: 8px;
+  background: #f4eeea;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.localeTabActive {
+  background: #2c2c2c;
+  color: #fff;
+  border-color: #2c2c2c;
+}
+
+.localeDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #27ae60;
+}
+
+.localeTabActive .localeDot {
+  background: #6ee7a0;
+}
+
+.schoolSection {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e8e2dc;
+}
+
+.schoolSection h4 {
+  margin-bottom: 16px;
+}
+
+.schoolGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.schoolGradeCol {
+  padding: 12px;
+  background: #faf8f6;
+  border: 1px solid #e8e2dc;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.schoolGradeCol strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.schoolCheck {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.panel {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  margin-top: 24px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.table th,
+.table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e8e2dc;
+}
+
+.table th {
+  background: #f4eeea;
+  font-weight: 600;
+}
+
+.rowActions {
+  display: flex;
+  gap: 8px;
+}
+
+.rowActions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.saveBtn {
+  padding: 12px 24px;
+  background: #2c2c2c;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.videoHint {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #666;
 }
 
 /* Responsive */

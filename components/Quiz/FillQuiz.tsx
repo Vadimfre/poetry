@@ -12,17 +12,22 @@ import {
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import type {
+  AnswerDto,
   QuizQuestionPublic,
   QuizItemPublic,
 } from "@/src/shared/types/quiz.types";
-import { formatPlural, getPlacedItemForZone } from "@/src/features/quiz/lib";
+import { getPlacedItemForZone } from "@/src/features/quiz/lib";
+import { useI18n, usePlural } from "@/src/shared/i18n";
 import { CheckButton } from "@/src/features/quiz/ui";
 import styles from "./FillQuiz.module.css";
 
 interface FillQuizProps {
   question: QuizQuestionPublic;
   color: string | null;
-  onComplete: (itemResults: Record<string, boolean>) => void;
+  onComplete: (
+    itemResults: Record<string, boolean>,
+    answers: AnswerDto[],
+  ) => void;
 }
 
 interface DraggableWordProps {
@@ -136,6 +141,8 @@ export default function FillQuiz({
   color,
   onComplete,
 }: FillQuizProps) {
+  const { t } = useI18n();
+  const plural = usePlural();
   const [placements, setPlacements] = useState<Record<string, string>>({});
   const [results, setResults] = useState<Record<string, boolean>>({});
   const [isChecked, setIsChecked] = useState(false);
@@ -205,7 +212,14 @@ export default function FillQuiz({
 
     setResults(itemResults);
     setIsChecked(true);
-    onComplete(itemResults);
+    onComplete(
+      itemResults,
+      Object.entries(placements).map(([itemId, zoneId]) => ({
+        questionId: question.id,
+        itemId,
+        zoneId,
+      })),
+    );
   }, [placements, question.id, onComplete]);
 
   const placedCount = Object.keys(placements).length;
@@ -247,7 +261,7 @@ export default function FillQuiz({
         </div>
 
         <div className={styles.wordsSection}>
-          <h3 className={styles.wordsTitle}>Словы</h3>
+          <h3 className={styles.wordsTitle}>{t("quiz.words")}</h3>
           <div className={styles.wordsList}>
             {availableItems.map((item) => (
               <DraggableWord
@@ -269,8 +283,14 @@ export default function FillQuiz({
               color={color ?? undefined}
             >
               {allPlaced
-                ? "Праверыць"
-                : `Засталося: ${remainingCount} ${formatPlural(remainingCount, "слова", "словы", "слоў")}`}
+                ? t("quiz.check")
+                : t("quiz.remaining", {
+                    count: `${remainingCount} ${plural(remainingCount, {
+                      one: "quiz.wordOne",
+                      few: "quiz.wordFew",
+                      many: "quiz.wordMany",
+                    })}`,
+                  })}
             </CheckButton>
           </div>
         )}

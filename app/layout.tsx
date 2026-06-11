@@ -12,8 +12,8 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Poetry - Мир Поэзии',
-  description: 'Авторские стихи от талантливых поэтов под любой настрой и тему',
+  title: 'Poetry — Беларускія творы',
+  description: 'Беларускія творы ад талендавых аўтараў пад любы настрой і тэму',
 }
 
 export default function RootLayout({
@@ -22,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ru" className={cn("font-sans")}>
+    <html lang="be" className={cn("font-sans")}>
       <body className={inter.className}>
         <Providers>{children}</Providers>
       </body>

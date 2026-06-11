@@ -5,7 +5,7 @@ import styles from "./CheckButton.module.css";
 export interface CheckButtonProps {
   onClick: () => void;
   disabled?: boolean;
-  color?: string;
+  color?: string | null;
   children: React.ReactNode;
 }
 

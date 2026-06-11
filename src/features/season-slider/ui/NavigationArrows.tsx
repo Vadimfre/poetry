@@ -1,6 +1,7 @@
 "use client";
 
 import styles from "@/components/SeasonSlider/SeasonSlider.module.css";
+import { useI18n } from "@/src/shared/i18n";
 
 interface NavigationArrowsProps {
   onNext: () => void;
@@ -11,12 +12,14 @@ export default function NavigationArrows({
   onNext,
   onPrev,
 }: NavigationArrowsProps) {
+  const { t } = useI18n();
+
   return (
     <>
       <button
         className={`${styles.arrow} ${styles.arrowLeft}`}
         onClick={onPrev}
-        aria-label="Предыдущий слайд"
+        aria-label={t("season.prevSlide")}
       >
         <svg
           width="24"
@@ -33,7 +36,7 @@ export default function NavigationArrows({
       <button
         className={`${styles.arrow} ${styles.arrowRight}`}
         onClick={onNext}
-        aria-label="Следующий слайд"
+        aria-label={t("season.nextSlide")}
       >
         <svg
           width="24"

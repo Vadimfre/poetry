@@ -5,6 +5,7 @@ import { User } from "lucide-react";
 import type { Comment } from "@/src/shared/types";
 import styles from "./CommentCard.module.css";
 import { Button } from "@/components/ui/button";
+import { useI18n, usePlural } from "@/src/shared/i18n";
 
 interface CommentCardProps {
   comment: Comment;
@@ -21,6 +22,10 @@ export function CommentCard({
   showReplies = false,
   onToggleReplies,
 }: CommentCardProps) {
+  const { t, locale } = useI18n();
+  const plural = usePlural();
+  const dateLocale =
+    locale === "be" ? "be-BY" : locale === "ru" ? "ru-RU" : "en-US";
   const hasReplies = replies.length > 0;
 
   return (
@@ -50,12 +55,12 @@ export function CommentCard({
                   onClick={() => onReply(comment)}
                   className={styles.replyBtn}
                 >
-                  Ответить
+                  {t("commentsSection.reply")}
                 </Button>
               )}
             </div>
             <span className={styles.time}>
-              {new Date(comment.createdAt).toLocaleDateString("be-BY", {
+              {new Date(comment.createdAt).toLocaleDateString(dateLocale, {
                 day: "numeric",
                 month: "short",
               })}
@@ -66,7 +71,9 @@ export function CommentCard({
         {/* Пометка "ответ на @username" */}
         {comment.parent && (
           <div className={styles.replyTo}>
-            ответ @{comment.parent.user?.name}
+            {t("commentsSection.replyToUser", {
+              name: comment.parent.user?.name ?? "",
+            })}
           </div>
         )}
 
@@ -75,7 +82,13 @@ export function CommentCard({
         {hasReplies && onToggleReplies && (
           <div className={styles.actions}>
             <button onClick={onToggleReplies} className={styles.showRepliesBtn}>
-              {showReplies ? "Скрыть" : `${replies.length} ответов`}
+              {showReplies
+                ? t("commentsSection.hide")
+                : `${replies.length} ${plural(replies.length, {
+                    one: "commentsSection.replyOne",
+                    few: "commentsSection.replyFew",
+                    many: "commentsSection.replyMany",
+                  })}`}
             </button>
           </div>
         )}

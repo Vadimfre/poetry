@@ -4,23 +4,26 @@ import Image from "next/image";
 import { BookOpen, Calendar, Info, Star } from "lucide-react";
 import { DialogHeader } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Holiday, Season } from "@/src/shared";
-import { MONTH_NAMES } from "../../season-slider/season-slider-data";
+import { Holiday } from "@/src/shared";
 import styles from "./hero-section.module.css";
+import { useCalendarLabels } from "@/src/shared/i18n";
+import { useI18n, usePlural } from "@/src/shared/i18n";
 
 interface HeroSectionProps {
   holiday: Holiday;
 }
 
 export function HeroSection({ holiday }: HeroSectionProps) {
+  const { formatHolidayDate, getSeasonLabel } = useCalendarLabels();
+
   return (
     <div className={styles.container}>
-      <HeroBackground image={holiday.image} name={holiday.name} />
+      <HeroBackground image={holiday.image ?? undefined} name={holiday.name} />
 
       <div className={styles.content}>
         <Badge className={styles.badge}>
           <Star className={styles.badgeIcon} />
-          {Season[holiday.season]}
+          {getSeasonLabel(holiday.season)}
         </Badge>
 
         <div className={styles.dateContainer}>
@@ -28,7 +31,7 @@ export function HeroSection({ holiday }: HeroSectionProps) {
             <Calendar className={styles.dateIcon} />
           </div>
           <span className={styles.dateText}>
-            {holiday.day} {MONTH_NAMES[holiday.month - 1]}
+            {formatHolidayDate(holiday.day, holiday.month)}
           </span>
         </div>
 
@@ -75,7 +78,17 @@ function HeroBackground({ image, name }: { image?: string; name: string }) {
 }
 
 function HeroMeta({ poemsCount }: { poemsCount: number }) {
-  const poemsLabel = poemsCount === 0 ? "Няма вершаў" : `${poemsCount} вершаў`;
+  const { t } = useI18n();
+  const plural = usePlural();
+  const poemWord = plural(poemsCount, {
+    one: "common.verseOne",
+    few: "common.verseFew",
+    many: "common.verseMany",
+  });
+  const poemsLabel =
+    poemsCount === 0
+      ? t("holiday.heroNoPoems")
+      : `${poemsCount} ${poemWord}`;
 
   return (
     <div className={styles.statsContainer}>
@@ -86,7 +99,9 @@ function HeroMeta({ poemsCount }: { poemsCount: number }) {
       <div className={styles.statItem}>
         <Info className={`${styles.statIcon} ${styles.statIconInfo}`} />
         <span className={styles.statValue}>
-          {poemsCount === 0 ? "Пакуль пусто" : "Глядзі вершы справа"}
+          {poemsCount === 0
+            ? t("holiday.heroEmpty")
+            : t("holiday.heroSeePoems")}
         </span>
       </div>
     </div>

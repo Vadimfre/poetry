@@ -1,4 +1,4 @@
-export type UserRole = "USER" | "ADMIN" | "SUPER_ADMIN";
+export type UserRole = "USER" | "STUDENT" | "TEACHER" | "ADMIN" | "SUPER_ADMIN";
 
 export interface User {
   id: number;
@@ -18,6 +18,7 @@ export interface RegisterDto {
   email: string;
   password: string;
   name?: string;
+  role?: "STUDENT" | "TEACHER";
 }
 
 export interface EmailConfirmationDto {

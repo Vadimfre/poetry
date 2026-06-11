@@ -1,18 +1,18 @@
 import Header from '@/components/Header/Header'
 
 export const metadata = {
-  title: 'Квест | Poetry',
+  title: 'Квізы | Poetry',
 }
 
-export default function FavoritesLayout({
+export default function QuizzesLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
     <>
+      <Header />
       {children}
     </>
   )
 }
-

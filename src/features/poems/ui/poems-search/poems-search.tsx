@@ -1,6 +1,7 @@
-'use client';
+"use client";
 
-import styles from './poems-search.module.css';
+import styles from "./poems-search.module.css";
+import { useI18n } from "@/src/shared/i18n";
 
 interface PoemsSearchProps {
   value: string;
@@ -9,18 +10,22 @@ interface PoemsSearchProps {
   placeholder?: string;
 }
 
-export const PoemsSearch = ({ 
-  value, 
-  onChange, 
+export const PoemsSearch = ({
+  value,
+  onChange,
   onClear,
-  placeholder = 'Поиск по названию или автору...'
+  placeholder,
 }: PoemsSearchProps) => {
+  const { t } = useI18n();
+  const resolvedPlaceholder =
+    placeholder ?? t("filters.searchPlaceholder");
+
   return (
     <div className={styles.searchContainer}>
       <input
         type="text"
         className={styles.searchInput}
-        placeholder={placeholder}
+        placeholder={resolvedPlaceholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
@@ -32,7 +37,7 @@ export const PoemsSearch = ({
         className={`${styles.clearButton} ${value ? styles.visible : ''}`}
         onClick={onClear}
         type="button"
-        aria-label="Очистить поиск"
+        aria-label={t("filters.clearSearch")}
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M18 6L6 18M6 6l12 12" />

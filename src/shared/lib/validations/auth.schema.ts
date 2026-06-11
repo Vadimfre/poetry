@@ -14,6 +14,7 @@ export const registerSchema = z
       .max(50, "Імя не павінна перавышаць 50 сімвалаў")
       .optional(),
     email: z.string().min(1, "Email абавязковы").email("Няправільны email"),
+    role: z.enum(["STUDENT", "TEACHER"]).optional(),
     password: passwordSchema,
     confirmPassword: z.string().min(1, "Пацверджанне пароля абавязкова"),
   })

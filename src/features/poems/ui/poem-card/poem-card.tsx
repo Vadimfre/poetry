@@ -24,7 +24,7 @@ export const PoemCard = ({ poem, onClick }: PoemCardProps) => {
       <div className={styles.poemInfo}>
         <h3 className={styles.poemTitle}>{poem.title}</h3>
         <div className={styles.poemMeta}>
-          <span className={styles.poemAuthor}>{poem.author}</span>
+          <span className={styles.poemAuthor}>{poem.author.name}</span>
           {poem.year && <span className={styles.poemYear}>{poem.year}</span>}
         </div>
       </div>

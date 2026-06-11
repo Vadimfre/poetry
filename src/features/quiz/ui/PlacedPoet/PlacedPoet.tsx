@@ -10,7 +10,7 @@ export interface PlacedPoetProps {
   correctYear?: number;
   isChecked?: boolean;
   isCorrect?: boolean | null;
-  color?: string;
+  color?: string | null;
   onClick?: () => void;
 }
 

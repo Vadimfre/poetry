@@ -1,23 +1,21 @@
-/**
- * Функция для склонения слова "стихотворение"
- */
+/** Склонение «твор» для русского UI (1 твор / 2–4 творы / 5+ творов). */
 export function getPoemsWord(count: number): string {
   const lastTwo = count % 100;
   const lastOne = count % 10;
-  
+
   if (lastTwo >= 11 && lastTwo <= 19) {
-    return 'стихотворений';
+    return "творов";
   }
-  
+
   if (lastOne === 1) {
-    return 'стихотворение';
+    return "твор";
   }
-  
+
   if (lastOne >= 2 && lastOne <= 4) {
-    return 'стихотворения';
+    return "творы";
   }
-  
-  return 'стихотворений';
+
+  return "творов";
 }
 
 /**

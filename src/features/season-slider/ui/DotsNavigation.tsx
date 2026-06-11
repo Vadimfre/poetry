@@ -1,6 +1,7 @@
 "use client";
 
 import styles from "@/components/SeasonSlider/SeasonSlider.module.css";
+import { useI18n } from "@/src/shared/i18n";
 
 interface DotsNavigationProps {
   slidesLength: number;
@@ -13,6 +14,8 @@ export default function DotsNavigation({
   current,
   onDotClick,
 }: DotsNavigationProps) {
+  const { t } = useI18n();
+
   return (
     <div className={styles.dots}>
       {Array.from({ length: slidesLength }).map((_, index) => (
@@ -20,7 +23,7 @@ export default function DotsNavigation({
           key={index}
           className={`${styles.dot} ${current === index ? styles.dotActive : ""}`}
           onClick={() => onDotClick(index)}
-          aria-label={`Слайд ${index + 1}`}
+          aria-label={t("season.slideLabel", { number: index + 1 })}
         />
       ))}
     </div>

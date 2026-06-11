@@ -9,6 +9,7 @@ import {
 import { useSignUp } from "../model/use-sign-up";
 import styles from "../../auth.module.css";
 import { useState } from "react";
+import { useI18n } from "@/src/shared/i18n";
 
 interface SignUpFormProps {
   onSuccess?: () => void;
@@ -19,21 +20,23 @@ export const SignUpForm = ({
   onSuccess,
   onSwitchToSignIn,
 }: SignUpFormProps) => {
+  const { t } = useI18n();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
+    defaultValues: {
+      role: "STUDENT",
+    },
   });
 
   const [successMessage, setSuccessMessage] = useState("");
 
   const { mutate, isPending } = useSignUp({
     onSuccess: () => {
-      setSuccessMessage(
-        "Рэгістрацыя паспяховая! Праверце email для пацверджання.",
-      );
+      setSuccessMessage(t("auth.signUpSuccess"));
       onSuccess?.();
     },
   });
@@ -45,20 +48,19 @@ export const SignUpForm = ({
 
   return (
     <div className={styles.authCard}>
-      <h1 className={styles.title}>РЭГІСТРАЦЫЯ</h1>
-      <p className={styles.subtitle}>Стварыце новы акаўнт</p>
+      <h1 className={styles.title}>{t("auth.signUpTitle")}</h1>
+      <p className={styles.subtitle}>{t("auth.signUpSubtitle")}</p>
 
       <form
         onSubmit={handleSubmit(onSubmit)}
         className={styles.form}
         noValidate
       >
-        {/* NAME */}
         <div className={styles.inputGroup}>
-          <label className={styles.label}>ІМЯ</label>
+          <label className={styles.label}>{t("auth.name")}</label>
           <input
             type="text"
-            placeholder="Увядзіце ваша імя"
+            placeholder={t("auth.namePlaceholder")}
             className={styles.input}
             {...register("name")}
           />
@@ -67,9 +69,8 @@ export const SignUpForm = ({
           )}
         </div>
 
-        {/* EMAIL */}
         <div className={styles.inputGroup}>
-          <label className={styles.label}>EMAIL</label>
+          <label className={styles.label}>{t("auth.email")}</label>
           <input
             type="email"
             placeholder="your@email.com"
@@ -81,12 +82,22 @@ export const SignUpForm = ({
           )}
         </div>
 
-        {/* PASSWORD */}
         <div className={styles.inputGroup}>
-          <label className={styles.label}>ПАРОЛЬ</label>
+          <label className={styles.label}>{t("auth.role")}</label>
+          <select className={styles.input} {...register("role")}>
+            <option value="STUDENT">{t("auth.roleStudent")}</option>
+            <option value="TEACHER">{t("auth.roleTeacher")}</option>
+          </select>
+          {errors.role && (
+            <span className={styles.error}>{errors.role.message}</span>
+          )}
+        </div>
+
+        <div className={styles.inputGroup}>
+          <label className={styles.label}>{t("auth.password")}</label>
           <input
             type="password"
-            placeholder="Мінімум 8 сімвалаў"
+            placeholder={t("auth.passwordMinPlaceholder")}
             className={styles.input}
             {...register("password")}
           />
@@ -95,12 +106,11 @@ export const SignUpForm = ({
           )}
         </div>
 
-        {/* CONFIRM PASSWORD */}
         <div className={styles.inputGroup}>
-          <label className={styles.label}>ПАЎТАРЫЦЕ ПАРОЛЬ</label>
+          <label className={styles.label}>{t("auth.confirmPassword")}</label>
           <input
             type="password"
-            placeholder="Паўтарыце пароль"
+            placeholder={t("auth.confirmPasswordPlaceholder")}
             className={styles.input}
             {...register("confirmPassword")}
           />
@@ -111,12 +121,10 @@ export const SignUpForm = ({
           )}
         </div>
 
-        {/* SUCCESS */}
         {successMessage && (
           <p className={styles.successMessage}>{successMessage}</p>
         )}
 
-        {/* SUBMIT */}
         <button
           type="submit"
           disabled={isPending}
@@ -124,19 +132,18 @@ export const SignUpForm = ({
             isPending ? styles.submitButtonLoading : ""
           }`}
         >
-          {isPending ? "Рэгістрацыя..." : "ЗАРЭГІСТРАВАЦЦА"}
+          {isPending ? t("auth.signingUp") : t("auth.signUpButton")}
         </button>
 
-        {/* SWITCH */}
         {onSwitchToSignIn && (
           <div className={styles.footer}>
-            Ужо ёсць акаўнт?
+            {t("auth.hasAccount")}
             <button
               type="button"
               onClick={onSwitchToSignIn}
               className={styles.footerLink}
             >
-              Увайсці
+              {t("auth.signIn")}
             </button>
           </div>
         )}

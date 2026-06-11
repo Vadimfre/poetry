@@ -4,28 +4,17 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { User, Quote } from "lucide-react";
 import type { Poem } from "@/src/shared/types";
+import PoemGuestGate from "@/components/PoemGuestGate/PoemGuestGate";
+import { useUserStore } from "@/src/entities/user";
+import { useI18n } from "@/src/shared/i18n";
+import type { Locale } from "@/src/shared/i18n/types";
 
 interface PoemContentProps {
   poem: Poem;
 }
 
-function formatRelativeTime(dateStr: string): string {
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMinutes = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMinutes < 1) return "толькі што";
-  if (diffMinutes < 60) return `${diffMinutes} хв таму`;
-  if (diffHours < 24) return `${diffHours} гадзін таму`;
-  if (diffDays < 7) return `${diffDays} дзён таму`;
-  return date.toLocaleDateString("be-BY", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+function dateLocaleFor(locale: Locale): string {
+  return locale === "be" ? "be-BY" : locale === "ru" ? "ru-RU" : "en-US";
 }
 
 const fadeUp = {
@@ -34,6 +23,36 @@ const fadeUp = {
 };
 
 export function PoemContent({ poem }: PoemContentProps) {
+  const { t, locale } = useI18n();
+  const { isAuthenticated, hasHydrated } = useUserStore();
+  const visibleContent = poem.content ?? "";
+  const isGuestLimited = hasHydrated && !isAuthenticated && !!visibleContent.trim();
+
+  const formatRelativeTime = (dateStr: string): string => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMinutes = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMinutes < 1) return t("poem.relativeJustNow");
+    if (diffMinutes < 60) {
+      return t("poem.relativeMinutes", { count: diffMinutes });
+    }
+    if (diffHours < 24) {
+      return t("poem.relativeHours", { count: diffHours });
+    }
+    if (diffDays < 7) {
+      return t("poem.relativeDays", { count: diffDays });
+    }
+    return date.toLocaleDateString(dateLocaleFor(locale), {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
   return (
     <div className="space-y-8">
       {/* Author + time */}
@@ -53,15 +72,15 @@ export function PoemContent({ poem }: PoemContentProps) {
             className="w-12 h-12 rounded-full object-cover ring-2 ring-amber-500/30 shadow-md"
           />
         ) : (
-          <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center ring-2 ring-white/10 shadow-md">
-            <User className="w-5 h-5 text-slate-400" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 ring-2 ring-amber-100 shadow-md">
+            <User className="h-5 w-5 text-amber-600" />
           </div>
         )}
         <div>
-          <p className="font-semibold text-white text-[15px]">
+          <p className="text-[15px] font-semibold text-stone-900">
             {poem.author.name}
           </p>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-stone-500">
             {poem.author.birthYear &&
               `${poem.author.birthYear}${poem.author.deathYear ? ` – ${poem.author.deathYear}` : ""}`}
             {poem.author.birthYear && " · "}
@@ -73,7 +92,7 @@ export function PoemContent({ poem }: PoemContentProps) {
       {/* Title */}
       {poem.title && (
         <motion.h1
-          className="text-3xl font-serif font-bold text-white leading-tight"
+          className="text-3xl font-serif font-bold leading-tight text-stone-950"
           variants={fadeUp}
           initial="initial"
           animate="animate"
@@ -95,7 +114,7 @@ export function PoemContent({ poem }: PoemContentProps) {
           {poem.categories.map((category) => (
             <span
               key={category.id}
-              className="px-3 py-1 rounded-full text-xs font-medium bg-white/5 text-amber-400 border border-white/10 hover:bg-amber-500/10 hover:border-amber-500/30 transition-colors cursor-pointer"
+              className="cursor-pointer rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 transition-colors hover:border-amber-300 hover:bg-amber-100"
             >
               #{category.name}
             </span>
@@ -105,18 +124,18 @@ export function PoemContent({ poem }: PoemContentProps) {
 
       {/* Poem text card */}
       <motion.div
-        className="bg-white/5 rounded-2xl p-8 border border-white/10 relative overflow-hidden backdrop-blur-sm"
+        className="relative overflow-hidden rounded-[28px] border border-stone-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(250,244,235,0.98))] p-8 shadow-[0_24px_60px_rgba(76,57,35,0.08)]"
         variants={fadeUp}
         initial="initial"
         animate="animate"
         transition={{ duration: 0.6, delay: 0.2 }}
       >
         {/* Decorative quote */}
-        <Quote className="absolute -top-2 -right-2 w-20 h-20 text-white/5 pointer-events-none rotate-12" />
+        <Quote className="pointer-events-none absolute -right-2 -top-2 h-20 w-20 rotate-12 text-amber-100" />
 
         {/* Description */}
         {poem.description && (
-          <p className="text-slate-300 text-sm italic leading-relaxed mb-6 pl-4 border-l-2 border-amber-500/40 bg-amber-500/5 py-2 rounded-r-lg">
+          <p className="mb-6 rounded-r-lg border-l-2 border-amber-400/60 bg-amber-50 py-2 pl-4 text-sm italic leading-relaxed text-stone-600">
             {poem.description}
           </p>
         )}
@@ -130,15 +149,16 @@ export function PoemContent({ poem }: PoemContentProps) {
                 "linear-gradient(to bottom, #fbbf24, #f97316, #fbbf24)",
             }}
           />
-          <p className="font-serif text-[17px] leading-loose text-slate-200 whitespace-pre-line">
-            {poem.content}
+          <p className="whitespace-pre-line font-serif text-[17px] leading-loose text-stone-700">
+            {visibleContent}
           </p>
+          {isGuestLimited && <PoemGuestGate className="mt-6" />}
         </div>
 
         {/* Year */}
         {poem.year && (
-          <p className="mt-6 text-right text-sm text-slate-500 italic">
-            {poem.year} год
+          <p className="mt-6 text-right text-sm italic text-stone-500">
+            {poem.year} {t("common.year")}
           </p>
         )}
       </motion.div>

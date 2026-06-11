@@ -13,11 +13,14 @@ import {
   type DragMoveEvent,
 } from "@dnd-kit/core";
 
-import type { QuizQuestionPublic } from "@/src/shared/types/quiz.types";
+import type {
+  AnswerDto,
+  QuizQuestionPublic,
+} from "@/src/shared/types/quiz.types";
 
 import { useTimelinePosition } from "@/src/features/quiz/hooks";
 
-import { formatPlural } from "@/src/features/quiz/lib";
+import { useI18n, usePlural } from "@/src/shared/i18n";
 
 import {
   PoetBubble,
@@ -33,7 +36,10 @@ interface TimelineQuizProps {
 
   color: string | null;
 
-  onComplete: (itemResults: Record<string, boolean>) => void;
+  onComplete: (
+    itemResults: Record<string, boolean>,
+    answers: AnswerDto[],
+  ) => void;
 }
 
 export default function TimelineQuiz({
@@ -43,6 +49,8 @@ export default function TimelineQuiz({
 
   onComplete,
 }: TimelineQuizProps) {
+  const { t } = useI18n();
+  const plural = usePlural();
   const content = question.content as Record<string, any> | null;
 
   const timelineStart = content?.timelineStart ?? 1800;
@@ -207,7 +215,14 @@ export default function TimelineQuiz({
 
     setIsChecked(true);
 
-    onComplete(itemResults);
+    onComplete(
+      itemResults,
+      Object.entries(placements).map(([itemId, year]) => ({
+        questionId: question.id,
+        itemId,
+        order: year,
+      })),
+    );
   }, [placements, question.items, onComplete]);
 
   const placedCount = Object.keys(placements).length;
@@ -232,7 +247,7 @@ export default function TimelineQuiz({
         <div className={styles.instructions}>
           <span className={styles.icon}>📅</span>
 
-          <span>Перацягні паэтаў на шкалу часу</span>
+          <span>{t("quiz.timelineHint")}</span>
         </div>
 
         <div className={styles.timelineSection}>
@@ -327,8 +342,14 @@ export default function TimelineQuiz({
               color={color}
             >
               {allPlaced
-                ? "Праверыць"
-                : `Засталося: ${remainingCount} ${formatPlural(remainingCount, "паэт", "паэты", "паэтаў")}`}
+                ? t("quiz.check")
+                : t("quiz.remaining", {
+                    count: `${remainingCount} ${plural(remainingCount, {
+                      one: "quiz.poetOne",
+                      few: "quiz.poetFew",
+                      many: "quiz.poetMany",
+                    })}`,
+                  })}
             </CheckButton>
           </div>
         )}

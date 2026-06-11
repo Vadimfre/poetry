@@ -19,8 +19,9 @@ import { Poem } from "@/src/shared";
 import styles from "./PoemCard.module.css";
 import { Comments } from "@/src/features/comments";
 import Link from "next/link";
+import PoemGuestGate from "@/components/PoemGuestGate/PoemGuestGate";
 import { useUserStore } from "@/src/entities/user";
-import { toast } from "sonner";
+import { useI18n } from "@/src/shared/i18n";
 
 interface PoemCardProps {
   poem: Poem;
@@ -53,19 +54,15 @@ export function PoemCard({
   onToggleFavorite,
   onToggleComments,
 }: PoemCardProps) {
+  const { t } = useI18n();
   const isAuthenticated = useUserStore((state) => state.isAuthenticated);
-  const hasLongContent = poem.content.split("\n").length > 6;
+  const hasHydrated = useUserStore((state) => state.hasHydrated);
+  const canReadFullPoem = hasHydrated && isAuthenticated;
+  const visibleContent = poem.content ?? "";
+  const isGuestLimited = hasHydrated && !isAuthenticated && !!visibleContent.trim();
+  const hasLongContent =
+    canReadFullPoem && poem.content.split("\n").length > 6;
   const views = viewsOverride ?? poem.views;
-
-  const handleToggleExpand = () => {
-    if (!isAuthenticated) {
-      toast.error("Патрэбна рэгістрацыя", {
-        description: "Каб чытаць далей, трэба зарэгістравацца або ўвайсці",
-      });
-      return;
-    }
-    onToggleExpand();
-  };
 
   return (
     <div className={styles.card}>
@@ -86,7 +83,9 @@ export function PoemCard({
               <div className={styles.titleContainer}>
                 <h4 className={styles.title}>{poem.title}</h4>
                 {poem.year && (
-                  <span className={styles.year}>{poem.year} год</span>
+                  <span className={styles.year}>
+                    {poem.year} {t("common.year")}
+                  </span>
                 )}
               </div>
             </div>
@@ -169,18 +168,25 @@ export function PoemCard({
         ) : (
           <div className={styles.poemContent}>
             <div className={styles.verticalLine} />
-            <p className={cn(styles.text, !isExpanded && styles.textCollapsed)}>
-              {poem.content}
+            <p
+              className={cn(
+                styles.text,
+                hasLongContent && !isExpanded && styles.textCollapsed,
+              )}
+            >
+              {visibleContent}
             </p>
+
+            {isGuestLimited && <PoemGuestGate />}
 
             {hasLongContent && (
               <Button
                 variant="ghost"
-                onClick={handleToggleExpand}
+                onClick={onToggleExpand}
                 className={styles.expandButton}
               >
                 <span className="text-sm font-medium">
-                  {isExpanded ? "Згарнуць" : "Чытаць далей"}
+                  {isExpanded ? t("poem.collapse") : t("poem.readMore")}
                 </span>
                 <ChevronDown
                   className={cn(
@@ -200,7 +206,7 @@ export function PoemCard({
           <Link href={`/poem/${poem.id}`}>
             <Button className={styles.fullPageButton} variant="outline">
               <ExternalLink className={styles.fullPageIcon} />
-              Адкрыць поўную старонку верша
+              {t("poem.openFull")}
             </Button>
           </Link>
         </div>
@@ -210,6 +216,7 @@ export function PoemCard({
 }
 
 function AuthorInfo({ author }: { author: Poem["author"] }) {
+  const { t } = useI18n();
   return (
     <div className={styles.authorInfo}>
       {author.image ? (
@@ -231,7 +238,7 @@ function AuthorInfo({ author }: { author: Poem["author"] }) {
         {author.birthYear && (
           <span className={styles.authorYears}>
             {author.birthYear}
-            {author.deathYear ? ` – ${author.deathYear}` : " – цяпер"}
+            {author.deathYear ? ` – ${author.deathYear}` : ` – ${t("common.now")}`}
           </span>
         )}
       </div>
@@ -254,6 +261,7 @@ function PoemStats({
   isCommentsOpen: boolean;
   onToggleComments: () => void;
 }) {
+  const { t } = useI18n();
   return (
     <div className={styles.stats}>
       <div className={styles.statItem}>
@@ -285,7 +293,7 @@ function PoemStats({
           className={styles.videoLink}
         >
           <Play className={styles.videoIcon} />
-          <span>Глядзець відэа</span>
+          <span>{t("poem.watchVideo")}</span>
         </a>
       )}
     </div>

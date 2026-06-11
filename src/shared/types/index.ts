@@ -6,3 +6,6 @@ export type * from "./favorite.types";
 export type * from "./admin.types";
 export type * from "./likes.types";
 export * from "./holiday.types";
+export type * from "./assignment.types";
+export type * from "./prose.types";
+export type * from "./school.types";

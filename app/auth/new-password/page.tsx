@@ -1,5 +1,6 @@
 import { NewPasswordForm } from "@/src/features/auth";
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Новый пароль",
@@ -9,7 +10,9 @@ export const metadata: Metadata = {
 export default function ResetPasswordPage() {
   return (
     <div className="new-password-page">
-      <NewPasswordForm />
+      <Suspense fallback={null}>
+        <NewPasswordForm />
+      </Suspense>
     </div>
   );
 }

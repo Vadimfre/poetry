@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { QuizPublic } from "@/src/shared/types/quiz.types";
+import { useI18n } from "@/src/shared/i18n";
 import styles from "./QuizResults.module.css";
 
 interface QuizResultsProps {
@@ -15,6 +16,8 @@ export default function QuizResults({
   results,
   onRestart,
 }: QuizResultsProps) {
+  const { t } = useI18n();
+
   // Calculate total score
   let totalCorrect = 0;
   let totalItems = 0;
@@ -30,14 +33,14 @@ export default function QuizResults({
 
   const getMessage = () => {
     if (percentage === 100)
-      return { emoji: "🏆", text: "Выдатна! Ідэальны вынік!" };
+      return { emoji: "🏆", text: t("quiz.resultPerfect") };
     if (percentage >= 80)
-      return { emoji: "🌟", text: "Цудоўна! Ты малайчына!" };
+      return { emoji: "🌟", text: t("quiz.resultGreat") };
     if (percentage >= 60)
-      return { emoji: "👍", text: "Добра! Але ёсць куды расці!" };
+      return { emoji: "👍", text: t("quiz.resultGood") };
     if (percentage >= 40)
-      return { emoji: "📚", text: "Нядрэнна! Паўтары матэрыял!" };
-    return { emoji: "💪", text: "Не здавайся! Паспрабуй яшчэ раз!" };
+      return { emoji: "📚", text: t("quiz.resultOk") };
+    return { emoji: "💪", text: t("quiz.resultTryAgain") };
   };
 
   const message = getMessage();
@@ -51,7 +54,7 @@ export default function QuizResults({
         <div className={styles.resultCard}>
           <div className={styles.emoji}>{message.emoji}</div>
 
-          <h1 className={styles.title}>Вынік</h1>
+          <h1 className={styles.title}>{t("quiz.result")}</h1>
 
           <div className={styles.scoreCircle}>
             <svg className={styles.circleSvg} viewBox="0 0 100 100">
@@ -89,12 +92,12 @@ export default function QuizResults({
           <div className={styles.actions}>
             <button className={styles.restartButton} onClick={onRestart}>
               <span className={styles.buttonIcon}>🔄</span>
-              Яшчэ раз
+              {t("quiz.tryAgain")}
             </button>
 
             <Link href="/quizzes" className={styles.backButton}>
               <span className={styles.buttonIcon}>📋</span>
-              Усе квізы
+              {t("quiz.allQuizzes")}
             </Link>
           </div>
         </div>

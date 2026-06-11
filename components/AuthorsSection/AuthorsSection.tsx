@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/src/shared/api/client";
+import { useLocaleQueryKey } from "@/src/shared/i18n/use-locale-query-key";
+import { useI18n } from "@/src/shared/i18n/context";
 import styles from "./AuthorsSection.module.css";
 
 interface Author {
@@ -17,27 +19,29 @@ interface Author {
   _count?: { poems: number };
 }
 
-const quotes: Record<string, string> = {
-  "yanka-kupala":
-    "А хто там ідзе, а хто там ідзе у агромністай такой грамадзе?",
-  "yakub-kolas": "Мой родны кут, як ты мне мілы! Забыць цябе не маю сілы!",
-  "maksim-bahdanovich":
-    "Зорка Венера ўзышла над зямлёю, светлыя згадкі з сабой прывяла...",
-};
+function authorTitleKey(slug: string) {
+  if (slug === "maksim-bahdanovich") return "authorsSection.classicLiterature";
+  if (["yanka-kupala", "yakub-kolas"].includes(slug)) {
+    return "authorsSection.nationalPoet";
+  }
+  return "authorsSection.defaultBio";
+}
 
-const titles: Record<string, string> = {
-  "yanka-kupala": "Народны паэт Беларусі",
-  "yakub-kolas": "Народны паэт Беларусі",
-  "maksim-bahdanovich": "Класік беларускай літаратуры",
-};
+function bioExcerpt(bio: string | null, max = 120) {
+  if (!bio) return "";
+  const line = bio.split("\n").find((l) => l.trim())?.trim() ?? bio.trim();
+  return line.length > max ? `${line.slice(0, max).trim()}…` : line;
+}
 
 const AuthorsSection = () => {
+  const { t } = useI18n();
   const [activeIndex, setActiveIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
 
+  const authorsQueryKey = useLocaleQueryKey(["authors"]);
   const { data: allAuthors } = useQuery<Author[]>({
-    queryKey: ["authors"],
+    queryKey: authorsQueryKey,
     queryFn: async () => {
       const response = await apiClient.get("/poems/authors");
       return response.data;
@@ -67,12 +71,9 @@ const AuthorsSection = () => {
     <section className={styles.authorsSection}>
       <div className="container">
         <div className={styles.sectionHeader}>
-          <span className={styles.sectionLabel}>Вялікія паэты</span>
-          <h2 className={styles.sectionTitle}>КЛАСІКІ БЕЛАРУСКАЙ ЛІТАРАТУРЫ</h2>
-          <p className={styles.sectionSubtitle}>
-            Пазнаёмцеся з творчасцю найвялікшых беларускіх паэтаў, якія стварылі
-            сучасную беларускую мову і літаратуру
-          </p>
+          <span className={styles.sectionLabel}>{t("authorsSection.sectionLabel")}</span>
+          <h2 className={styles.sectionTitle}>{t("authorsSection.title")}</h2>
+          <p className={styles.sectionSubtitle}>{t("authorsSection.subtitle")}</p>
         </div>
 
         <div
@@ -82,8 +83,8 @@ const AuthorsSection = () => {
             const years = author.birthYear
               ? `${author.birthYear}–${author.deathYear || ""}`
               : "";
-            const quote = quotes[author.slug] || "";
-            const title = titles[author.slug] || "Беларускі паэт";
+            const quote = bioExcerpt(author.bio);
+            const title = t(authorTitleKey(author.slug));
 
             return (
               <Link
@@ -106,9 +107,11 @@ const AuthorsSection = () => {
                       }
                     />
                   ) : (
-                    <div className={styles.authorImagePlaceholder}>
-                      {author.name.charAt(0)}
-                    </div>
+                    <img
+                      src="/images/author-placeholder.svg"
+                      alt=""
+                      className={styles.authorImagePlaceholder}
+                    />
                   )}
                 </div>
                 <div className={styles.authorInfo}>
@@ -127,19 +130,19 @@ const AuthorsSection = () => {
         <div className={styles.statsRow}>
           <div className={styles.statItem}>
             <span className={styles.statNumber}>12</span>
-            <span className={styles.statLabel}>Аўтараў</span>
+            <span className={styles.statLabel}>{t("authorsSection.statAuthors")}</span>
           </div>
           <div className={styles.statItem}>
             <span className={styles.statNumber}>50+</span>
-            <span className={styles.statLabel}>Вершаў</span>
+            <span className={styles.statLabel}>{t("authorsSection.statPoems")}</span>
           </div>
           <div className={styles.statItem}>
             <span className={styles.statNumber}>5</span>
-            <span className={styles.statLabel}>Кірункаў</span>
+            <span className={styles.statLabel}>{t("authorsSection.statDirections")}</span>
           </div>
           <div className={styles.statItem}>
             <span className={styles.statNumber}>∞</span>
-            <span className={styles.statLabel}>Натхнення</span>
+            <span className={styles.statLabel}>{t("authorsSection.statInspiration")}</span>
           </div>
         </div>
       </div>

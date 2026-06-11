@@ -8,8 +8,10 @@ import React from "react";
 interface UserState {
   user: User | null;
   isAuthenticated: boolean;
+  hasHydrated: boolean;
   setUser: (user: User | null) => void;
   logout: () => void;
+  setHasHydrated: (hasHydrated: boolean) => void;
 }
 
 export const useUserStore = create<UserState>()(
@@ -17,6 +19,7 @@ export const useUserStore = create<UserState>()(
     (set) => ({
       user: null,
       isAuthenticated: false,
+      hasHydrated: false,
       setUser: (user) =>
         set({
           user,
@@ -27,9 +30,13 @@ export const useUserStore = create<UserState>()(
           user: null,
           isAuthenticated: false,
         }),
+      setHasHydrated: (hasHydrated) => set({ hasHydrated }),
     }),
     {
       name: "user-storage",
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     },
   ),
 );

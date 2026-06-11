@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Eye, MessageCircle, Bookmark } from "lucide-react";
+import { useI18n } from "@/src/shared/i18n";
 
 interface InteractionBarProps {
   views: number;
@@ -39,14 +40,14 @@ function PillButton({
       onClick={onClick}
       className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-colors border"
       style={{
-        color: active ? activeColor : "#94a3b8",
-        background: active ? activeBg : "rgba(255,255,255,0.05)",
+        color: active ? activeColor : "#7c6954",
+        background: active ? activeBg : "rgba(255,255,255,0.82)",
         borderColor: active
           ? activeColor.replace(")", ",0.3)")
-          : "rgba(255,255,255,0.08)",
+          : "rgba(120, 93, 62, 0.12)",
         boxShadow: active
           ? `0 2px 8px ${activeColor.replace(")", ",0.15)")}`
-          : "none",
+          : "0 8px 18px rgba(76, 57, 35, 0.05)",
       }}
       whileHover={{ scale: 1.05, y: -1 }}
       whileTap={{ scale: 0.95 }}
@@ -87,6 +88,7 @@ export function InteractionBar({
   onToggleComments,
   isCommentsOpen,
 }: InteractionBarProps) {
+  const { t } = useI18n();
   return (
     <motion.div
       className="flex flex-wrap items-center gap-2"
@@ -101,7 +103,7 @@ export function InteractionBar({
         activeColor="rgba(100,116,139,1)"
         activeBg="rgba(100,116,139,0.08)"
         onClick={() => {}}
-        label="Прагляды"
+        label={t("poem.viewsLabel")}
       />
       <PillButton
         icon={Heart}
@@ -110,7 +112,7 @@ export function InteractionBar({
         activeColor="rgba(244,63,94,1)"
         activeBg="rgba(244,63,94,0.08)"
         onClick={onToggleLike}
-        label="Лайк"
+        label={t("poem.like")}
         filled
       />
       <PillButton
@@ -120,7 +122,7 @@ export function InteractionBar({
         activeColor="rgba(245,158,11,1)"
         activeBg="rgba(245,158,11,0.08)"
         onClick={onToggleFavorite}
-        label="Абранае"
+        label={t("poem.favorite")}
         filled
       />
       <PillButton
@@ -130,7 +132,7 @@ export function InteractionBar({
         activeColor="rgba(59,130,246,1)"
         activeBg="rgba(59,130,246,0.08)"
         onClick={onToggleComments}
-        label="Каментары"
+        label={t("poem.comments")}
       />
     </motion.div>
   );

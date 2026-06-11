@@ -1,6 +1,8 @@
 'use client';
 
 import axios from 'axios';
+import { LOCALE_COOKIE } from '@/src/shared/i18n/types';
+import { getCookie } from '@/src/shared/i18n/cookie';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -12,10 +14,14 @@ export const apiClient = axios.create({
   },
 });
 
-// Interceptor для добавления токена из localStorage
+// Interceptor: locale + auth token
 apiClient.interceptors.request.use(
   (config) => {
     if (typeof window !== 'undefined') {
+      const locale = getCookie(LOCALE_COOKIE) ?? 'be';
+      config.headers['Accept-Language'] = locale;
+      config.headers['X-Locale'] = locale;
+
       const storage = localStorage.getItem('user-storage');
       if (storage) {
         try {

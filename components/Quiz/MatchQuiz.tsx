@@ -12,17 +12,22 @@ import {
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import type {
+  AnswerDto,
   QuizQuestionPublic,
   QuizItemPublic,
 } from "@/src/shared/types/quiz.types";
-import { formatPlural, getPlacedItemForZone } from "@/src/features/quiz/lib";
+import { getPlacedItemForZone } from "@/src/features/quiz/lib";
+import { useI18n, usePlural } from "@/src/shared/i18n";
 import { CheckButton } from "@/src/features/quiz/ui";
 import styles from "./MatchQuiz.module.css";
 
 interface MatchQuizProps {
   question: QuizQuestionPublic;
   color: string | null;
-  onComplete: (itemResults: Record<string, boolean>) => void;
+  onComplete: (
+    itemResults: Record<string, boolean>,
+    answers: AnswerDto[],
+  ) => void;
 }
 
 interface DraggableAuthorProps {
@@ -81,6 +86,7 @@ function DropZone({
   isChecked,
   onRemove,
 }: DropZoneProps) {
+  const { t } = useI18n();
   const { setNodeRef, isOver } = useDroppable({ id: zone.id });
 
   const handleClick = () => {
@@ -112,7 +118,7 @@ function DropZone({
             )}
           </div>
         ) : (
-          <span className={styles.placeholder}>Перацягні сюды</span>
+          <span className={styles.placeholder}>{t("quiz.dragHere")}</span>
         )}
       </div>
     </div>
@@ -124,6 +130,8 @@ export default function MatchQuiz({
   color,
   onComplete,
 }: MatchQuizProps) {
+  const { t } = useI18n();
+  const plural = usePlural();
   const [placements, setPlacements] = useState<Record<string, string>>({});
   const [results, setResults] = useState<Record<string, boolean>>({});
   const [isChecked, setIsChecked] = useState(false);
@@ -137,6 +145,15 @@ export default function MatchQuiz({
   const availableItems = useMemo(
     () => question.items.filter((item) => !(item.id in placements)),
     [question.items, placements],
+  );
+
+  const allItemsSame = useMemo(
+    () =>
+      question.items.length > 1 &&
+      question.items.every(
+        (item) => item.content === question.items[0]?.content,
+      ),
+    [question.items],
   );
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
@@ -194,7 +211,14 @@ export default function MatchQuiz({
 
     setResults(itemResults);
     setIsChecked(true);
-    onComplete(itemResults);
+    onComplete(
+      itemResults,
+      Object.entries(placements).map(([itemId, zoneId]) => ({
+        questionId: question.id,
+        itemId,
+        zoneId,
+      })),
+    );
   }, [placements, question.id, onComplete]);
 
   const placedCount = Object.keys(placements).length;
@@ -236,7 +260,12 @@ export default function MatchQuiz({
         </div>
 
         <div className={styles.authorsSection}>
-          <h3 className={styles.authorsTitle}>Аўтары</h3>
+          <h3 className={styles.authorsTitle}>
+            {allItemsSame ? t("quiz.author") : t("quiz.authors")}
+          </h3>
+          {allItemsSame && (
+            <p className={styles.authorsHint}>{t("quiz.matchSameAuthorHint")}</p>
+          )}
           <div className={styles.authorsList}>
             {availableItems.map((item) => (
               <DraggableAuthor
@@ -258,8 +287,14 @@ export default function MatchQuiz({
               color={color}
             >
               {allPlaced
-                ? "Праверыць"
-                : `Засталося: ${remainingCount} ${formatPlural(remainingCount, "аўтар", "аўтары", "аўтараў")}`}
+                ? t("quiz.check")
+                : t("quiz.remaining", {
+                    count: `${remainingCount} ${plural(remainingCount, {
+                      one: "quiz.authorOne",
+                      few: "quiz.authorFew",
+                      many: "quiz.authorMany",
+                    })}`,
+                  })}
             </CheckButton>
           </div>
         )}

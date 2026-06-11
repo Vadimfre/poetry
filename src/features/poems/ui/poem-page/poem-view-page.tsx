@@ -12,12 +12,14 @@ import { PoemContent } from "./poem-content";
 import { InteractionBar } from "./interaction-bar";
 import { PoemPageComments } from "./poem-page-comments";
 import styles from "./poem-view-page.module.css";
+import { useI18n } from "@/src/shared/i18n";
 
 interface PoemViewPageProps {
   poemId: number;
 }
 
 export function PoemViewPage({ poemId }: PoemViewPageProps) {
+  const { t } = useI18n();
   const { data: poem, isLoading, error } = usePoem(poemId);
   const { isLiked, likeCount, toggleLike } = useOptimisticLike(poemId);
   const { isFavorite, toggleFavorite } = useOptimisticFavorite(poemId);
@@ -49,8 +51,8 @@ export function PoemViewPage({ poemId }: PoemViewPageProps) {
         }}
       >
         <div className="text-center">
-          <p className="text-slate-400 text-lg">Верш не знойдзены</p>
-          <p className="text-slate-500 text-sm mt-2">Паспрабуйце пазней</p>
+          <p className="text-slate-400 text-lg">{t("poem.notFound")}</p>
+          <p className="text-slate-500 text-sm mt-2">{t("poem.tryLater")}</p>
         </div>
       </div>
     );
@@ -72,9 +74,11 @@ export function PoemViewPage({ poemId }: PoemViewPageProps) {
       <div className={styles.container}>
         <PoemHeader isFavorite={isFavorite} onToggleFavorite={toggleFavorite} />
 
-        <PoemContent poem={poem} />
+        <div className={styles.contentShell}>
+          <PoemContent poem={poem} />
+        </div>
 
-        <div className="mt-8">
+        <div className={styles.interactionWrap}>
           <InteractionBar
             views={views}
             likesCount={likeCount}
@@ -88,11 +92,13 @@ export function PoemViewPage({ poemId }: PoemViewPageProps) {
           />
         </div>
 
-        <PoemPageComments
-          poemId={poemId}
-          commentsCount={commentsCount}
-          isOpen={commentsOpen}
-        />
+        <div className={styles.commentsWrap}>
+          <PoemPageComments
+            poemId={poemId}
+            commentsCount={commentsCount}
+            isOpen={commentsOpen}
+          />
+        </div>
       </div>
     </div>
   );

@@ -1,13 +1,15 @@
 import { useQueries } from "@tanstack/react-query";
 import { holidaysApi } from "@/src/shared/api";
 import { Season } from "@/src/shared/types";
+import { useI18n } from "@/src/shared/i18n";
 
 export const useAllSeasonHolidays = () => {
+  const { locale } = useI18n();
   const seasons = [Season.WINTER, Season.SPRING, Season.SUMMER, Season.AUTUMN];
 
   const results = useQueries({
     queries: seasons.map((season) => ({
-      queryKey: ["holidays", "season", season],
+      queryKey: ["holidays", "season", season, locale] as const,
       queryFn: () => holidaysApi.getBySeason(season),
       staleTime: 5 * 60 * 1000,
     })),

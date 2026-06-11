@@ -1,4 +1,16 @@
 import type { UserRole } from "./auth.types";
+import type { CurriculumKind } from "./school.types";
+
+export type ContentLocale = "be" | "ru";
+
+export type I18nContentBag = Partial<
+  Record<ContentLocale, Record<string, string>>
+>;
+
+export interface SchoolGradeEntry {
+  grade: number;
+  kind: CurriculumKind;
+}
 
 export interface AdminStats {
   poems: number;
@@ -21,13 +33,15 @@ export interface AdminUser {
 }
 
 export interface CreatePoemDto {
-  title: string;
-  content: string;
+  title?: string;
+  content?: string;
   description?: string;
   authorId: number;
   year?: number;
   categoryId: number;
   videoUrl?: string;
+  i18n?: I18nContentBag;
+  schoolGrades?: SchoolGradeEntry[];
 }
 
 export interface UpdatePoemDto {
@@ -38,19 +52,44 @@ export interface UpdatePoemDto {
   year?: number;
   categoryId?: number;
   videoUrl?: string;
+  i18n?: I18nContentBag;
+  schoolGrades?: SchoolGradeEntry[];
+}
+
+export interface AdminPoemI18nFields {
+  title: string;
+  content: string;
+  description: string;
 }
 
 export interface CreateAuthorDto {
-  name: string;
+  name?: string;
   bio?: string;
   birthYear?: number;
   deathYear?: number;
   image?: string;
+  i18n?: I18nContentBag;
+}
+
+export interface UpdateAuthorDto {
+  name?: string;
+  bio?: string;
+  birthYear?: number;
+  deathYear?: number;
+  image?: string;
+  i18n?: I18nContentBag;
 }
 
 export interface CreateCategoryDto {
-  name: string;
+  name?: string;
   description?: string;
+  i18n?: I18nContentBag;
+}
+
+export interface UpdateCategoryDto {
+  name?: string;
+  description?: string;
+  i18n?: I18nContentBag;
 }
 
 export interface UploadVideoResponse {
@@ -80,10 +119,6 @@ export interface AdminCommentsResponse {
   total: number;
   page: number;
   limit: number;
-}
-
-export interface UpdateCommentDto {
-  text: string;
 }
 
 // Лайки

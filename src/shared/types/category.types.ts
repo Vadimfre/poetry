@@ -1,4 +1,9 @@
-import { Collection } from "@/poetry-backend/generated/prisma";
+/** Падкалекцыя ўнутры катэгорыі (спрошаны тып для фронта) */
+export interface Collection {
+  id: number;
+  title?: string;
+  slug?: string;
+}
 
 export interface Category {
   id: number;

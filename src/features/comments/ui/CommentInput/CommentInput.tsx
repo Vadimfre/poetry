@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Send, X, Loader2 } from "lucide-react";
 import type { Comment } from "@/src/shared/types";
 import styles from "./CommentInput.module.css";
+import { useI18n } from "@/src/shared/i18n";
 
 interface CommentInputProps {
   poemId: number;
@@ -24,6 +25,7 @@ export function CommentInput({
   inputRef,
   areaRef,
 }: CommentInputProps) {
+  const { t } = useI18n();
   const [inputValue, setInputValue] = useState("");
 
   // Отправка комментария
@@ -52,7 +54,7 @@ export function CommentInput({
       {replyingTo && (
         <div className={styles.replyIndicator}>
           <span>
-            Ответ на: {replyingTo.text.slice(0, 50)}
+            {t("commentsSection.replyTo")} {replyingTo.text.slice(0, 50)}
             {replyingTo.text.length > 50 ? "..." : ""}
           </span>
           <button onClick={onCancelReply} className={styles.cancelReplyBtn}>
@@ -67,7 +69,9 @@ export function CommentInput({
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           placeholder={
-            replyingTo ? "Написать ответ..." : "Написать комментарий..."
+            replyingTo
+              ? t("commentsSection.replyPlaceholder")
+              : t("commentsSection.placeholder")
           }
           className={styles.input}
           rows={1}

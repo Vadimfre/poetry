@@ -8,7 +8,7 @@
   overflow: hidden;
   border: 0;
   background: transparent;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 30px 80px rgba(76, 57, 35, 0.18);
 }
 
 @media (min-width: 1200px) {
@@ -26,6 +26,8 @@
   max-height: 95vh;
   display: flex;
   flex-direction: column;
+  background: linear-gradient(135deg, rgba(255, 248, 241, 0.96), rgba(249, 242, 233, 0.92));
+  border: 1px solid rgba(120, 93, 62, 0.1);
 }
 
 @media (min-width: 1024px) {
@@ -38,7 +40,7 @@
 .backgroundPattern {
   position: absolute;
   inset: 0;
-  opacity: 0.05;
+  opacity: 0.09;
   pointer-events: none;
 }
 
@@ -56,20 +58,20 @@
   z-index: 50;
   padding: 0.625rem;
   border-radius: 9999px;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(120, 93, 62, 0.12);
   transition: all 0.3s;
 }
 
 .closeButton:hover {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(255, 255, 255, 0.96);
 }
 
 .closeButtonIcon {
   width: 1.25rem;
   height: 1.25rem;
-  color: white;
+  color: #5b4733;
   transition: transform 0.3s;
 }
 
@@ -84,20 +86,20 @@
   z-index: 50;
   padding: 0.625rem;
   border-radius: 9999px;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(120, 93, 62, 0.12);
   transition: all 0.3s;
 }
 
 .shareButton:hover {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(255, 255, 255, 0.96);
 }
 
 .shareButtonIcon {
   width: 1rem;
   height: 1rem;
-  color: white;
+  color: #5b4733;
 }
 
 /* Content layout */
@@ -105,7 +107,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #192740;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(253, 248, 242, 0.92));
   backdrop-filter: blur(12px);
   min-width: 0;
 }
@@ -115,15 +117,16 @@
   padding-left: 1.5rem;
   padding-right: 1.5rem;
   padding-top: 1.25rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(120, 93, 62, 0.08);
 }
 
 .tabsList {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 250, 245, 0.88);
   backdrop-filter: blur(8px);
   padding: 0.25rem;
   height: auto;
   border-radius: 0.75rem;
+  border: 1px solid rgba(120, 93, 62, 0.08);
 }
 
 .tabTriggerBase {
@@ -135,6 +138,7 @@
   font-weight: 500;
   border-radius: 0.5rem;
   transition: all 0.3s;
+  color: #6b5a47;
 }
 
 .tabIcon {
@@ -181,7 +185,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #192740;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(253, 248, 242, 0.92));
   backdrop-filter: blur(12px);
   min-width: 0;
 }
@@ -193,5 +197,5 @@
   left: 0;
   right: 0;
   height: 0.25rem;
-  background: linear-gradient(to right, transparent, rgba(245, 158, 11, 0.6), transparent);
+  background: linear-gradient(to right, transparent, rgba(210, 156, 78, 0.7), transparent);
 }

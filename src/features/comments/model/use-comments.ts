@@ -1,8 +1,8 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { commentsApi, type CreateCommentDto, type UpdateCommentDto } from '@/src/shared/api/comments.api';
-import type { Comment } from '@/src/shared/types';
+import { commentsApi } from '@/src/shared/api/comments.api';
+import type { Comment, CreateCommentDto, UpdateCommentDto } from '@/src/shared/types';
 
 // Получить комментарии к стиху
 export const useComments = (poemId: number) => {
@@ -18,7 +18,8 @@ export const useCreateComment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateCommentDto) => commentsApi.create(data),
+    mutationFn: ({ poemId, ...data }: { poemId: number } & CreateCommentDto) =>
+      commentsApi.create(poemId, data),
     onSuccess: (_, { poemId }) => {
       queryClient.invalidateQueries({ queryKey: ['comments', poemId] });
       queryClient.invalidateQueries({ queryKey: ['poem', poemId] });

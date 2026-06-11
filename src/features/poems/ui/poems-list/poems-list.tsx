@@ -1,18 +1,23 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import type { Collection } from "@/src/shared/types";
+import type { Poem } from "@/src/shared/types";
 import { usePoemsFilter } from "../../model/use-poems-filter";
-import { getPoemsWord } from "../../model/helpers";
 import { PoemsSearch } from "../poems-search/poems-search";
 import { PoemCard } from "../poem-card/poem-card";
 import styles from "./poems-list.module.css";
+import { useI18n, usePlural } from "@/src/shared/i18n";
 
 interface PoemsListProps {
-  collection: Collection;
+  collection: {
+    title: string;
+    poems?: Poem[];
+  };
 }
 
 export const PoemsList = ({ collection }: PoemsListProps) => {
+  const { t } = useI18n();
+  const plural = usePlural();
   const router = useRouter();
   const poems = collection.poems || [];
 
@@ -46,15 +51,21 @@ export const PoemsList = ({ collection }: PoemsListProps) => {
             >
               <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>
-            Назад
+            {t("common.back")}
           </button>
 
           <div className={styles.titleRow}>
             <div>
               <h1 className={styles.categoryTitle}>{collection.title}</h1>
               <p className={styles.poemsCount}>
-                {filteredCount} {getPoemsWord(filteredCount)}
-                {searchQuery && ` по запросу "${searchQuery}"`}
+                {filteredCount}{" "}
+                {plural(filteredCount, {
+                  one: "common.poemOne",
+                  few: "common.poemFew",
+                  many: "common.poemMany",
+                })}
+                {searchQuery &&
+                  t("filters.searchByQuery", { query: searchQuery })}
               </p>
             </div>
 
@@ -80,10 +91,8 @@ export const PoemsList = ({ collection }: PoemsListProps) => {
               <path d="m21 21-4.35-4.35" />
               <path d="M8 8l6 6M14 8l-6 6" />
             </svg>
-            <p className={styles.noResultsText}>Ничего не найдено</p>
-            <p className={styles.noResultsHint}>
-              Попробуйте изменить поисковый запрос
-            </p>
+            <p className={styles.noResultsText}>{t("filters.noResults")}</p>
+            <p className={styles.noResultsHint}>{t("filters.changeSearchHint")}</p>
           </div>
         ) : (
           <div className={styles.poemsList}>

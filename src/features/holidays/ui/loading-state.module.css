@@ -4,7 +4,7 @@
   justify-content: center;
   height: 550px;
   border-radius: 1.5rem;
-  background: linear-gradient(135deg, #0f172a, #1e293b, #0f172a);
+  background: linear-gradient(135deg, #faf7f4, #f3ede6, #faf7f4);
 }
 
 .loadingContent {
@@ -22,7 +22,7 @@
   position: absolute;
   inset: 0;
   border-radius: 9999px;
-  background-color: rgba(245, 158, 11, 0.3);
+  background-color: rgba(139, 115, 85, 0.2);
   filter: blur(1rem);
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
@@ -32,14 +32,14 @@
   z-index: 10;
   padding: 1.25rem;
   border-radius: 9999px;
-  background-color: rgba(30, 41, 59, 0.8);
-  border: 1px solid #334155;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(139, 115, 85, 0.15);
 }
 
 .loadingIcon {
   width: 3.5rem;
   height: 3.5rem;
-  color: #fbbf24;
+  color: #8b7355;
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
@@ -48,13 +48,13 @@
 }
 
 .loadingTitle {
-  color: #cbd5e1;
+  color: #2c2c2c;
   font-size: 1.125rem;
   font-weight: 500;
 }
 
 .loadingSubtitle {
-  color: #64748b;
+  color: #999;
   font-size: 0.875rem;
   margin-top: 0.25rem;
 }

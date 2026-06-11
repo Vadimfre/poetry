@@ -1,12 +1,21 @@
 "use client";
 
-import Link from "next/link";
 import { BookOpen, Sparkles, Users } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { useI18n, usePlural } from "@/src/shared/i18n/context";
 import styles from "./PromoSection.module.css";
 
+const PROMO_POEM_COUNT = 200;
+
 const PromoSection = () => {
+  const { t } = useI18n();
+  const plural = usePlural();
+  const poemWord = plural(PROMO_POEM_COUNT, {
+    one: "common.verseOne",
+    few: "common.verseFew",
+    many: "common.verseMany",
+  });
+
   return (
     <section className={styles.promoSection}>
       <div className="container">
@@ -23,38 +32,31 @@ const PromoSection = () => {
               <div className={styles.badgeRow}>
                 <span className={styles.badge}>
                   <Sparkles className={styles.badgeIcon} />
-                  паэтычная калекцыя
+                  {t("promoHome.badge")}
                 </span>
               </div>
 
               <h2 className={styles.title}>
-                Больш за <span className={styles.titleAccent}>50</span> вершаў
+                {t("promoHome.titleMore")} {PROMO_POEM_COUNT} {poemWord}
               </h2>
 
               <p className={styles.description}>
-                <span className={styles.brand}>«Беларуская паэзія»</span> дае{" "}
-                <span className={styles.highlight}>унікальную магчымасць</span>{" "}
-                — пазнаёміцца з{" "}
-                <span className={styles.highlight}>
-                  лепшымі творамі беларускіх класікаў
-                </span>
-                , адчуць багацце роднай мовы і{" "}
-                <span className={styles.highlight}>атрымліваць натхненне</span>{" "}
-                ад спадчыны нашага народа.
+                <span className={styles.brand}>{t("promoHome.brand")}</span>{" "}
+                {t("promoHome.description")}
               </p>
 
               <ul className={styles.features}>
                 <li className={styles.featureItem}>
                   <BookOpen className={styles.featureIcon} />
-                  Калекцыі і падборкі па тэматыках
+                  {t("promoHome.feature1")}
                 </li>
                 <li className={styles.featureItem}>
                   <Users className={styles.featureIcon} />
-                  Старонкі аўтараў з біяграфіяй і творамі
+                  {t("promoHome.feature2")}
                 </li>
                 <li className={styles.featureItem}>
                   <Sparkles className={styles.featureIcon} />
-                  Віктарыны, святы і фаварыты — каб было цікава вяртацца
+                  {t("promoHome.feature3")}
                 </li>
               </ul>
             </div>
@@ -62,30 +64,36 @@ const PromoSection = () => {
             <div className={styles.right}>
               <div className={styles.statsGrid}>
                 <div className={styles.statCard}>
-                  <div className={styles.statValue}>50+</div>
-                  <div className={styles.statLabel}>вершаў у калекцыі</div>
+                  <div className={styles.statValue}>200+</div>
+                  <div className={styles.statLabel}>
+                    {t("promoHome.statPoems")}
+                  </div>
                 </div>
                 <div className={styles.statCard}>
                   <div className={styles.statValue}>BE</div>
-                  <div className={styles.statLabel}>родная мова і класіка</div>
+                  <div className={styles.statLabel}>
+                    {t("promoHome.statLang")}
+                  </div>
                 </div>
                 <div className={styles.statCard}>
                   <div className={styles.statValue}>24/7</div>
-                  <div className={styles.statLabel}>чытаць з любога месца</div>
+                  <div className={styles.statLabel}>
+                    {t("promoHome.statAccess")}
+                  </div>
                 </div>
                 <div className={styles.statCard}>
                   <div className={styles.statValue}>♥</div>
-                  <div className={styles.statLabel}>захоўвай у фаварыты</div>
+                  <div className={styles.statLabel}>
+                    {t("promoHome.statFavorites")}
+                  </div>
                 </div>
               </div>
 
               <div className={styles.quoteCard}>
                 <div className={styles.quoteMark}>“</div>
-                <p className={styles.quoteText}>
-                  Паэзія — гэта калі словы становяцца домам для пачуццяў.
-                </p>
+                <p className={styles.quoteText}>{t("promoHome.quote")}</p>
                 <div className={styles.quoteFooter}>
-                  Адкрый для сябе беларускую спадчыну
+                  {t("promoHome.quoteFooter")}
                 </div>
               </div>
             </div>

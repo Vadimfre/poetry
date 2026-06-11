@@ -2,21 +2,30 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
+import { useAuthModalStore } from "@/src/entities/auth/auth-modal.store";
 import { useUserStore } from "@/src/entities/user";
 import { useCategories } from "@/src/features/categories";
 import { authApi } from "@/src/shared/api";
+import { useI18n } from "@/src/shared/i18n";
 import AuthModal from "@/components/AuthModal/AuthModal";
+import { LanguageSelect } from "@/components/LanguageSelect/LanguageSelect";
 import styles from "./Header.module.css";
 
 const Header = () => {
+  const { t } = useI18n();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const isAuthModalOpen = useAuthModalStore((s) => s.isOpen);
+  const openAuthModal = useAuthModalStore((s) => s.open);
+  const closeAuthModal = useAuthModalStore((s) => s.close);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isDirectionsOpen, setIsDirectionsOpen] = useState(false);
   const [canHover, setCanHover] = useState(false);
 
   const { user, isAuthenticated, logout: logoutStore } = useUserStore();
   const { data: categories } = useCategories();
+  const isTeacher = user?.role === "TEACHER";
+  const isStudent = user?.role === "STUDENT";
+  const isAdmin = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
 
   const profileContainerRef = useRef<HTMLDivElement>(null);
   const directionsContainerRef = useRef<HTMLDivElement>(null);
@@ -38,12 +47,10 @@ const Header = () => {
     return () => mql.removeEventListener("change", update);
   }, []);
 
-  // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
 
-      // Close profile menu if click is outside its container
       if (
         isProfileMenuOpen &&
         profileContainerRef.current &&
@@ -52,7 +59,6 @@ const Header = () => {
         setIsProfileMenuOpen(false);
       }
 
-      // Close directions menu if click is outside its container
       if (
         isDirectionsOpen &&
         directionsContainerRef.current &&
@@ -75,10 +81,18 @@ const Header = () => {
       setIsProfileMenuOpen(false);
     } catch (error) {
       console.error("Logout error:", error);
-      logoutStore(); // Logout even if API call fails
+      logoutStore();
       setIsProfileMenuOpen(false);
     }
   };
+
+  const roleLabel = isTeacher
+    ? t("header.roleTeacher")
+    : isStudent
+      ? t("header.roleStudent")
+      : isAdmin
+        ? t("header.roleAdmin")
+        : t("header.roleUser");
 
   return (
     <header
@@ -91,7 +105,7 @@ const Header = () => {
               href="/"
               className={`${styles.navLink} ${styles.navLinkActive}`}
             >
-              ГЛАВНАЯ
+              {t("header.home")}
             </Link>
             <div
               ref={directionsContainerRef}
@@ -110,18 +124,16 @@ const Header = () => {
                 aria-expanded={isDirectionsOpen}
                 onClick={() => setIsDirectionsOpen((prev) => !prev)}
               >
-                НАПРАВЛЕНИЯ ▼
+                {t("header.directions")} ▼
               </button>
               {isDirectionsOpen && categories && categories.length > 0 && (
-                <div
-                  className={styles.directionsMenu}
-                  onClick={() => setIsDirectionsOpen(false)}
-                >
+                <div className={styles.directionsMenu}>
                   {categories.map((category) => (
                     <Link
                       key={category.id}
                       href={`/collection/${category.slug}`}
                       className={styles.directionItem}
+                      onClick={() => setIsDirectionsOpen(false)}
                     >
                       <div className={styles.directionIcon}>
                         {category.name.charAt(0).toUpperCase()}
@@ -132,7 +144,9 @@ const Header = () => {
                         </div>
                         <div className={styles.directionDesc}>
                           {category.description ||
-                            `Коллекции: ${category._count?.collections || 0}`}
+                            t("header.collections", {
+                              count: category._count?.collections || 0,
+                            })}
                         </div>
                       </div>
                     </Link>
@@ -141,10 +155,23 @@ const Header = () => {
               )}
             </div>
             <Link href="/quizzes" className={styles.navLink}>
-              КВИЗЫ
+              {t("header.quizzes")}
             </Link>
+            <Link href="/school" className={styles.navLink}>
+              {t("header.school")}
+            </Link>
+            {isTeacher && (
+              <Link href="/teacher" className={styles.navLink}>
+                {t("header.classes")}
+              </Link>
+            )}
+            {isStudent && (
+              <Link href="/student" className={styles.navLink}>
+                {t("header.myAssignments")}
+              </Link>
+            )}
             <Link href="/about" className={styles.navLink}>
-              О НАС
+              {t("header.about")}
             </Link>
           </nav>
 
@@ -153,11 +180,12 @@ const Header = () => {
           </Link>
 
           <nav className={styles.navRight}>
+            <LanguageSelect />
             <Link href="/filters" className={styles.navLink}>
-              ФИЛЬТРЫ
+              {t("header.filters")}
             </Link>
             <Link href="/faq" className={styles.navLink}>
-              ВОПРОС-ОТВЕТ
+              {t("header.faq")}
             </Link>
 
             {isAuthenticated && user ? (
@@ -185,30 +213,60 @@ const Header = () => {
                       </div>
                       <div className={styles.profileInfo}>
                         <div className={styles.profileName}>
-                          {user.name || "User"}
+                          {user.name || t("header.userFallback")}
                         </div>
                         <div className={styles.profileEmail}>{user.email}</div>
+                        <div className={styles.profileRole}>{roleLabel}</div>
                       </div>
                     </div>
                     <div className={styles.profileMenuDivider}></div>
+                    {isTeacher && (
+                      <Link
+                        href="/teacher"
+                        className={`${styles.profileMenuItem} ${styles.cabinetLink}`}
+                        onClick={() => setIsProfileMenuOpen(false)}
+                      >
+                        {t("header.classesAndAssignments")}
+                      </Link>
+                    )}
+                    {isStudent && (
+                      <Link
+                        href="/student"
+                        className={`${styles.profileMenuItem} ${styles.cabinetLink}`}
+                        onClick={() => setIsProfileMenuOpen(false)}
+                      >
+                        {t("header.myAssignments")}
+                      </Link>
+                    )}
+                    {isAdmin && (
+                      <Link
+                        href="/admin"
+                        className={`${styles.profileMenuItem} ${styles.adminLink}`}
+                        onClick={() => setIsProfileMenuOpen(false)}
+                      >
+                        {t("header.adminPanel")}
+                      </Link>
+                    )}
                     <Link
-                      href="/admin"
-                      className={`${styles.profileMenuItem} ${styles.adminLink}`}
+                      href="/favorites"
+                      className={styles.profileMenuItem}
+                      onClick={() => setIsProfileMenuOpen(false)}
                     >
-                      🔧 Админ-панель
+                      {t("header.favorites")}
                     </Link>
-                    <Link href="/favorites" className={styles.profileMenuItem}>
-                      Избранное
-                    </Link>
-                    <Link href="/settings" className={styles.profileMenuItem}>
-                      Настройки профиля
+                    <Link
+                      href="/settings"
+                      className={styles.profileMenuItem}
+                      onClick={() => setIsProfileMenuOpen(false)}
+                    >
+                      {t("header.profileSettings")}
                     </Link>
                     <div className={styles.profileMenuDivider}></div>
                     <button
                       className={styles.logoutButton}
                       onClick={handleLogout}
                     >
-                      Выйти
+                      {t("header.logout")}
                     </button>
                   </div>
                 )}
@@ -216,9 +274,9 @@ const Header = () => {
             ) : (
               <button
                 className={styles.login}
-                onClick={() => setIsAuthModalOpen(true)}
+                onClick={openAuthModal}
               >
-                ВОЙТИ
+                {t("header.login")}
               </button>
             )}
           </nav>
@@ -227,7 +285,7 @@ const Header = () => {
 
       <AuthModal
         isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
+        onClose={closeAuthModal}
       />
     </header>
   );

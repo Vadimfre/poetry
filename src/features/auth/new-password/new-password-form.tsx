@@ -1,5 +1,6 @@
 "use client";
 
+import { useI18n } from "@/src/shared/i18n";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AuthInput } from "../ui/auth-input";
@@ -11,6 +12,7 @@ import {
 import styles from "./new-password-form.module.css"
 
 export const NewPasswordForm = () => {
+  const { t } = useI18n();
   const {
     register,
     handleSubmit,
@@ -35,11 +37,8 @@ export const NewPasswordForm = () => {
 
       <div className={styles.card}>
         <div className={styles.header}>
-          <h1 className={styles.title}>Новый пароль</h1>
-          <p className={styles.subtitle}>
-            Придумайте надёжный пароль для вашего аккаунта. Он должен содержать
-            не менее 6 символов, включать буквы и цифры.
-          </p>
+          <h1 className={styles.title}>{t("auth.newPasswordTitle")}</h1>
+          <p className={styles.subtitle}>{t("authRecovery.newPasswordHint")}</p>
         </div>
 
         <form
@@ -49,7 +48,7 @@ export const NewPasswordForm = () => {
         >
           <div className={styles.inputWrapper}>
             <AuthInput
-              placeholder="Введите новый пароль"
+              placeholder={t("auth.passwordPlaceholder")}
               type="password"
               {...register("password")}
               error={errors.password?.message}
@@ -62,15 +61,15 @@ export const NewPasswordForm = () => {
             className={styles.submitButton}
           >
             {isLoadingNew && <span className={styles.loading}></span>}
-            {isLoadingNew ? "Установка..." : "Установить новый пароль"}
+            {isLoadingNew ? t("authRecovery.setting") : t("authRecovery.setPassword")}
           </button>
         </form>
 
         <div className={styles.footer}>
           <p>
-            Вспомнили старый пароль?
+            {t("authRecovery.oldPasswordRemember")}{" "}
             <a href="/" className={styles.link}>
-              Войти
+              {t("auth.signIn")}
             </a>
           </p>
         </div>

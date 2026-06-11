@@ -6,24 +6,24 @@ import { Holiday } from "@/src/shared";
 import CalendarHeader from "./CalendarHeader";
 import CalendarDays from "./CalendarDays";
 import { HolidayModal } from "../../../../components/HolidayModal/holiday-modal";
+import { useCalendarLabels } from "@/src/shared/i18n";
 
 interface SeasonCalendarProps {
   holidays: Holiday[];
-  months: string[];
   monthNumbers: number[];
   year: number;
   accentColor?: string;
 }
 
-const dayNames = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"];
-
 export default function SeasonCalendar({
   holidays,
-  months,
   monthNumbers,
   year,
   accentColor = "#7cb342",
 }: SeasonCalendarProps) {
+  const { dayNames, getMonthsForNumbers } = useCalendarLabels();
+  const months = getMonthsForNumbers(monthNumbers);
+
   const {
     activeMonthIndex,
     currentMonthNumber,
@@ -33,8 +33,31 @@ export default function SeasonCalendar({
     modalOpen,
     handleDayClick,
     handleMonthClick,
+    handlePrevMonth,
+    handleNextMonth,
     handleCloseModal,
   } = useSeasonCalendar({ holidays, monthNumbers, year });
+
+  const visibleMonthSlots = [-1, 0, 1].map((offset) => {
+    const index = activeMonthIndex + offset;
+    if (index < 0 || index >= months.length) {
+      return { offset, empty: true as const };
+    }
+    return {
+      offset,
+      empty: false as const,
+      index,
+      month: months[index],
+      monthNumber: monthNumbers[index],
+    };
+  });
+
+  const prevMonthLabel =
+    activeMonthIndex > 0 ? months[activeMonthIndex - 1] : null;
+  const nextMonthLabel =
+    activeMonthIndex < months.length - 1
+      ? months[activeMonthIndex + 1]
+      : null;
 
   return (
     <>
@@ -42,13 +65,10 @@ export default function SeasonCalendar({
         className={styles.calendar}
         style={{ "--accent-color": accentColor } as React.CSSProperties}
       >
-        {/* Header */}
-        <CalendarHeader month={months[activeMonthIndex]} year={2026} />
+        <CalendarHeader month={months[activeMonthIndex]} year={year} />
 
-        {/* Дни недели */}
         <CalendarDays dayNames={dayNames} />
 
-        {/* Сетка дней */}
         <div className={styles.days}>
           {days.map((day, i) => {
             const holiday = day
@@ -74,23 +94,68 @@ export default function SeasonCalendar({
           })}
         </div>
 
-        {/* Месяцы сезона */}
-        <div className={styles.seasonMonths}>
-          {months.map((month, index) => (
-            <button
-              key={month}
-              className={`${styles.seasonMonth} ${
-                index === activeMonthIndex ? styles.activeMonth : ""
-              }`}
-              onClick={() => handleMonthClick(index)}
-            >
-              {month}
-            </button>
-          ))}
+        <div className={styles.monthNav}>
+          <button
+            type="button"
+            className={styles.monthArrow}
+            onClick={handlePrevMonth}
+            disabled={activeMonthIndex === 0}
+            aria-label={prevMonthLabel ?? "Папярэдні месяц"}
+            title={prevMonthLabel ?? undefined}
+          >
+            <span className={styles.monthArrowIcon}>‹</span>
+            {prevMonthLabel && (
+              <span className={styles.monthArrowHint}>{prevMonthLabel}</span>
+            )}
+          </button>
+
+          <div className={styles.seasonMonths}>
+            {visibleMonthSlots.map((slot) => {
+              if (slot.empty) {
+                return (
+                  <span
+                    key={`empty-${slot.offset}`}
+                    className={styles.seasonMonthEmpty}
+                    aria-hidden="true"
+                  />
+                );
+              }
+
+              const isActive = slot.index === activeMonthIndex;
+
+              return (
+                <button
+                  key={slot.monthNumber}
+                  type="button"
+                  className={`${styles.seasonMonth} ${
+                    isActive ? styles.activeMonth : styles.neighborMonth
+                  }`}
+                  onClick={() => handleMonthClick(slot.index)}
+                  aria-current={isActive ? "true" : undefined}
+                  title={slot.month}
+                >
+                  {slot.month}
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            type="button"
+            className={styles.monthArrow}
+            onClick={handleNextMonth}
+            disabled={activeMonthIndex === monthNumbers.length - 1}
+            aria-label={nextMonthLabel ?? "Наступны месяц"}
+            title={nextMonthLabel ?? undefined}
+          >
+            {nextMonthLabel && (
+              <span className={styles.monthArrowHint}>{nextMonthLabel}</span>
+            )}
+            <span className={styles.monthArrowIcon}>›</span>
+          </button>
         </div>
       </div>
 
-      {/* Модальное окно праздника */}
       <HolidayModal
         open={modalOpen}
         onOpenChange={handleCloseModal}

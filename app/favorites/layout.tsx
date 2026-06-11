@@ -2,7 +2,7 @@ import Header from '@/components/Header/Header'
 
 export const metadata = {
   title: 'Избранное | Poetry',
-  description: 'Ваши избранные стихотворения',
+  description: 'Ваши избранные творы',
 }
 
 export default function FavoritesLayout({

@@ -9,11 +9,12 @@ import type {
   CreatePoemDto,
   UpdatePoemDto,
   CreateAuthorDto,
+  UpdateAuthorDto,
   CreateCategoryDto,
+  UpdateCategoryDto,
   UploadVideoResponse,
   AdminComment,
   AdminCommentsResponse,
-  UpdateCommentDto,
   AdminLike,
   AdminLikesResponse,
   LikesStatistics,
@@ -27,6 +28,7 @@ import type {
   CreateSeasonSlideDto,
   UpdateSeasonSlideDto,
 } from "../types/admin.types";
+import type { UpdateCommentDto } from "../types/comment.types";
 
 export const adminApi = {
   // Stats
@@ -38,6 +40,11 @@ export const adminApi = {
   // Poems
   getPoems: async (): Promise<Poem[]> => {
     const response = await apiClient.get<Poem[]>("/admin/poems");
+    return response.data;
+  },
+
+  getPoem: async (id: number): Promise<Poem> => {
+    const response = await apiClient.get<Poem>(`/admin/poems/${id}`);
     return response.data;
   },
 
@@ -82,6 +89,15 @@ export const adminApi = {
     return response.data;
   },
 
+  updateAuthor: async (id: number, data: UpdateAuthorDto): Promise<Author> => {
+    const response = await apiClient.put<Author>(`/admin/authors/${id}`, data);
+    return response.data;
+  },
+
+  deleteAuthor: async (id: number): Promise<void> => {
+    await apiClient.delete(`/admin/authors/${id}`);
+  },
+
   // Categories
   getCategories: async (): Promise<Category[]> => {
     const response = await apiClient.get<Category[]>("/admin/categories");
@@ -91,6 +107,21 @@ export const adminApi = {
   createCategory: async (data: CreateCategoryDto): Promise<Category> => {
     const response = await apiClient.post<Category>("/admin/categories", data);
     return response.data;
+  },
+
+  updateCategory: async (
+    id: number,
+    data: UpdateCategoryDto,
+  ): Promise<Category> => {
+    const response = await apiClient.put<Category>(
+      `/admin/categories/${id}`,
+      data,
+    );
+    return response.data;
+  },
+
+  deleteCategory: async (id: number): Promise<void> => {
+    await apiClient.delete(`/admin/categories/${id}`);
   },
 
   // Users (Super Admin only)

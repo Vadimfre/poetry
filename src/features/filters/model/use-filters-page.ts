@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useI18n } from "@/src/shared/i18n";
 import type { Dispatch, SetStateAction } from "react";
 import type { Poem } from "@/src/shared/types";
 
@@ -125,6 +126,8 @@ export const useFiltersPageDerived = ({
   categories,
   authors,
 }: UseFiltersPageDerivedParams): UseFiltersPageDerivedResult => {
+  const { t } = useI18n();
+
   const selectedAuthor = useMemo(() => {
     if (!state.selectedAuthorSlug) return undefined;
     return authors?.find((a) => a.slug === state.selectedAuthorSlug);
@@ -143,7 +146,7 @@ export const useFiltersPageDerived = ({
     if (state.query) {
       chips.push({
         id: "query",
-        label: `Поиск: ${state.query}`,
+        label: t("filters.chipSearch", { query: state.query }),
         onRemove: () => setState((prev) => ({ ...prev, query: "" })),
       });
     }
@@ -151,7 +154,7 @@ export const useFiltersPageDerived = ({
     if (selectedAuthor) {
       chips.push({
         id: "author",
-        label: `Автор: ${selectedAuthor.name}`,
+        label: t("filters.chipAuthor", { name: selectedAuthor.name }),
         onRemove: () =>
           setState((prev) => ({ ...prev, selectedAuthorSlug: "" })),
       });
@@ -172,7 +175,10 @@ export const useFiltersPageDerived = ({
     }
 
     if (state.yearFrom || state.yearTo) {
-      const label = `Годы: ${state.yearFrom || "…"}–${state.yearTo || "…"}`;
+      const label = t("filters.chipYears", {
+        from: state.yearFrom || "…",
+        to: state.yearTo || "…",
+      });
       chips.push({
         id: "years",
         label,
@@ -184,9 +190,12 @@ export const useFiltersPageDerived = ({
     if (state.sort !== "popular") {
       chips.push({
         id: "sort",
-        label: `Сортировка: ${
-          state.sort === "new" ? "сначала новые" : "сначала старые"
-        }`,
+        label: t("filters.chipSortLabel", {
+          sort:
+            state.sort === "new"
+              ? t("filters.chipSortNew")
+              : t("filters.chipSortOld"),
+        }),
         onRemove: () => setState((prev) => ({ ...prev, sort: "popular" })),
       });
     }
@@ -200,6 +209,7 @@ export const useFiltersPageDerived = ({
     state.sort,
     state.yearFrom,
     state.yearTo,
+    t,
   ]);
 
   const yearFromN = useMemo(
@@ -209,22 +219,25 @@ export const useFiltersPageDerived = ({
   const yearToN = useMemo(() => normalizeYear(state.yearTo), [state.yearTo]);
 
   const resultsTitle = useMemo(() => {
-    if (state.query) return `Результаты по запросу: ${state.query}`;
+    if (state.query) {
+      return t("filters.resultsByQuery", { query: state.query });
+    }
     if (
       state.selectedAuthorSlug ||
       state.selectedCategorySlugs.length > 0 ||
       state.yearFrom ||
       state.yearTo
     ) {
-      return "Результаты по выбранным фильтрам";
+      return t("filters.resultsByFilters");
     }
-    return "Все стихотворения";
+    return t("filters.allPoems");
   }, [
     state.query,
     state.selectedAuthorSlug,
     state.selectedCategorySlugs.length,
     state.yearFrom,
     state.yearTo,
+    t,
   ]);
 
   return {

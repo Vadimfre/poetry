@@ -10,9 +10,11 @@ import {
   useOptimisticLike,
   useOptimisticViews,
 } from "@/src/shared/hooks/interactions";
+import PoemGuestGate from "@/components/PoemGuestGate/PoemGuestGate";
 import { useUserStore } from "@/src/entities/user";
 import styles from "./PoemViewSection.module.css";
 import { toast } from "sonner";
+import { useI18n } from "@/src/shared/i18n";
 
 interface PoemViewSectionProps {
   poemId: string;
@@ -21,12 +23,13 @@ interface PoemViewSectionProps {
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 const PoemViewSection = ({ poemId }: PoemViewSectionProps) => {
+  const { t } = useI18n();
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
   const poemIdNum = Number(poemId);
 
   // Данные пользователя
-  const { isAuthenticated } = useUserStore();
+  const { isAuthenticated, hasHydrated } = useUserStore();
 
   // Получаем стих
   const { data: poem, isLoading, error } = usePoem(poemIdNum);
@@ -68,8 +71,8 @@ const PoemViewSection = ({ poemId }: PoemViewSectionProps) => {
 
   const handleFavorite = () => {
     if (!isAuthenticated) {
-      toast.error("Увайдзіце ў сістэму", {
-        description: "Каб дадаць у абранае, трэба аўтарызавацца",
+      toast.error(t("poem.loginToFavorite"), {
+        description: t("poem.loginToFavoriteDesc"),
       });
       return;
     }
@@ -108,7 +111,7 @@ const PoemViewSection = ({ poemId }: PoemViewSectionProps) => {
               zIndex: 2,
             }}
           >
-            <p>Загрузка...</p>
+            <p>{t("common.loading")}</p>
           </div>
         </div>
       </section>
@@ -122,7 +125,7 @@ const PoemViewSection = ({ poemId }: PoemViewSectionProps) => {
         <div className={styles.videoOverlay}></div>
         <div className="container">
           <button className={styles.backButton} onClick={handleBackClick}>
-            ← Назад
+            ← {t("common.back")}
           </button>
           <div
             style={{
@@ -132,7 +135,7 @@ const PoemViewSection = ({ poemId }: PoemViewSectionProps) => {
               zIndex: 2,
             }}
           >
-            <p>Верш не знойдзены</p>
+            <p>{t("poem.notFound")}</p>
           </div>
         </div>
       </section>
@@ -140,7 +143,7 @@ const PoemViewSection = ({ poemId }: PoemViewSectionProps) => {
   }
 
   // Информация об авторе
-  const authorName = poem.author?.name || "Невядомы аўтар";
+  const authorName = poem.author?.name || t("common.unknownAuthor");
   const authorYears = poem.author?.birthYear
     ? `(${poem.author.birthYear}${poem.author.deathYear ? `–${poem.author.deathYear}` : ""})`
     : "";
@@ -148,6 +151,9 @@ const PoemViewSection = ({ poemId }: PoemViewSectionProps) => {
   // Формируем URL видео
   // Если videoUrl начинается с /, это путь из public (используем напрямую)
   // Иначе это путь на бэкенде (добавляем API_URL)
+  const visibleContent = poem.content ?? "";
+  const isGuestLimited = hasHydrated && !isAuthenticated && !!visibleContent.trim();
+
   const videoUrl = poem.videoUrl
     ? poem.videoUrl.startsWith("/")
       ? poem.videoUrl
@@ -175,7 +181,7 @@ const PoemViewSection = ({ poemId }: PoemViewSectionProps) => {
             <button
               className={styles.videoControlButton}
               onClick={toggleVideoPlay}
-              title={isVideoPlaying ? "Пауза" : "Воспроизвести"}
+              title={isVideoPlaying ? t("poem.pauseVideo") : t("poem.playVideo")}
             >
               {isVideoPlaying ? (
                 <svg viewBox="0 0 24 24" fill="currentColor">
@@ -192,7 +198,7 @@ const PoemViewSection = ({ poemId }: PoemViewSectionProps) => {
             <button
               className={`${styles.videoControlButton} ${isVideoMuted ? styles.muted : ""}`}
               onClick={toggleVideoMute}
-              title={isVideoMuted ? "Включить звук" : "Выключить звук"}
+              title={isVideoMuted ? t("poem.unmute") : t("poem.mute")}
             >
               {isVideoMuted ? (
                 <svg
@@ -228,19 +234,33 @@ const PoemViewSection = ({ poemId }: PoemViewSectionProps) => {
 
       <div className="container">
         <button className={styles.backButton} onClick={handleBackClick}>
-          ← Назад
+          ← {t("common.back")}
         </button>
 
         <div className={styles.poemContainer}>
           <div className={styles.poemHeader}>
-            <p className={styles.authorLabel}>
-              {authorName} {authorYears}
-            </p>
+            {poem.author?.slug ? (
+              <Link
+                href={`/author/${poem.author.slug}`}
+                className={styles.authorLink}
+              >
+                <span className={styles.authorLabel}>
+                  {authorName} {authorYears}
+                </span>
+              </Link>
+            ) : (
+              <p className={styles.authorLabel}>
+                {authorName} {authorYears}
+              </p>
+            )}
             <h1 className={styles.poemTitle}>{poem.title}</h1>
           </div>
 
-          <div className={styles.poemContent}>
-            <pre className={styles.poemText}>{poem.content}</pre>
+          <div
+            className={`${styles.poemContent} ${isGuestLimited ? styles.poemContentLimited : ""}`}
+          >
+            <pre className={styles.poemText}>{visibleContent}</pre>
+            {isGuestLimited && <PoemGuestGate />}
           </div>
 
           <div className={styles.poemFooter}>
@@ -250,7 +270,7 @@ const PoemViewSection = ({ poemId }: PoemViewSectionProps) => {
           {/* Описание стиха */}
           {poem.description && (
             <div className={styles.poemDescription}>
-              <h3 className={styles.descriptionTitle}>Пра верш</h3>
+              <h3 className={styles.descriptionTitle}>{t("poem.aboutPoem")}</h3>
               <p className={styles.descriptionText}>{poem.description}</p>
             </div>
           )}
@@ -258,7 +278,7 @@ const PoemViewSection = ({ poemId }: PoemViewSectionProps) => {
           {/* Информация об авторе */}
           {poem.author?.bio && (
             <div className={styles.authorBio}>
-              <h3 className={styles.bioTitle}>Пра аўтара</h3>
+              <h3 className={styles.bioTitle}>{t("poem.aboutAuthor")}</h3>
               <p className={styles.bioText}>
                 {poem.author.bio.length > 200
                   ? `${poem.author.bio.slice(0, 200)}...`
@@ -269,7 +289,7 @@ const PoemViewSection = ({ poemId }: PoemViewSectionProps) => {
                   href={`/author/${poem.author.slug}`}
                   className={styles.bioLink}
                 >
-                  Чытаць поўную біяграфію →
+                  {t("poem.readFullBio")}
                 </Link>
               )}
             </div>
@@ -281,7 +301,7 @@ const PoemViewSection = ({ poemId }: PoemViewSectionProps) => {
               <button
                 className={`${styles.iconButton} ${isCommentsOpen ? styles.active : ""}`}
                 onClick={handleCommentsToggle}
-                title="Комментарии"
+                title={t("poem.comments")}
               >
                 <svg
                   className={styles.icon}
@@ -300,7 +320,7 @@ const PoemViewSection = ({ poemId }: PoemViewSectionProps) => {
                   e.stopPropagation();
                   toggleLike();
                 }}
-                title="Лайк"
+                title={t("poem.like")}
               >
                 <svg
                   className={styles.icon}
@@ -319,7 +339,7 @@ const PoemViewSection = ({ poemId }: PoemViewSectionProps) => {
               <button
                 className={`${styles.iconButton} ${isFavorite ? styles.active : ""}`}
                 onClick={handleFavorite}
-                title="Избранное"
+                title={t("poem.favorite")}
                 disabled={isMutating}
               >
                 <svg
@@ -336,7 +356,7 @@ const PoemViewSection = ({ poemId }: PoemViewSectionProps) => {
 
             {isFavorite && (
               <span className={styles.statusText}>
-                Верш дададзены ў абранае
+                {t("poem.addedToFavorites")}
               </span>
             )}
           </div>

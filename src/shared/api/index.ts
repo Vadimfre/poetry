@@ -9,3 +9,7 @@ export { adminApi } from "./admin.api";
 export { holidaysApi } from "./holidays.api";
 export { interactionsApi } from "./interactions.api";
 export { quizApi } from "./quiz.api";
+export { classroomApi } from "./classroom.api";
+export { assignmentApi } from "./assignment.api";
+export { proseApi, readingAssignmentApi } from "./prose.api";
+export { schoolApi } from "./school.api";

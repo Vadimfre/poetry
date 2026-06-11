@@ -7,7 +7,7 @@ export interface DroppableZoneProps {
   id: string;
   children: React.ReactNode;
   label?: string;
-  color?: string;
+  color?: string | null;
   isCorrect?: boolean | null;
   isChecked?: boolean;
   variant?: "card" | "inline" | "slot";

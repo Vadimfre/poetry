@@ -2,23 +2,42 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import type { QuizPublic } from "@/src/shared/types/quiz.types";
+import type { AnswerDto, QuizPublic } from "@/src/shared/types/quiz.types";
 import MatchQuiz from "./MatchQuiz";
 import TimelineQuiz from "./TimelineQuiz";
 import FillQuiz from "./FillQuiz";
 import QuizResults from "./QuizResults";
+import { useI18n } from "@/src/shared/i18n";
 import styles from "./QuizGame.module.css";
 
 interface QuizGameProps {
   quiz: QuizPublic;
+  backHref?: string;
+  backLabel?: string;
+  showResults?: boolean;
+  onComplete?: (payload: {
+    answers: AnswerDto[];
+    results: Record<string, Record<string, boolean>>;
+  }) => Promise<void> | void;
 }
 
-export default function QuizGame({ quiz }: QuizGameProps) {
+export default function QuizGame({
+  quiz,
+  backHref = "/quizzes",
+  backLabel,
+  showResults = true,
+  onComplete,
+}: QuizGameProps) {
+  const { t } = useI18n();
+  const resolvedBackLabel = backLabel ?? t("quiz.backToQuizzes");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [results, setResults] = useState<
     Record<string, Record<string, boolean>>
   >({});
+  const [answers, setAnswers] = useState<Record<string, AnswerDto[]>>({});
   const [isFinished, setIsFinished] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
+  const [completionError, setCompletionError] = useState<string | null>(null);
 
   const currentQuestion = quiz.questions[currentQuestionIndex];
   const totalQuestions = quiz.questions.length;
@@ -27,19 +46,44 @@ export default function QuizGame({ quiz }: QuizGameProps) {
   const handleQuestionComplete = (
     questionId: string,
     itemResults: Record<string, boolean>,
+    questionAnswers: AnswerDto[],
   ) => {
-    setResults((prev) => ({
-      ...prev,
+    const nextResults = {
+      ...results,
       [questionId]: itemResults,
-    }));
+    };
+    const nextAnswers = {
+      ...answers,
+      [questionId]: questionAnswers,
+    };
+
+    setResults(nextResults);
+    setAnswers(nextAnswers);
 
     if (currentQuestionIndex < totalQuestions - 1) {
       setTimeout(() => {
         setCurrentQuestionIndex((prev) => prev + 1);
       }, 1500);
     } else {
-      setTimeout(() => {
-        setIsFinished(true);
+      setTimeout(async () => {
+        setCompletionError(null);
+        setIsCompleting(true);
+
+        try {
+          await onComplete?.({
+            answers: Object.values(nextAnswers).flat(),
+            results: nextResults,
+          });
+          setIsFinished(true);
+        } catch (error: any) {
+          setCompletionError(
+            error?.response?.data?.message ||
+              error?.message ||
+              t("quiz.saveResultError"),
+          );
+        } finally {
+          setIsCompleting(false);
+        }
       }, 1500);
     }
   };
@@ -47,10 +91,28 @@ export default function QuizGame({ quiz }: QuizGameProps) {
   const handleRestart = () => {
     setCurrentQuestionIndex(0);
     setResults({});
+    setAnswers({});
     setIsFinished(false);
+    setCompletionError(null);
   };
 
+  if (isCompleting) {
+    return (
+      <main className={styles.container}>{t("quiz.savingResult")}</main>
+    );
+  }
+
+  if (completionError) {
+    return (
+      <main className={styles.container}>
+        <div className={styles.content}>{completionError}</div>
+      </main>
+    );
+  }
+
   if (isFinished) {
+    if (!showResults) return null;
+
     return (
       <QuizResults quiz={quiz} results={results} onRestart={handleRestart} />
     );
@@ -62,8 +124,8 @@ export default function QuizGame({ quiz }: QuizGameProps) {
       style={{ "--quiz-color": quiz.color } as React.CSSProperties}
     >
       <div className={styles.header}>
-        <Link href="/quizzes" className={styles.backLink}>
-          ← Да квізаў
+        <Link href={backHref} className={styles.backLink}>
+          ← {resolvedBackLabel}
         </Link>
         <div className={styles.progressContainer}>
           <div className={styles.progressInfo}>
@@ -90,8 +152,12 @@ export default function QuizGame({ quiz }: QuizGameProps) {
             key={currentQuestion.id}
             question={currentQuestion}
             color={quiz.color}
-            onComplete={(itemResults) =>
-              handleQuestionComplete(currentQuestion.id, itemResults)
+            onComplete={(itemResults, questionAnswers) =>
+              handleQuestionComplete(
+                currentQuestion.id,
+                itemResults,
+                questionAnswers,
+              )
             }
           />
         )}
@@ -101,8 +167,12 @@ export default function QuizGame({ quiz }: QuizGameProps) {
             key={currentQuestion.id}
             question={currentQuestion}
             color={quiz.color}
-            onComplete={(itemResults) =>
-              handleQuestionComplete(currentQuestion.id, itemResults)
+            onComplete={(itemResults, questionAnswers) =>
+              handleQuestionComplete(
+                currentQuestion.id,
+                itemResults,
+                questionAnswers,
+              )
             }
           />
         )}
@@ -112,8 +182,12 @@ export default function QuizGame({ quiz }: QuizGameProps) {
             key={currentQuestion.id}
             question={currentQuestion}
             color={quiz.color}
-            onComplete={(itemResults) =>
-              handleQuestionComplete(currentQuestion.id, itemResults)
+            onComplete={(itemResults, questionAnswers) =>
+              handleQuestionComplete(
+                currentQuestion.id,
+                itemResults,
+                questionAnswers,
+              )
             }
           />
         )}

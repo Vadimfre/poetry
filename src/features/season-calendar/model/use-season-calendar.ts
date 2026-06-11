@@ -14,7 +14,11 @@ export const useSeasonCalendar = ({
   monthNumbers,
   year,
 }: UseSeasonCalendarProps) => {
-  const [activeMonthIndex, setActiveMonthIndex] = useState(0);
+  const [activeMonthIndex, setActiveMonthIndex] = useState(() => {
+    const currentMonth = new Date().getMonth() + 1;
+    const idx = monthNumbers.indexOf(currentMonth);
+    return idx >= 0 ? idx : 0;
+  });
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedHoliday, setSelectedHoliday] = useState<Holiday | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -67,10 +71,26 @@ export const useSeasonCalendar = ({
     setSelectedHoliday(null);
   }, []);
 
-  const handleCloseModal = useCallback(() => {
-    setModalOpen(false);
+  const handlePrevMonth = useCallback(() => {
+    setActiveMonthIndex((prev) => Math.max(0, prev - 1));
     setSelectedDay(null);
     setSelectedHoliday(null);
+  }, []);
+
+  const handleNextMonth = useCallback(() => {
+    setActiveMonthIndex((prev) =>
+      Math.min(monthNumbers.length - 1, prev + 1),
+    );
+    setSelectedDay(null);
+    setSelectedHoliday(null);
+  }, [monthNumbers.length]);
+
+  const handleCloseModal = useCallback((open: boolean) => {
+    setModalOpen(open);
+    if (!open) {
+      setSelectedDay(null);
+      setSelectedHoliday(null);
+    }
   }, []);
 
   return {
@@ -82,6 +102,8 @@ export const useSeasonCalendar = ({
     modalOpen,
     handleDayClick,
     handleMonthClick,
+    handlePrevMonth,
+    handleNextMonth,
     handleCloseModal,
   };
 };

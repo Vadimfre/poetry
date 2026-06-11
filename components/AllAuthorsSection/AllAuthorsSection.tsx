@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/src/shared/api/client";
+import { useI18n, usePlural } from "@/src/shared/i18n";
+import { useLocaleQueryKey } from "@/src/shared/i18n/use-locale-query-key";
 import styles from "./AllAuthorsSection.module.css";
 
 interface Author {
@@ -18,16 +20,27 @@ interface Author {
 }
 
 const AllAuthorsSection = () => {
+  const { t } = useI18n();
+  const plural = usePlural();
   const [isVisible, setIsVisible] = useState(false);
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
 
+  const authorsQueryKey = useLocaleQueryKey(["all-authors"]);
   const { data: authors, isLoading } = useQuery<Author[]>({
-    queryKey: ["all-authors"],
+    queryKey: authorsQueryKey,
     queryFn: async () => {
       const response = await apiClient.get("/poems/authors");
       return response.data;
     },
   });
+
+  const stats = useMemo(() => {
+    const authorCount = authors?.length ?? 0;
+    const poemCount =
+      authors?.reduce((sum, author) => sum + (author._count?.poems ?? 0), 0) ??
+      0;
+    return { authorCount, poemCount };
+  }, [authors]);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 300);
@@ -38,7 +51,7 @@ const AllAuthorsSection = () => {
     return (
       <section className={styles.section}>
         <div className="container">
-          <div className={styles.loading}>Загрузка аўтараў...</div>
+          <div className={styles.loading}>{t("allAuthors.loading")}</div>
         </div>
       </section>
     );
@@ -48,12 +61,36 @@ const AllAuthorsSection = () => {
     <section className={styles.section}>
       <div className="container">
         <div className={styles.header}>
-          <span className={styles.label}>Нашы паэты</span>
-          <h2 className={styles.title}>УСЕ АЎТАРЫ</h2>
-          <p className={styles.subtitle}>
-            Поўная калекцыя беларускіх паэтаў і пісьменнікаў, чыя творчасць
-            увайшла ў залаты фонд беларускай літаратуры
-          </p>
+          <span className={styles.label}>{t("allAuthors.label")}</span>
+          <h2 className={styles.title}>{t("allAuthors.title")}</h2>
+          <p className={styles.subtitle}>{t("allAuthors.subtitle")}</p>
+          <div className={styles.actions}>
+            <Link href="/filters" className={styles.primaryBtn}>
+              {t("allAuthors.readPoems")}
+            </Link>
+            <Link href="/quizzes" className={styles.secondaryBtn}>
+              {t("allAuthors.takeQuizzes")}
+            </Link>
+          </div>
+        </div>
+
+        <div className={styles.statsRow}>
+          <div className={styles.statItem}>
+            <span className={styles.statNumber}>{stats.authorCount}</span>
+            <span className={styles.statLabel}>{t("allAuthors.statAuthors")}</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statNumber}>{stats.poemCount}+</span>
+            <span className={styles.statLabel}>{t("allAuthors.statPoems")}</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statNumber}>5</span>
+            <span className={styles.statLabel}>{t("allAuthors.statThemes")}</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statNumber}>75+</span>
+            <span className={styles.statLabel}>{t("allAuthors.statQuizzes")}</span>
+          </div>
         </div>
 
         <div className={`${styles.grid} ${isVisible ? styles.visible : ""}`}>
@@ -83,9 +120,11 @@ const AllAuthorsSection = () => {
                       }
                     />
                   ) : (
-                    <div className={styles.imagePlaceholder}>
-                      {author.name.charAt(0)}
-                    </div>
+                    <img
+                      src="/images/author-placeholder.svg"
+                      alt=""
+                      className={styles.imagePlaceholder}
+                    />
                   )}
                 </div>
 
@@ -97,7 +136,11 @@ const AllAuthorsSection = () => {
                   )}
                   <span className={styles.poemsCount}>
                     {author._count?.poems || 0}{" "}
-                    {getWordForm(author._count?.poems || 0)}
+                    {plural(author._count?.poems || 0, {
+                      one: "common.verseOne",
+                      few: "common.verseFew",
+                      many: "common.verseMany",
+                    })}
                   </span>
                 </div>
               </Link>
@@ -108,11 +151,5 @@ const AllAuthorsSection = () => {
     </section>
   );
 };
-
-function getWordForm(count: number): string {
-  if (count === 1) return "верш";
-  if (count >= 2 && count <= 4) return "вершы";
-  return "вершаў";
-}
 
 export default AllAuthorsSection;

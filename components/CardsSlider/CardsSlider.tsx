@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useCategories } from '@/src/features/categories';
+import { useI18n } from '@/src/shared/i18n';
 import styles from './CardsSlider.module.css';
 
 // Маппинг slug категории к картинке
@@ -15,6 +16,7 @@ const categoryImages: Record<string, string> = {
 };
 
 const CardsSlider = () => {
+  const { t } = useI18n();
   const router = useRouter();
   const { data: categories, isLoading, error } = useCategories();
 
@@ -47,7 +49,7 @@ const CardsSlider = () => {
         <div className="container">
           <div className={styles.loadingContainer}>
             <div className={styles.loadingSpinner}></div>
-            <p>Загрузка кірункаў...</p>
+            <p>{t("cardsSlider.loading")}</p>
           </div>
         </div>
       </section>
@@ -59,7 +61,7 @@ const CardsSlider = () => {
       <section className={styles.sliderSection}>
         <div className="container">
           <div style={{ padding: '40px 20px', textAlign: 'center' }}>
-            <p>Кірункі не знойдзены</p>
+            <p>{t("cardsSlider.notFound")}</p>
           </div>
         </div>
       </section>
@@ -69,7 +71,7 @@ const CardsSlider = () => {
   return (
     <section id="categories" className={styles.sliderSection}>
       <div className="container">
-        <h2 className={styles.sectionTitle}>КІРУНКІ ПАЭЗІІ</h2>
+        <h2 className={styles.sectionTitle}>{t("cardsSlider.title")}</h2>
         <div className={styles.cardsContainer}>
           {categories.map((category, index) => (
             <div 
@@ -95,7 +97,7 @@ const CardsSlider = () => {
                   className={styles.cardButton}
                   onClick={() => handleCardClick(category.slug)}
                 >
-                  ПАДРАБЯЗНЕЙ
+                  {t("cardsSlider.details")}
                 </button>
               </div>
             </div>

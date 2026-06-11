@@ -209,36 +209,105 @@
   color: white;
 }
 
-.seasonMonths {
+.monthNav {
   display: flex;
-  gap:15px;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   margin-top: 20px;
   padding-top: 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.seasonMonth {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.5);
-  padding: 6px 32px;
+.monthArrow {
+  min-width: 34px;
+  height: 38px;
+  padding: 0 10px;
   border-radius: 20px;
-  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.monthArrowIcon {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.monthArrowHint {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  opacity: 0.85;
+  max-width: 72px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.monthArrow:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.18);
+  transform: scale(1.05);
+}
+
+.monthArrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.seasonMonths {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.seasonMonthEmpty {
+  flex: 0 0 64px;
+  height: 32px;
+}
+
+.seasonMonth {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.55);
+  padding: 6px 18px;
+  border-radius: 20px;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   letter-spacing: 0.03em;
   background: transparent;
   border: none;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .seasonMonth:hover {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.85);
   background: rgba(255, 255, 255, 0.1);
+}
+
+.neighborMonth {
+  opacity: 0.65;
+  transform: scale(0.92);
 }
 
 .activeMonth {
   background: var(--accent-color);
   color: white;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 8px 28px;
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 /* Responsive */
 @media (max-width: 1024px) {

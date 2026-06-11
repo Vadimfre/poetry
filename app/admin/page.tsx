@@ -8,7 +8,6 @@ import { adminApi } from "@/src/shared/api";
 import type {
   AdminStats,
   AdminUser,
-  CreatePoemDto,
   AdminComment,
   AdminLike,
   AdminView,
@@ -17,11 +16,18 @@ import type {
 } from "@/src/shared/types/admin.types";
 import type { Poem, Author } from "@/src/shared/types/poem.types";
 import type { Category } from "@/src/shared/types/category.types";
+import {
+  AdminPoemForm,
+  AdminCategoriesPanel,
+  AdminAuthorsPanel,
+} from "@/src/features/admin";
 import styles from "./admin.module.css";
 
 type Tab =
   | "dashboard"
   | "poems"
+  | "categories"
+  | "authors"
   | "users"
   | "comments"
   | "likes"
@@ -45,16 +51,6 @@ export default function AdminPage() {
   // Poem form state
   const [showPoemForm, setShowPoemForm] = useState(false);
   const [editingPoem, setEditingPoem] = useState<Poem | null>(null);
-  const [poemForm, setPoemForm] = useState<CreatePoemDto>({
-    title: "",
-    content: "",
-    description: "",
-    authorId: 0,
-    year: undefined,
-    categoryId: 0,
-    videoUrl: "",
-  });
-  const [uploadingVideo, setUploadingVideo] = useState(false);
 
   // Новые состояния для расширенных сущностей
   const [comments, setComments] = useState<AdminComment[]>([]);
@@ -145,72 +141,25 @@ export default function AdminPage() {
     }
   };
 
-  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const handleEditPoem = async (poem: Poem) => {
     try {
-      setUploadingVideo(true);
-      const result = await adminApi.uploadVideo(file);
-      setPoemForm((prev) => ({ ...prev, videoUrl: result.videoUrl }));
-    } catch (err: any) {
-      alert("Ошибка загрузки видео: " + err.message);
-    } finally {
-      setUploadingVideo(false);
+      const full = await adminApi.getPoem(poem.id);
+      setEditingPoem(full);
+      setShowPoemForm(true);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Error";
+      alert("Ошибка загрузки: " + message);
     }
   };
 
-  const handleCreatePoem = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (
-      !poemForm.title ||
-      !poemForm.content ||
-      !poemForm.authorId ||
-      !poemForm.categoryId
-    ) {
-      alert("Заполните все обязательные поля");
-      return;
-    }
-
-    try {
-      if (editingPoem) {
-        await adminApi.updatePoem(editingPoem.id, poemForm);
-      } else {
-        await adminApi.createPoem(poemForm);
-      }
-      setShowPoemForm(false);
-      setEditingPoem(null);
-      setPoemForm({
-        title: "",
-        content: "",
-        description: "",
-        authorId: 0,
-        year: undefined,
-        categoryId: 0,
-        videoUrl: "",
-      });
-      loadData();
-    } catch (err: any) {
-      alert("Ошибка: " + err.message);
-    }
-  };
-
-  const handleEditPoem = (poem: Poem) => {
-    setEditingPoem(poem);
-    setPoemForm({
-      title: poem.title,
-      content: poem.content,
-      description: poem.description || "",
-      authorId: poem.authorId,
-      year: poem.year || undefined,
-      categoryId: poem.categories[0]?.id || 0,
-      videoUrl: poem.videoUrl || "",
-    });
-    setShowPoemForm(true);
+  const handlePoemSaved = () => {
+    setShowPoemForm(false);
+    setEditingPoem(null);
+    loadData();
   };
 
   const handleDeletePoem = async (id: number) => {
-    if (!confirm("Удалить стихотворение?")) return;
+    if (!confirm("Удалить твор?")) return;
     try {
       await adminApi.deletePoem(id);
       loadData();
@@ -348,7 +297,7 @@ export default function AdminPage() {
         queryKey: ["poem", "interactions"],
       });
       alert(
-        `Сброшено просмотров: ${result.deletedViewsCount}, обновлено стихов: ${result.resetPoemsCount}`,
+        `Сброшено просмотров: ${result.deletedViewsCount}, обновлено творов: ${result.resetPoemsCount}`,
       );
       setViews([]);
       setViewsTotal(0);
@@ -410,7 +359,19 @@ export default function AdminPage() {
           className={`${styles.navBtn} ${activeTab === "poems" ? styles.active : ""}`}
           onClick={() => setActiveTab("poems")}
         >
-          📝 Стихи
+          📝 Творы
+        </button>
+        <button
+          className={`${styles.navBtn} ${activeTab === "categories" ? styles.active : ""}`}
+          onClick={() => setActiveTab("categories")}
+        >
+          📁 Категории
+        </button>
+        <button
+          className={`${styles.navBtn} ${activeTab === "authors" ? styles.active : ""}`}
+          onClick={() => setActiveTab("authors")}
+        >
+          ✍️ Авторы
         </button>
         {users.length > 0 && (
           <button
@@ -451,7 +412,7 @@ export default function AdminPage() {
               <div className={styles.statCard}>
                 <span className={styles.statIcon}>📝</span>
                 <span className={styles.statValue}>{stats.poems}</span>
-                <span className={styles.statLabel}>Стихов</span>
+                <span className={styles.statLabel}>Творов</span>
               </div>
               <div className={styles.statCard}>
                 <span className={styles.statIcon}>👥</span>
@@ -481,169 +442,30 @@ export default function AdminPage() {
         {activeTab === "poems" && (
           <div className={styles.poemsSection}>
             <div className={styles.sectionHeader}>
-              <h2>Управление стихами</h2>
+              <h2>Управление творами</h2>
               <button
                 className={styles.addBtn}
                 onClick={() => {
                   setEditingPoem(null);
-                  setPoemForm({
-                    title: "",
-                    content: "",
-                    description: "",
-                    authorId: 0,
-                    year: undefined,
-                    categoryId: 0,
-                    videoUrl: "",
-                  });
                   setShowPoemForm(true);
                 }}
               >
-                + Добавить стих
+                + Добавить твор
               </button>
             </div>
 
             {showPoemForm && (
-              <form className={styles.poemForm} onSubmit={handleCreatePoem}>
-                <h3>{editingPoem ? "Редактировать стих" : "Новый стих"}</h3>
-
-                <div className={styles.formGroup}>
-                  <label>Название *</label>
-                  <input
-                    type="text"
-                    value={poemForm.title}
-                    onChange={(e) =>
-                      setPoemForm((prev) => ({
-                        ...prev,
-                        title: e.target.value,
-                      }))
-                    }
-                    required
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>Автор *</label>
-                  <select
-                    value={poemForm.authorId}
-                    onChange={(e) =>
-                      setPoemForm((prev) => ({
-                        ...prev,
-                        authorId: parseInt(e.target.value),
-                      }))
-                    }
-                    required
-                  >
-                    <option value={0}>Выберите автора</option>
-                    {authors.map((author) => (
-                      <option key={author.id} value={author.id}>
-                        {author.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>Описание стихотворения</label>
-                  <textarea
-                    value={poemForm.description || ""}
-                    onChange={(e) =>
-                      setPoemForm((prev) => ({
-                        ...prev,
-                        description: e.target.value,
-                      }))
-                    }
-                    rows={4}
-                    placeholder="Краткое описание или анализ стихотворения"
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>Год</label>
-                  <input
-                    type="number"
-                    value={poemForm.year || ""}
-                    onChange={(e) =>
-                      setPoemForm((prev) => ({
-                        ...prev,
-                        year: e.target.value
-                          ? parseInt(e.target.value)
-                          : undefined,
-                      }))
-                    }
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>Категория (направление) *</label>
-                  <select
-                    value={poemForm.categoryId}
-                    onChange={(e) =>
-                      setPoemForm((prev) => ({
-                        ...prev,
-                        categoryId: parseInt(e.target.value),
-                      }))
-                    }
-                    required
-                  >
-                    <option value={0}>Выберите категорию</option>
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>Текст стихотворения *</label>
-                  <textarea
-                    value={poemForm.content}
-                    onChange={(e) =>
-                      setPoemForm((prev) => ({
-                        ...prev,
-                        content: e.target.value,
-                      }))
-                    }
-                    rows={10}
-                    placeholder="Вводите текст, переносы строк сохраняются автоматически"
-                    required
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>Видео для фона</label>
-                  <div className={styles.videoUpload}>
-                    <input
-                      type="file"
-                      accept="video/*"
-                      onChange={handleVideoUpload}
-                      disabled={uploadingVideo}
-                    />
-                    {uploadingVideo && <span>Загрузка...</span>}
-                    {poemForm.videoUrl && (
-                      <span className={styles.videoPath}>
-                        {poemForm.videoUrl}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className={styles.formActions}>
-                  <button type="submit" className={styles.submitBtn}>
-                    {editingPoem ? "Сохранить" : "Создать"}
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.cancelBtn}
-                    onClick={() => {
-                      setShowPoemForm(false);
-                      setEditingPoem(null);
-                    }}
-                  >
-                    Отмена
-                  </button>
-                </div>
-              </form>
+              <AdminPoemForm
+                key={editingPoem?.id ?? "new"}
+                authors={authors}
+                categories={categories}
+                editingPoem={editingPoem}
+                onCancel={() => {
+                  setShowPoemForm(false);
+                  setEditingPoem(null);
+                }}
+                onSaved={handlePoemSaved}
+              />
             )}
 
             <div className={styles.poemsList}>
@@ -672,6 +494,14 @@ export default function AdminPage() {
               ))}
             </div>
           </div>
+        )}
+
+        {activeTab === "categories" && (
+          <AdminCategoriesPanel categories={categories} onChanged={loadData} />
+        )}
+
+        {activeTab === "authors" && (
+          <AdminAuthorsPanel authors={authors} onChanged={loadData} />
         )}
 
         {/* Users Management (Super Admin only) */}
@@ -752,7 +582,7 @@ export default function AdminPage() {
                         <span>
                           👤 {comment.user.name || comment.user.email}
                         </span>
-                        <span>📝 Стих: {comment.poem.title}</span>
+                        <span>📝 Твор: {comment.poem.title}</span>
                         <span>
                           📅 {new Date(comment.createdAt).toLocaleDateString()}
                         </span>
@@ -823,7 +653,7 @@ export default function AdminPage() {
                       <h4>Лайк #{like.id}</h4>
                       <div className={styles.likeMeta}>
                         <span>👤 {like.user.name || like.user.email}</span>
-                        <span>📝 Стих: {like.poem.title}</span>
+                        <span>📝 Твор: {like.poem.title}</span>
                         <span>
                           📅 {new Date(like.createdAt).toLocaleDateString()}
                         </span>
@@ -866,7 +696,7 @@ export default function AdminPage() {
                 <h3>Статистика лайков</h3>
                 <p>Всего лайков: {likesStats.totalLikes}</p>
                 <div>
-                  <h4>Топ стихов:</h4>
+                  <h4>Топ творов:</h4>
                   <ul>
                     {likesStats.topPoems.map((poem) => (
                       <li key={poem.poemId}>
@@ -914,7 +744,7 @@ export default function AdminPage() {
                       <h4>Просмотр #{view.id}</h4>
                       <div className={styles.viewMeta}>
                         <span>
-                          📝 Стих:{" "}
+                          📝 Твор:{" "}
                           {view.poem?.title ?? `#${view.poem?.id ?? "—"}`}
                         </span>
                         <span>
@@ -957,7 +787,7 @@ export default function AdminPage() {
                 <h3>Аналитика просмотров</h3>
                 <p>Всего просмотров: {viewsAnalytics.totalViews}</p>
                 <div>
-                  <h4>Топ стихов:</h4>
+                  <h4>Топ творов:</h4>
                   <ul>
                     {viewsAnalytics.topPoems.map((poem) => (
                       <li key={poem.poemId}>

@@ -3,8 +3,8 @@
   border-radius: 15px;
   padding: 1rem 1.5rem 1.5rem;
   margin-top: 0.75rem;
-  background: rgba(255, 255, 255, 0.04);
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 251, 246, 0.95);
+  border-top: 1px solid rgba(120, 93, 62, 0.12);
   backdrop-filter: blur(12px);
 }
 
@@ -15,18 +15,18 @@
   justify-content: space-between;
   padding: 0.5rem 0.75rem;
   margin-bottom: 0.5rem;
-  background: rgba(251, 191, 36, 0.1);
-  border: 1px solid rgba(251, 191, 36, 0.2);
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(191, 146, 79, 0.22);
   border-radius: 0.5rem;
   font-size: 0.75rem;
-  color: #fbbf24;
+  color: #b7791f;
 }
 
 .cancelReplyBtn {
   padding: 0.25rem;
   background: transparent;
   border: none;
-  color: #fbbf24;
+  color: #b7791f;
   cursor: pointer;
 }
 
@@ -49,11 +49,11 @@
 /* Input */
 .input {
   flex: 1;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #fffdf9;
+  border: 1px solid rgba(120, 93, 62, 0.14);
   border-radius: 1.5rem;
   padding: 0.625rem 1rem;
-  color: white;
+  color: #1f2937;
   font-size: 0.8125rem;
   resize: none;
   min-height: 2.5rem;
@@ -62,13 +62,14 @@
 }
 
 .input::placeholder {
-  color: #64748b;
+  color: #9a8a76;
 }
 
 .input:focus {
   outline: none;
-  border-color: rgba(251, 191, 36, 0.5);
-  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(191, 146, 79, 0.45);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.1);
 }
 
 /* Send Button */

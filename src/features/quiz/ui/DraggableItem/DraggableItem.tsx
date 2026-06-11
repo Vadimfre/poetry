@@ -8,7 +8,7 @@ export interface DraggableItemProps {
   id: string;
   children: React.ReactNode;
   disabled?: boolean;
-  color?: string;
+  color?: string | null;
   variant?: "default" | "bubble" | "word";
   isPlaced?: boolean;
   onClick?: () => void;
