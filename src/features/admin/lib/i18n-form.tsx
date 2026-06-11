@@ -6,7 +6,6 @@ import styles from "@/app/admin/admin.module.css";
 const LOCALE_LABELS: Record<ContentLocale, string> = {
   be: "Беларуская",
   ru: "Русский",
-  en: "English",
 };
 
 interface LocaleTabsProps {

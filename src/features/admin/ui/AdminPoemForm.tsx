@@ -56,7 +56,6 @@ export function AdminPoemForm({
       : {
           be: emptyPoemLocaleFields(),
           ru: emptyPoemLocaleFields(),
-          en: emptyPoemLocaleFields(),
         },
   );
   const [authorId, setAuthorId] = useState(editingPoem?.authorId ?? 0);
@@ -76,7 +75,6 @@ export function AdminPoemForm({
   const filledLocales = {
     be: !!(localeFields.be.title || localeFields.be.content),
     ru: !!(localeFields.ru.title || localeFields.ru.content),
-    en: !!(localeFields.en.title || localeFields.en.content),
   };
 
   const toggleSchoolGrade = (

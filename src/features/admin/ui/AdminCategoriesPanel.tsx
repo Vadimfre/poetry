@@ -26,7 +26,6 @@ export function AdminCategoriesPanel({
   const [localeFields, setLocaleFields] = useState({
     be: { name: "", description: "" },
     ru: { name: "", description: "" },
-    en: { name: "", description: "" },
   });
 
   const resetForm = () => {
@@ -35,7 +34,6 @@ export function AdminCategoriesPanel({
     setLocaleFields({
       be: { name: "", description: "" },
       ru: { name: "", description: "" },
-      en: { name: "", description: "" },
     });
   };
 
@@ -86,7 +84,6 @@ export function AdminCategoriesPanel({
   const filled = {
     be: !!localeFields.be.name,
     ru: !!localeFields.ru.name,
-    en: !!localeFields.en.name,
   };
 
   return (

@@ -23,7 +23,6 @@ export function AdminAuthorsPanel({ authors, onChanged }: AdminAuthorsPanelProps
   const [localeFields, setLocaleFields] = useState({
     be: { name: "", bio: "" },
     ru: { name: "", bio: "" },
-    en: { name: "", bio: "" },
   });
   const [birthYear, setBirthYear] = useState<number | undefined>();
   const [deathYear, setDeathYear] = useState<number | undefined>();
@@ -35,7 +34,6 @@ export function AdminAuthorsPanel({ authors, onChanged }: AdminAuthorsPanelProps
     setLocaleFields({
       be: { name: "", bio: "" },
       ru: { name: "", bio: "" },
-      en: { name: "", bio: "" },
     });
     setBirthYear(undefined);
     setDeathYear(undefined);
@@ -94,7 +92,6 @@ export function AdminAuthorsPanel({ authors, onChanged }: AdminAuthorsPanelProps
   const filled = {
     be: !!localeFields.be.name,
     ru: !!localeFields.ru.name,
-    en: !!localeFields.en.name,
   };
 
   return (
