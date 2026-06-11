@@ -1,2 +1,15 @@
 [phases.setup]
 nixpkgsArchive = "03b825582b09abe3a73b58233e3c8659ad03ff51"
+
+[phases.install]
+cmds = ["npm ci"]
+
+[phases.build]
+cmds = [
+  "npx prisma generate --schema=prisma/schema.prisma",
+  "npx prisma migrate deploy --schema=prisma/schema.prisma",
+  "npm run build",
+]
+
+[start]
+cmd = "npm run start:prod"
