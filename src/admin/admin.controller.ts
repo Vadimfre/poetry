@@ -40,21 +40,29 @@ export class AdminController {
     return this.adminService.getAllPoems();
   }
 
+  @Get("poems/:id")
+  @Roles("ADMIN", "SUPER_ADMIN")
+  async getPoemById(@Param("id", ParseIntPipe) id: number) {
+    return this.adminService.getPoemById(id);
+  }
+
   @Post("poems")
   @Roles("ADMIN", "SUPER_ADMIN")
   async createPoem(
     @Body()
     body: {
-      title: string;
-      content: string;
+      title?: string;
+      content?: string;
       description?: string;
       authorId: number;
       year?: number;
       categoryId: number;
       videoUrl?: string;
+      i18n?: Record<string, Record<string, string>>;
+      schoolGrades?: { grade: number; kind: string }[];
     },
   ) {
-    return this.adminService.createPoem(body);
+    return this.adminService.createPoem(body as any);
   }
 
   @Put("poems/:id")
@@ -70,9 +78,11 @@ export class AdminController {
       year?: number;
       categoryId?: number;
       videoUrl?: string;
+      i18n?: Record<string, Record<string, string>>;
+      schoolGrades?: { grade: number; kind: string }[];
     },
   ) {
-    return this.adminService.updatePoem(id, body);
+    return this.adminService.updatePoem(id, body as any);
   }
 
   // ========== AUTHORS ==========
@@ -88,14 +98,39 @@ export class AdminController {
   async createAuthor(
     @Body()
     body: {
-      name: string;
+      name?: string;
       bio?: string;
       birthYear?: number;
       deathYear?: number;
       image?: string;
+      i18n?: Record<string, Record<string, string>>;
     },
   ) {
     return this.adminService.createAuthor(body);
+  }
+
+  @Put("authors/:id")
+  @Roles("ADMIN", "SUPER_ADMIN")
+  async updateAuthor(
+    @Param("id", ParseIntPipe) id: number,
+    @Body()
+    body: {
+      name?: string;
+      bio?: string;
+      birthYear?: number;
+      deathYear?: number;
+      image?: string;
+      i18n?: Record<string, Record<string, string>>;
+    },
+  ) {
+    return this.adminService.updateAuthor(id, body);
+  }
+
+  @Delete("authors/:id")
+  @Roles("ADMIN", "SUPER_ADMIN")
+  async deleteAuthor(@Param("id", ParseIntPipe) id: number) {
+    await this.adminService.deleteAuthor(id);
+    return { success: true };
   }
 
   @Delete("poems/:id")
@@ -133,11 +168,33 @@ export class AdminController {
   async createCategory(
     @Body()
     body: {
-      name: string;
+      name?: string;
       description?: string;
+      i18n?: Record<string, Record<string, string>>;
     },
   ) {
     return this.adminService.createCategory(body);
+  }
+
+  @Put("categories/:id")
+  @Roles("ADMIN", "SUPER_ADMIN")
+  async updateCategory(
+    @Param("id", ParseIntPipe) id: number,
+    @Body()
+    body: {
+      name?: string;
+      description?: string;
+      i18n?: Record<string, Record<string, string>>;
+    },
+  ) {
+    return this.adminService.updateCategory(id, body);
+  }
+
+  @Delete("categories/:id")
+  @Roles("ADMIN", "SUPER_ADMIN")
+  async deleteCategory(@Param("id", ParseIntPipe) id: number) {
+    await this.adminService.deleteCategory(id);
+    return { success: true };
   }
 
   // ========== COMMENTS ==========

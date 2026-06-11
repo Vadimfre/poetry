@@ -5,6 +5,7 @@ import {
   MinLength,
   IsOptional,
   Matches,
+  IsIn,
 } from "class-validator";
 
 export class RegisterDto {
@@ -35,4 +36,8 @@ export class RegisterDto {
   @IsString()
   @IsOptional()
   name?: string;
+
+  @IsIn(["STUDENT", "TEACHER"])
+  @IsOptional()
+  role?: "STUDENT" | "TEACHER";
 }

@@ -1,11 +1,23 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  localizeAuthor,
+  localizeAuthors,
+  localizeCategory,
+  localizePoem,
+  localizePoems,
+  localizeProseWorks,
+} from "../i18n/content-localizer";
+import {
+  restrictPoemContentForGuest,
+  restrictPoemsContentForGuest,
+} from "../lib/poem-guest-access";
 import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
 export class PoemsService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(page: number = 1, limit: number = 20) {
+  async findAll(page: number = 1, limit: number = 20, userId?: number) {
     const skip = (page - 1) * limit;
 
     const [poems, total] = await Promise.all([
@@ -28,7 +40,7 @@ export class PoemsService {
     ]);
 
     return {
-      poems,
+      poems: restrictPoemsContentForGuest(localizePoems(poems), userId),
       total,
       page,
       limit,
@@ -88,7 +100,7 @@ export class PoemsService {
     }
 
     return {
-      ...poem,
+      ...restrictPoemContentForGuest(localizePoem(poem), userId),
       isFavorited,
     };
   }
@@ -145,13 +157,13 @@ export class PoemsService {
     }
 
     return {
-      ...poem,
+      ...restrictPoemContentForGuest(localizePoem(poem), userId),
       isFavorited,
     };
   }
 
   async findByCategory(categoryId: number) {
-    return this.prisma.poem.findMany({
+    const poems = await this.prisma.poem.findMany({
       where: { categories: { some: { id: categoryId } } },
       include: {
         author: true,
@@ -159,9 +171,10 @@ export class PoemsService {
       },
       orderBy: { year: "asc" },
     });
+    return localizePoems(poems);
   }
 
-  async findByCategorySlug(categorySlug: string) {
+  async findByCategorySlug(categorySlug: string, userId?: number) {
     const category = await this.prisma.category.findUnique({
       where: { slug: categorySlug },
     });
@@ -170,7 +183,7 @@ export class PoemsService {
       throw new NotFoundException("Category not found");
     }
 
-    return this.prisma.poem.findMany({
+    const poems = await this.prisma.poem.findMany({
       where: { categories: { some: { id: category.id } } },
       include: {
         author: true,
@@ -178,10 +191,11 @@ export class PoemsService {
       },
       orderBy: { year: "asc" },
     });
+    return restrictPoemsContentForGuest(localizePoems(poems), userId);
   }
 
-  async search(query: string) {
-    return this.prisma.poem.findMany({
+  async search(query: string, userId?: number) {
+    const poems = await this.prisma.poem.findMany({
       where: {
         OR: [
           { title: { contains: query, mode: "insensitive" } },
@@ -195,12 +209,13 @@ export class PoemsService {
       },
       take: 20,
     });
+    return restrictPoemsContentForGuest(localizePoems(poems), userId);
   }
 
   // ========== AUTHORS ==========
 
   async getAllAuthors() {
-    return this.prisma.author.findMany({
+    const authors = await this.prisma.author.findMany({
       include: {
         _count: {
           select: {
@@ -210,9 +225,10 @@ export class PoemsService {
       },
       orderBy: { name: "asc" },
     });
+    return localizeAuthors(authors);
   }
 
-  async getAuthorBySlug(slug: string) {
+  async getAuthorBySlug(slug: string, userId?: number) {
     const author = await this.prisma.author.findUnique({
       where: { slug },
       include: {
@@ -222,6 +238,10 @@ export class PoemsService {
           },
           orderBy: { year: "asc" },
         },
+        proseWorks: {
+          include: { _count: { select: { chapters: true } } },
+          orderBy: { year: "asc" },
+        },
       },
     });
 
@@ -229,7 +249,30 @@ export class PoemsService {
       throw new NotFoundException("Аўтар не знойдзены");
     }
 
-    return author;
+    const poems = restrictPoemsContentForGuest(
+      localizePoems(author.poems),
+      userId,
+    ).map((poem) => ({
+      ...poem,
+      category: poem.categories?.[0]
+        ? localizeCategory(poem.categories[0] as Record<string, unknown>)
+        : null,
+    }));
+
+    return {
+      ...localizeAuthor(author),
+      poems,
+      proseWorks: localizeProseWorks(author.proseWorks).map((w) => ({
+        id: w.id,
+        title: w.title,
+        slug: w.slug,
+        kind: (w as { kind?: string }).kind,
+        year: (w as { year?: number | null }).year,
+        description: (w as { description?: string | null }).description,
+        chapterCount:
+          (w as { _count?: { chapters: number } })._count?.chapters ?? 0,
+      })),
+    };
   }
 
   async getStats(poemId: number, userId?: number) {
@@ -243,7 +286,7 @@ export class PoemsService {
     });
 
     if (!poem) {
-      throw new NotFoundException("Стихотворение не найдено");
+      throw new NotFoundException("Твор не найден");
     }
 
     // Получаем актуальное количество избранных (лайков) через агрегацию

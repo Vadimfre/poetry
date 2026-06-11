@@ -87,6 +87,7 @@ export class AuthController {
         email: req.user.email,
         name: req.user.name,
         avatar: req.user.avatar,
+        role: req.user.role,
       },
     };
   }

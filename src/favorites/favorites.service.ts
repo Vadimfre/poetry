@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { localizePoem } from "../i18n/content-localizer";
 import { PrismaService } from "../prisma/prisma.service";
 import {
   FavoriteResponseDto,
@@ -19,7 +20,7 @@ export class FavoritesService {
     });
 
     if (!poem) {
-      throw new NotFoundException("Стихотворение не найдено");
+      throw new NotFoundException("Твор не найден");
     }
 
     // Ищем существующий избранный
@@ -110,7 +111,7 @@ export class FavoritesService {
     });
 
     if (!poem) {
-      throw new NotFoundException("Стихотворение не найдено");
+      throw new NotFoundException("Твор не найден");
     }
 
     return { favoritesCount: poem.favoritesCount };
@@ -130,7 +131,7 @@ export class FavoritesService {
       userId: fav.userId,
       poemId: fav.poemId,
       createdAt: fav.createdAt,
-      poem: fav.poem,
+      poem: localizePoem(fav.poem),
     }));
   }
 

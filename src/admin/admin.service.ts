@@ -5,6 +5,14 @@ import {
   BadRequestException,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { buildI18n } from "../i18n/build-i18n";
+import {
+  buildI18nFromInput,
+  I18nFieldsInput,
+  mergeI18nInput,
+  scalarFromI18n,
+} from "./admin-i18n.helper";
+import { CurriculumKind } from "@prisma/client";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -15,28 +23,49 @@ export class AdminService {
   // ========== POEMS MANAGEMENT ==========
 
   async createPoem(data: {
-    title: string;
-    content: string;
+    title?: string;
+    content?: string;
     description?: string;
     authorId: number;
     year?: number;
     categoryId: number;
     videoUrl?: string;
+    i18n?: I18nFieldsInput;
+    schoolGrades?: { grade: number; kind: CurriculumKind }[];
   }) {
-    const slug = this.generateSlug(data.title);
+    const i18n = buildI18nFromInput(data.i18n ?? {}, {
+      title: data.title,
+      content: data.content,
+      description: data.description ?? "",
+    });
 
-    // Проверяем уникальность slug
+    const title = scalarFromI18n(i18n, "title");
+    const content = scalarFromI18n(i18n, "content");
+    if (!title || !content) {
+      throw new BadRequestException(
+        "Патрабуюцца назва і тэкст хоця б на адной мове (be)",
+      );
+    }
+
+    const slug = this.generateSlug(title);
+
     const existing = await this.prisma.poem.findUnique({ where: { slug } });
     if (existing) {
       throw new BadRequestException("Верш з такой назвай ужо існуе");
     }
 
-    const { categoryId, ...rest } = data;
+    const { categoryId, schoolGrades, i18n: _i, title: _t, content: _c, description: _d, ...rest } = data;
 
-    return this.prisma.poem.create({
+    const poem = await this.prisma.poem.create({
       data: {
-        ...rest,
+        authorId: data.authorId,
+        year: data.year,
+        videoUrl: data.videoUrl,
+        title,
+        content,
+        description: scalarFromI18n(i18n, "description") || null,
         slug,
+        i18n,
         categories: {
           connect: { id: categoryId },
         },
@@ -44,8 +73,15 @@ export class AdminService {
       include: {
         author: true,
         categories: true,
+        schoolGrades: true,
       },
     });
+
+    if (schoolGrades?.length) {
+      await this.syncPoemSchoolGrades(poem.id, schoolGrades);
+    }
+
+    return this.getPoemById(poem.id);
   }
 
   async updatePoem(
@@ -58,6 +94,8 @@ export class AdminService {
       year?: number;
       categoryId?: number;
       videoUrl?: string;
+      i18n?: I18nFieldsInput;
+      schoolGrades?: { grade: number; kind: CurriculumKind }[];
     },
   ) {
     const poem = await this.prisma.poem.findUnique({ where: { id } });
@@ -65,35 +103,110 @@ export class AdminService {
       throw new NotFoundException("Верш не знойдзены");
     }
 
-    const updateData: any = { ...data };
+    const existingI18n =
+      (poem.i18n as Record<string, Record<string, string>> | null) ?? {};
 
-    // Если меняется title, обновляем slug
-    if (data.title && data.title !== poem.title) {
-      updateData.slug = this.generateSlug(data.title);
+    let mergedI18n = existingI18n;
+    if (data.i18n) {
+      mergedI18n = mergeI18nInput(existingI18n, data.i18n);
+    }
+    if (
+      data.title !== undefined ||
+      data.content !== undefined ||
+      data.description !== undefined
+    ) {
+      mergedI18n = mergeI18nInput(mergedI18n, {
+        be: {
+          ...(mergedI18n.be ?? {}),
+          ...(data.title !== undefined ? { title: data.title } : {}),
+          ...(data.content !== undefined ? { content: data.content } : {}),
+          ...(data.description !== undefined
+            ? { description: data.description ?? "" }
+            : {}),
+        },
+      });
     }
 
-    // Если передан categoryId, обновляем связь
+    const updateData: Record<string, unknown> = {};
+    if (data.authorId !== undefined) updateData.authorId = data.authorId;
+    if (data.year !== undefined) updateData.year = data.year;
+    if (data.videoUrl !== undefined) updateData.videoUrl = data.videoUrl;
+
+    updateData.i18n = mergedI18n;
+    updateData.title = scalarFromI18n(mergedI18n, "title", poem.title);
+    updateData.content = scalarFromI18n(mergedI18n, "content", poem.content);
+    updateData.description =
+      scalarFromI18n(mergedI18n, "description") || null;
+
+    if (data.title && data.title !== poem.title) {
+      updateData.slug = this.generateSlug(data.title);
+    } else if (
+      updateData.title &&
+      typeof updateData.title === "string" &&
+      updateData.title !== poem.title
+    ) {
+      updateData.slug = this.generateSlug(updateData.title);
+    }
+
     if (data.categoryId !== undefined) {
       updateData.categories = {
         set: [{ id: data.categoryId }],
       };
-      delete updateData.categoryId;
     }
 
-    return this.prisma.poem.update({
+    await this.prisma.poem.update({
       where: { id },
       data: updateData,
+    });
+
+    if (data.schoolGrades !== undefined) {
+      await this.syncPoemSchoolGrades(id, data.schoolGrades);
+    }
+
+    return this.getPoemById(id);
+  }
+
+  async getPoemById(id: number) {
+    const poem = await this.prisma.poem.findUnique({
+      where: { id },
       include: {
         author: true,
         categories: true,
+        schoolGrades: true,
+        _count: {
+          select: {
+            comments: true,
+            favorites: true,
+          },
+        },
       },
     });
+    if (!poem) {
+      throw new NotFoundException("Верш не знойдзены");
+    }
+    return poem;
+  }
+
+  private async syncPoemSchoolGrades(
+    poemId: number,
+    grades: { grade: number; kind: CurriculumKind }[],
+  ) {
+    await this.prisma.$transaction([
+      this.prisma.poemSchoolGrade.deleteMany({ where: { poemId } }),
+      ...(grades.length
+        ? [
+            this.prisma.poemSchoolGrade.createMany({
+              data: grades.map((g) => ({ poemId, grade: g.grade, kind: g.kind })),
+            }),
+          ]
+        : []),
+    ]);
   }
 
   async deletePoem(id: number) {
     const poem = await this.prisma.poem.findUnique({ where: { id } });
     if (!poem) {
-      throw new NotFoundException("Стих не найден");
+      throw new NotFoundException("Твор не найден");
     }
 
     // Удаляем видео файл если есть
@@ -115,6 +228,7 @@ export class AdminService {
       include: {
         author: true,
         categories: true,
+        schoolGrades: true,
         _count: {
           select: {
             comments: true,
@@ -129,25 +243,107 @@ export class AdminService {
   // ========== AUTHORS MANAGEMENT ==========
 
   async createAuthor(data: {
-    name: string;
+    name?: string;
     bio?: string;
     birthYear?: number;
     deathYear?: number;
     image?: string;
+    i18n?: I18nFieldsInput;
   }) {
-    const slug = this.generateSlug(data.name);
+    const i18n = buildI18nFromInput(data.i18n ?? {}, {
+      name: data.name,
+      bio: data.bio ?? "",
+    });
+    const name = scalarFromI18n(i18n, "name");
+    if (!name) {
+      throw new BadRequestException("Патрабуецца імя аўтара");
+    }
+
+    const slug = this.generateSlug(name);
 
     const existing = await this.prisma.author.findUnique({ where: { slug } });
     if (existing) {
       throw new BadRequestException("Аўтар з такім імем ужо існуе");
     }
 
+    const { i18n: _i, name: _n, bio: _b, ...rest } = data;
+
     return this.prisma.author.create({
       data: {
-        ...data,
+        ...rest,
+        name,
+        bio: scalarFromI18n(i18n, "bio") || null,
         slug,
+        i18n,
       },
     });
+  }
+
+  async updateAuthor(
+    id: number,
+    data: {
+      name?: string;
+      bio?: string;
+      birthYear?: number;
+      deathYear?: number;
+      image?: string;
+      i18n?: I18nFieldsInput;
+    },
+  ) {
+    const author = await this.prisma.author.findUnique({ where: { id } });
+    if (!author) {
+      throw new NotFoundException("Аўтар не знойдзены");
+    }
+
+    const existingI18n =
+      (author.i18n as Record<string, Record<string, string>> | null) ?? {};
+    let mergedI18n = data.i18n
+      ? mergeI18nInput(existingI18n, data.i18n)
+      : existingI18n;
+
+    if (data.name !== undefined || data.bio !== undefined) {
+      mergedI18n = mergeI18nInput(mergedI18n, {
+        be: {
+          ...(mergedI18n.be ?? {}),
+          ...(data.name !== undefined ? { name: data.name } : {}),
+          ...(data.bio !== undefined ? { bio: data.bio ?? "" } : {}),
+        },
+      });
+    }
+
+    const updateData: Record<string, unknown> = {};
+    if (data.birthYear !== undefined) updateData.birthYear = data.birthYear;
+    if (data.deathYear !== undefined) updateData.deathYear = data.deathYear;
+    if (data.image !== undefined) updateData.image = data.image;
+
+    updateData.i18n = mergedI18n;
+    updateData.name = scalarFromI18n(mergedI18n, "name", author.name);
+    updateData.bio = scalarFromI18n(mergedI18n, "bio") || null;
+
+    if (updateData.name !== author.name) {
+      updateData.slug = this.generateSlug(updateData.name as string);
+    }
+
+    return this.prisma.author.update({
+      where: { id },
+      data: updateData,
+    });
+  }
+
+  async deleteAuthor(id: number) {
+    const author = await this.prisma.author.findUnique({
+      where: { id },
+      include: { _count: { select: { poems: true, proseWorks: true } } },
+    });
+    if (!author) {
+      throw new NotFoundException("Аўтар не знойдзены");
+    }
+    if (author._count.poems > 0 || author._count.proseWorks > 0) {
+      throw new BadRequestException(
+        "Нельга выдаліць аўтара з творамі. Спачатку выдаліце або пераназначце творы.",
+      );
+    }
+    return this.prisma.author.delete({ where: { id } });
   }
 
   async getAllAuthors() {
@@ -165,15 +361,100 @@ export class AdminService {
 
   // ========== CATEGORIES MANAGEMENT ==========
 
-  async createCategory(data: { name: string; description?: string }) {
-    const slug = this.generateSlug(data.name);
+  async createCategory(data: {
+    name?: string;
+    description?: string;
+    i18n?: I18nFieldsInput;
+  }) {
+    const i18n = buildI18nFromInput(data.i18n ?? {}, {
+      name: data.name,
+      description: data.description ?? "",
+    });
+    const name = scalarFromI18n(i18n, "name");
+    if (!name) {
+      throw new BadRequestException("Патрабуецца назва катэгорыі");
+    }
+
+    const slug = this.generateSlug(name);
+
+    const existing = await this.prisma.category.findUnique({ where: { slug } });
+    if (existing) {
+      throw new BadRequestException("Катэгорыя з такой назвай ужо існуе");
+    }
+
+    const { i18n: _i, name: _n, description: _d } = data;
 
     return this.prisma.category.create({
       data: {
-        ...data,
+        name,
+        description: scalarFromI18n(i18n, "description") || null,
         slug,
+        i18n,
       },
     });
+  }
+
+  async updateCategory(
+    id: number,
+    data: {
+      name?: string;
+      description?: string;
+      i18n?: I18nFieldsInput;
+    },
+  ) {
+    const category = await this.prisma.category.findUnique({ where: { id } });
+    if (!category) {
+      throw new NotFoundException("Катэгорыя не знойдзена");
+    }
+
+    const existingI18n =
+      (category.i18n as Record<string, Record<string, string>> | null) ?? {};
+    let mergedI18n = data.i18n
+      ? mergeI18nInput(existingI18n, data.i18n)
+      : existingI18n;
+
+    if (data.name !== undefined || data.description !== undefined) {
+      mergedI18n = mergeI18nInput(mergedI18n, {
+        be: {
+          ...(mergedI18n.be ?? {}),
+          ...(data.name !== undefined ? { name: data.name } : {}),
+          ...(data.description !== undefined
+            ? { description: data.description ?? "" }
+            : {}),
+        },
+      });
+    }
+
+    const updateData: Record<string, unknown> = {
+      i18n: mergedI18n,
+      name: scalarFromI18n(mergedI18n, "name", category.name),
+      description: scalarFromI18n(mergedI18n, "description") || null,
+    };
+
+    if (updateData.name !== category.name) {
+      updateData.slug = this.generateSlug(updateData.name as string);
+    }
+
+    return this.prisma.category.update({
+      where: { id },
+      data: updateData,
+    });
+  }
+
+  async deleteCategory(id: number) {
+    const category = await this.prisma.category.findUnique({
+      where: { id },
+      include: { _count: { select: { poems: true } } },
+    });
+    if (!category) {
+      throw new NotFoundException("Катэгорыя не знойдзена");
+    }
+    if (category._count.poems > 0) {
+      throw new BadRequestException(
+        "Нельга выдаліць катэгорыю са стихамі. Спачатку пераназначце стихі.",
+      );
+    }
+    return this.prisma.category.delete({ where: { id } });
   }
 
   async getAllCategories() {
@@ -618,7 +899,7 @@ export class AdminService {
     });
 
     if (!poem) {
-      throw new NotFoundException("Стих не найден");
+      throw new NotFoundException("Твор не найден");
     }
 
     const views = await this.prisma.view.findMany({
