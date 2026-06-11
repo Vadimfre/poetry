@@ -6,6 +6,8 @@
 # testing
 /coverage
 
+/poetry-backend
+
 # next.js
 /out/
 
