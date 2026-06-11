@@ -5,11 +5,13 @@ import {
   Query,
   ParseIntPipe,
   Req,
+  UseGuards,
 } from "@nestjs/common";
 import { PoemsService } from "./poems.service";
-import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { OptionalJwtAuthGuard } from "../auth/optional-jwt-auth.guard";
 
 @Controller("poems")
+@UseGuards(OptionalJwtAuthGuard)
 export class PoemsController {
   constructor(private readonly poemsService: PoemsService) {}
 
@@ -17,13 +19,21 @@ export class PoemsController {
   async findAll(
     @Query("page") page: string = "1",
     @Query("limit") limit: string = "20",
+    @Req() req: { user?: { id: number } },
   ) {
-    return this.poemsService.findAll(parseInt(page), parseInt(limit));
+    return this.poemsService.findAll(
+      parseInt(page),
+      parseInt(limit),
+      req.user?.id,
+    );
   }
   
   @Get("search")
-  async search(@Query("q") query: string) {
-    return this.poemsService.search(query);
+  async search(
+    @Query("q") query: string,
+    @Req() req: { user?: { id: number } },
+  ) {
+    return this.poemsService.search(query, req.user?.id);
   }
 
   @Get("authors")
@@ -32,25 +42,34 @@ export class PoemsController {
   }
 
   @Get("authors/:slug")
-  async getAuthorBySlug(@Param("slug") slug: string) {
-    return this.poemsService.getAuthorBySlug(slug);
+  async getAuthorBySlug(
+    @Param("slug") slug: string,
+    @Req() req: { user?: { id: number } },
+  ) {
+    return this.poemsService.getAuthorBySlug(slug, req.user?.id);
   }
 
   @Get("slug/:slug")
-  async findBySlug(@Param("slug") slug: string, @Req() req: any) {
-    const userId = req.user?.id;
-    return this.poemsService.findBySlug(slug, userId);
+  async findBySlug(
+    @Param("slug") slug: string,
+    @Req() req: { user?: { id: number } },
+  ) {
+    return this.poemsService.findBySlug(slug, req.user?.id);
   }
 
   @Get("category/slug/:categorySlug")
-  async findByCategorySlug(@Param("categorySlug") categorySlug: string) {
-    
-    return this.poemsService.findByCategorySlug(categorySlug);
+  async findByCategorySlug(
+    @Param("categorySlug") categorySlug: string,
+    @Req() req: { user?: { id: number } },
+  ) {
+    return this.poemsService.findByCategorySlug(categorySlug, req.user?.id);
   }
 
   @Get(":id")
-  async findOne(@Param("id", ParseIntPipe) id: number, @Req() req: any) {
-    const userId = req.user?.id;
-    return this.poemsService.findOne(id, userId);
+  async findOne(
+    @Param("id", ParseIntPipe) id: number,
+    @Req() req: { user?: { id: number } },
+  ) {
+    return this.poemsService.findOne(id, req.user?.id);
   }
 }

@@ -1,6 +1,7 @@
+import { localizeQuiz } from "@/i18n/content-localizer";
 import { PrismaService } from "@/prisma/prisma.service";
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { CheckQuizAnswersDto } from "./dto/check-quiz-answers.dto";
+import { AnswerDto, CheckQuizAnswersDto } from "./dto/check-quiz-answers.dto";
 import { QuestionValidators } from "./helpers/question-validators";
 
 @Injectable()
@@ -9,15 +10,16 @@ export class QuizsService {
 
   constructor(private prisma: PrismaService) {}
 
-  private mapQuiz(quiz: any) {
+  private mapQuiz(quiz: Record<string, unknown>) {
+    const localized = localizeQuiz(quiz);
     return {
-      id: quiz.id,
-      title: quiz.title,
-      description: quiz.description,
-      icon: quiz.icon,
-      color: quiz.color,
-      imageUrl: quiz.imageUrl,
-      questionsCount: quiz._count.questions,
+      id: localized.id,
+      title: localized.title,
+      description: localized.description,
+      icon: localized.icon,
+      color: localized.color,
+      imageUrl: localized.imageUrl,
+      questionsCount: (quiz._count as { questions: number })?.questions,
     };
   }
 
@@ -29,6 +31,7 @@ export class QuizsService {
         id: true,
         title: true,
         description: true,
+        i18n: true,
         icon: true,
         color: true,
         imageUrl: true,
@@ -85,13 +88,19 @@ export class QuizsService {
       })),
     }));
 
-    return { ...quiz, questions: sanitizedQuestions };
+    return localizeQuiz({ ...quiz, questions: sanitizedQuestions });
   }
 
   // ========== CHECK ANSWERS ==========
   async checkQuizAnswers(quizId: string, dto: CheckQuizAnswersDto) {
-    const quiz = await this.prisma.quiz.findUnique({
-      where: { id: quizId },
+    const result = await this.gradeQuizAnswers([quizId], dto);
+
+    return { total: result.total, correct: result.correct };
+  }
+
+  async gradeQuizAnswers(quizIds: string[], dto: CheckQuizAnswersDto) {
+    const quizzes = await this.prisma.quiz.findMany({
+      where: { id: { in: quizIds } },
       include: {
         questions: {
           include: {
@@ -106,7 +115,7 @@ export class QuizsService {
       },
     });
 
-    if (!quiz) {
+    if (quizzes.length !== quizIds.length) {
       throw new NotFoundException("Quiz not found");
     }
 
@@ -122,7 +131,10 @@ export class QuizsService {
     let total = 0;
     let correct = 0;
 
-    for (const question of quiz.questions) {
+    const answerResults: (AnswerDto & { isCorrect: boolean })[] = [];
+
+    for (const quiz of quizzes) {
+      for (const question of quiz.questions) {
       const userAnswers = answersByQuestion.get(question.id) || [];
 
       total += 1;
@@ -130,8 +142,39 @@ export class QuizsService {
       const isCorrect = this.validator.checkQuestion(question, userAnswers);
 
       if (isCorrect) correct++;
+
+        for (const answer of userAnswers) {
+          answerResults.push({
+            ...answer,
+            isCorrect: this.checkSingleAnswer(question, answer),
+          });
+        }
+      }
     }
 
-    return { total, correct };
+    const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+    return { total, correct, percentage, answerResults };
+  }
+
+  private checkSingleAnswer(question: any, answer: AnswerDto) {
+    const item = question.items.find((candidate) => candidate.id === answer.itemId);
+    if (!item) return false;
+
+    if (question.type === "ORDER") {
+      if (answer.order === undefined) return false;
+
+      if (item.year !== null) {
+        return Math.abs(answer.order - item.year) <= 5;
+      }
+
+      return item.order === answer.order;
+    }
+
+    if (!answer.zoneId) return false;
+
+    return item.itemZones.some(
+      (itemZone) => itemZone.zoneId === answer.zoneId && itemZone.isCorrect,
+    );
   }
 }

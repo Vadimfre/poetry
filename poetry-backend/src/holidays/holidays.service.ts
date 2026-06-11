@@ -1,12 +1,36 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
 import { Season } from "@prisma/client";
+import {
+  localizeHoliday,
+  localizeHolidays,
+} from "../i18n/content-localizer";
+import { restrictPoemsContentForGuest } from "../lib/poem-guest-access";
+import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
 export class HolidaysService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(page: number = 1, limit: number = 20) {
+  private withGuestPoemAccess<T extends { poems?: { content?: string | null }[] }>(
+    holiday: T,
+    userId?: number,
+  ): T {
+    const localized = localizeHoliday(holiday);
+    if (!Array.isArray(localized.poems)) return localized;
+    return {
+      ...localized,
+      poems: restrictPoemsContentForGuest(localized.poems, userId),
+    };
+  }
+
+  private withGuestPoemAccessList<T extends { poems?: { content?: string | null }[] }>(
+    holidays: T[],
+    userId?: number,
+  ): T[] {
+    return holidays.map((holiday) => this.withGuestPoemAccess(holiday, userId));
+  }
+
+  async findAll(page: number = 1, limit: number = 20, userId?: number) {
     const skip = (page - 1) * limit;
 
     const [holidays, total] = await Promise.all([
@@ -27,7 +51,7 @@ export class HolidaysService {
     ]);
 
     return {
-      holidays,
+      holidays: this.withGuestPoemAccessList(localizeHolidays(holidays), userId),
       total,
       page,
       limit,
@@ -35,8 +59,8 @@ export class HolidaysService {
     };
   }
 
-  async findBySeason(season: Season) {
-    return this.prisma.holiday.findMany({
+  async findBySeason(season: Season, userId?: number) {
+    const holidays = await this.prisma.holiday.findMany({
       where: { season },
       include: {
         poems: {
@@ -48,9 +72,10 @@ export class HolidaysService {
       },
       orderBy: [{ month: "asc" }, { day: "asc" }],
     });
+    return this.withGuestPoemAccessList(localizeHolidays(holidays), userId);
   }
 
-  async findBySlug(slug: string) {
+  async findBySlug(slug: string, userId?: number) {
     const holiday = await this.prisma.holiday.findUnique({
       where: { slug },
       include: {
@@ -73,11 +98,11 @@ export class HolidaysService {
       throw new NotFoundException("Holiday not found");
     }
 
-    return holiday;
+    return this.withGuestPoemAccess(holiday, userId);
   }
 
-  async findByMonth(month: number) {
-    return this.prisma.holiday.findMany({
+  async findByMonth(month: number, userId?: number) {
+    const holidays = await this.prisma.holiday.findMany({
       where: { month },
       include: {
         poems: {
@@ -89,10 +114,11 @@ export class HolidaysService {
       },
       orderBy: { day: "asc" },
     });
+    return this.withGuestPoemAccessList(localizeHolidays(holidays), userId);
   }
 
-  async findByMonthAndDay(month: number, day: number) {
-    return this.prisma.holiday.findMany({
+  async findByMonthAndDay(month: number, day: number, userId?: number) {
+    const holidays = await this.prisma.holiday.findMany({
       where: { month, day },
       include: {
         poems: {
@@ -103,6 +129,7 @@ export class HolidaysService {
         },
       },
     });
+    return this.withGuestPoemAccessList(localizeHolidays(holidays), userId);
   }
 
   async getSeasons() {
@@ -123,7 +150,7 @@ export class HolidaysService {
       categoryIds?: number[];
     }[];
   }) {
-    return this.prisma.holiday.create({
+    const holiday = await this.prisma.holiday.create({
       data: {
         name: data.name,
         slug: data.slug,
@@ -151,5 +178,6 @@ export class HolidaysService {
         },
       },
     });
+    return localizeHoliday(holiday);
   }
 }

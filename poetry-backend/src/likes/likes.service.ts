@@ -21,7 +21,7 @@ export class LikesService {
     ]);
 
     if (!poem) {
-      throw new NotFoundException("Стихотворение не найдено");
+      throw new NotFoundException("Твор не найден");
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -149,6 +149,6 @@ export class LikesService {
       }),
     );
 
-    return { message: `Пересчитано ${poems.length} стихов` };
+    return { message: `Пересчитано ${poems.length} творов` };
   }
 }

@@ -9,8 +9,19 @@ datasource db {
 // Роли пользователей
 enum Role {
   USER
+  STUDENT
+  TEACHER
   ADMIN
   SUPER_ADMIN
+}
+
+enum AssignmentStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum AttemptStatus {
+  SUBMITTED
 }
 
 enum TokenType {
@@ -24,6 +35,13 @@ enum Season {
   SPRING
   SUMMER
   AUTUMN
+}
+
+enum ProseKind {
+  NOVEL
+  POEM
+  STORY
+  PLAY
 }
 
 // Пользователь
@@ -45,6 +63,21 @@ model User {
   favorites Favorite[]
   likes     Like[]
   tokens    Token[]
+
+  teachingClassrooms Classroom[]       @relation("TeacherClassrooms")
+  classroomMemberships ClassroomMember[]
+  quizAttempts QuizAttempt[]
+  siteAdmin SiteAdmin?
+}
+
+// Запись администратора сайта (связь с User; роль ADMIN/SUPER_ADMIN на User)
+model SiteAdmin {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  note      String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Token {
@@ -66,12 +99,14 @@ model Author {
   name      String
   slug      String   @unique
   bio       String?  @db.Text // Биография автора
+  i18n      Json? // { be: { name, bio }, ru: {...}, en: {...} }
   birthYear Int?
   deathYear Int?
   image     String?
   createdAt DateTime @default(now())
 
-  poems Poem[]
+  poems      Poem[]
+  proseWorks ProseWork[]
 }
 
 // Категория (направление поэзии)
@@ -80,6 +115,7 @@ model Category {
   name        String   @unique
   slug        String   @unique
   description String?
+  i18n        Json?
   image       String?
   createdAt   DateTime @default(now())
 
@@ -93,6 +129,7 @@ model Poem {
   slug        String  @unique
   content     String  @db.Text
   description String? @db.Text
+  i18n        Json?
   authorId    Int
   year        Int?
   videoUrl    String?
@@ -112,11 +149,83 @@ model Poem {
   favorites Favorite[]
   likes     Like[]
   comments  Comment[]
+  schoolGrades PoemSchoolGrade[]
 
   @@index([authorId])
   @@index([likesCount])
   @@index([favoritesCount])
   @@index([likesCount, favoritesCount])
+}
+
+enum CurriculumKind {
+  STUDY
+  MEMORIZE
+  DISCUSSION
+  EXTRA
+}
+
+model PoemSchoolGrade {
+  poemId Int
+  grade  Int
+  kind   CurriculumKind @default(STUDY)
+
+  poem Poem @relation(fields: [poemId], references: [id], onDelete: Cascade)
+
+  @@id([poemId, grade, kind])
+  @@index([grade])
+  @@index([grade, kind])
+}
+
+model ProseWorkSchoolGrade {
+  proseWorkId Int
+  grade       Int
+  kind        CurriculumKind @default(STUDY)
+
+  proseWork ProseWork @relation(fields: [proseWorkId], references: [id], onDelete: Cascade)
+
+  @@id([proseWorkId, grade, kind])
+  @@index([grade])
+  @@index([grade, kind])
+}
+
+model ProseWork {
+  id          Int       @id @default(autoincrement())
+  title       String
+  slug        String    @unique
+  kind        ProseKind @default(NOVEL)
+  description String?   @db.Text
+  i18n        Json?
+  authorId    Int
+  year        Int?
+  coverImage  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author             Author              @relation(fields: [authorId], references: [id])
+  chapters           ProseChapter[]
+  quizzes            Quiz[]
+  readingAssignments ReadingAssignment[]
+  schoolGrades       ProseWorkSchoolGrade[]
+
+  @@index([authorId])
+}
+
+model ProseChapter {
+  id          Int    @id @default(autoincrement())
+  proseWorkId Int
+  title       String
+  slug        String
+  order       Int
+  content     String @db.Text
+  i18n        Json?
+
+  proseWork ProseWork @relation(fields: [proseWorkId], references: [id], onDelete: Cascade)
+  readingProgress ReadingProgress[]
+
+  @@unique([proseWorkId, slug])
+  @@unique([proseWorkId, order])
+  @@index([proseWorkId])
 }
 
 model Like {
@@ -202,6 +311,7 @@ model Holiday {
   season      Season // Время года для фильтрации по слайдам
   image       String? // Картинка праздника (опционально)
   description String? @db.Text
+  i18n        Json?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -220,6 +330,7 @@ model SeasonSlide {
   season    Season
   imageUrl  String
   altText   String
+  i18n      Json?
   order     Int
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
@@ -232,10 +343,17 @@ model Quiz {
   id          String     @id @default(uuid())
   title       String
   description String?
+  i18n        Json?
   icon        String?
   color       String?
   imageUrl    String
+  proseWorkId Int?
   questions   Question[]
+
+  proseWork       ProseWork?           @relation(fields: [proseWorkId], references: [id], onDelete: SetNull)
+  assignmentItems QuizAssignmentItem[]
+
+  @@index([proseWorkId])
 }
 
 model Question {
@@ -245,6 +363,7 @@ model Question {
 
   text String
   type QuestionType
+  i18n  Json?
 
   content Json?
 
@@ -264,6 +383,7 @@ model Item {
   year     Int?
   imageUrl String?
   subtitle String?
+  i18n     Json?
 
   itemZones ItemZone[]
 
@@ -276,6 +396,7 @@ model Zone {
   question   Question @relation(fields: [questionId], references: [id])
 
   content String
+  i18n    Json?
   order   Int?
 
   itemZones ItemZone[]
@@ -310,6 +431,136 @@ model UserAnswer {
   order Int?
 
   isCorrect Boolean?
+}
+
+model Classroom {
+  id        String   @id @default(uuid())
+  name      String
+  code      String   @unique
+  teacherId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  teacher            User                @relation("TeacherClassrooms", fields: [teacherId], references: [id], onDelete: Cascade)
+  members            ClassroomMember[]
+  assignments        QuizAssignment[]
+  readingAssignments ReadingAssignment[]
+
+  @@index([teacherId])
+}
+
+model ClassroomMember {
+  id          String   @id @default(uuid())
+  classroomId String
+  studentId   Int
+  createdAt   DateTime @default(now())
+
+  classroom Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  student   User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([classroomId, studentId])
+  @@index([studentId])
+}
+
+model QuizAssignment {
+  id               String           @id @default(uuid())
+  classroomId      String
+  title            String
+  dueDate          DateTime?
+  status           AssignmentStatus @default(ACTIVE)
+  sendEmailResults Boolean          @default(true)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  classroom Classroom             @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  items     QuizAssignmentItem[]
+  attempts  QuizAttempt[]
+
+  @@index([classroomId])
+  @@index([status])
+}
+
+model QuizAssignmentItem {
+  id           String @id @default(uuid())
+  assignmentId String
+  quizId       String
+  order        Int    @default(0)
+
+  assignment QuizAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  quiz       Quiz           @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@unique([assignmentId, quizId])
+  @@index([quizId])
+}
+
+model QuizAttempt {
+  id           String        @id @default(uuid())
+  assignmentId String
+  studentId    Int
+  total        Int
+  correct      Int
+  percentage   Int
+  grade        Int
+  status       AttemptStatus @default(SUBMITTED)
+  submittedAt  DateTime      @default(now())
+
+  assignment QuizAssignment      @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  student    User                @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  answers    QuizAttemptAnswer[]
+
+  @@unique([assignmentId, studentId])
+  @@index([studentId])
+}
+
+model QuizAttemptAnswer {
+  id         String @id @default(uuid())
+  attemptId  String
+  questionId String
+  itemId     String
+  zoneId     String?
+  order      Int?
+  content    String?
+  isCorrect  Boolean?
+
+  attempt QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@index([attemptId])
+  @@index([questionId])
+}
+
+model ReadingAssignment {
+  id          String           @id @default(uuid())
+  classroomId String
+  proseWorkId Int
+  title       String
+  dueDate     DateTime?
+  status      AssignmentStatus @default(ACTIVE)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  classroom Classroom         @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  proseWork ProseWork         @relation(fields: [proseWorkId], references: [id], onDelete: Cascade)
+  progress  ReadingProgress[]
+
+  @@index([classroomId])
+  @@index([proseWorkId])
+  @@index([status])
+}
+
+model ReadingProgress {
+  id              String    @id @default(uuid())
+  assignmentId    String
+  studentId       Int
+  lastChapterId   Int?
+  progressPercent Int       @default(0)
+  completedAt     DateTime?
+  updatedAt       DateTime  @updatedAt
+
+  assignment  ReadingAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  lastChapter ProseChapter?     @relation(fields: [lastChapterId], references: [id], onDelete: SetNull)
+
+  @@unique([assignmentId, studentId])
+  @@index([studentId])
 }
 
 enum QuestionType {

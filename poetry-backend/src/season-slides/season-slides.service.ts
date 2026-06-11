@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { localizeSeasonSlide } from '../i18n/content-localizer';
 import { PrismaService } from '../prisma/prisma.service';
 import { SeasonSlideDto } from './dto/season-slide.dto';
 
@@ -12,17 +13,20 @@ export class SeasonSlidesService {
       orderBy: { order: 'asc' },
     });
 
-    return slides.map((slide) => ({
-      id: slide.id,
-      title: slide.title,
-      subtitle: slide.subtitle,
-      season: slide.season,
-      imageUrl: slide.imageUrl,
-      altText: slide.altText,
-      order: slide.order,
-      isActive: slide.isActive,
-      createdAt: slide.createdAt,
-      updatedAt: slide.updatedAt,
-    }));
+    return slides.map((slide) => {
+      const localized = localizeSeasonSlide(slide);
+      return {
+        id: localized.id,
+        title: localized.title as string,
+        subtitle: localized.subtitle as string,
+        season: localized.season,
+        imageUrl: localized.imageUrl,
+        altText: localized.altText as string,
+        order: localized.order,
+        isActive: localized.isActive,
+        createdAt: localized.createdAt,
+        updatedAt: localized.updatedAt,
+      } satisfies SeasonSlideDto;
+    });
   }
 }

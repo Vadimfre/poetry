@@ -13,10 +13,6 @@ interface UserAnswer {
   content?: string;
 }
 
-interface QuestionContent {
-  answers?: string[];
-}
-
 export class QuestionValidators {
   public checkQuestion(
     question: QuestionWithRelations,
@@ -38,17 +34,21 @@ export class QuestionValidators {
     question: QuestionWithRelations,
     userAnswers: UserAnswer[],
   ): boolean {
-    const correctCount = question.items
-      .flatMap((item) => item.itemZones)
-      .filter((iz) => iz.isCorrect).length;
+    if (question.items.length !== userAnswers.length) {
+      return false;
+    }
 
-    const used = new Set<string>();
+    const usedItems = new Set<string>();
+    const usedZones = new Set<string>();
 
     for (const answer of userAnswers) {
-      const key = `${answer.itemId}-${answer.zoneId}`;
-      if (used.has(key)) return false;
+      if (!answer.zoneId) return false;
+      if (usedItems.has(answer.itemId) || usedZones.has(answer.zoneId)) {
+        return false;
+      }
 
-      used.add(key);
+      usedItems.add(answer.itemId);
+      usedZones.add(answer.zoneId);
       const item = question.items.find((i) => i.id === answer.itemId);
       if (!item) return false;
 
@@ -74,18 +74,23 @@ export class QuestionValidators {
       question.items.map((item) => [item.id, item]),
     );
 
-    const usedOrders = new Set<number>();
+    const usedItems = new Set<string>();
 
     for (const answer of userAnswers) {
       const item = itemsMap.get(answer.itemId);
       if (!item) return false;
 
-      // проверка дубликатов order
-      if (answer.order !== undefined && usedOrders.has(answer.order)) {
+      if (usedItems.has(answer.itemId) || answer.order === undefined) {
         return false;
       }
-      if (answer.order !== undefined) {
-        usedOrders.add(answer.order);
+      usedItems.add(answer.itemId);
+
+      if (item.year !== null) {
+        if (Math.abs(answer.order - item.year) > 5) {
+          return false;
+        }
+
+        continue;
       }
 
       if (item.order !== answer.order) {
@@ -100,28 +105,6 @@ export class QuestionValidators {
     question: QuestionWithRelations,
     userAnswers: UserAnswer[],
   ): boolean {
-    const content = question.content as QuestionContent | null;
-    const correctAnswers = content?.answers || [];
-
-    if (correctAnswers.length !== userAnswers.length) {
-      return false;
-    }
-
-    for (let i = 0; i < correctAnswers.length; i++) {
-      const correct = correctAnswers[i].toLowerCase().trim();
-
-      // ищем ответ пользователя по order
-      const userAnswer = userAnswers.find((a) => a.order === i + 1);
-
-      if (!userAnswer) return false;
-
-      const user = userAnswer.content?.toLowerCase().trim();
-
-      if (correct !== user) {
-        return false;
-      }
-    }
-
-    return true;
+    return this.checkMatch(question, userAnswers);
   }
 }

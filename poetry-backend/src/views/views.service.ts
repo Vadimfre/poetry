@@ -33,7 +33,7 @@ export class ViewsService {
     });
 
     if (!poem) {
-      throw new NotFoundException("Стихотворение не найдено");
+      throw new NotFoundException("Твор не найден");
     }
 
     const views = await this.getViewsCount(poemId);
@@ -60,7 +60,7 @@ export class ViewsService {
     });
 
     if (!poem) {
-      throw new NotFoundException("Стихотворение не найдено");
+      throw new NotFoundException("Твор не найден");
     }
 
     const date = this.getStartOfDay();

@@ -8,7 +8,7 @@ import {
 } from "class-validator";
 import { Type } from "class-transformer";
 
-class AnswerDto {
+export class AnswerDto {
   @IsString()
   @IsNotEmpty()
   questionId: string;

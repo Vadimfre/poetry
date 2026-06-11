@@ -22,7 +22,7 @@ export class CommentsService {
       });
 
       if (!poem) {
-        throw new NotFoundException("Стихотворение не найдено");
+        throw new NotFoundException("Твор не найден");
       }
 
       // 2. Проверка parentId
@@ -38,7 +38,7 @@ export class CommentsService {
 
         if (parentComment.poemId !== poemId) {
           throw new ForbiddenException(
-            "Комментарий для ответа принадлежит другому стихотворению",
+            "Комментарий для ответа принадлежит другому твору",
           );
         }
       }

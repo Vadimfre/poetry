@@ -1,4 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import {
+  localizeCategories,
+  localizeCategory,
+  localizePoems,
+} from '../i18n/content-localizer';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -6,7 +11,7 @@ export class CategoriesService {
   constructor(private prisma: PrismaService) {}
 
   async findAll() {
-    return this.prisma.category.findMany({
+    const categories = await this.prisma.category.findMany({
       include: {
         _count: {
           select: { poems: true },
@@ -14,10 +19,11 @@ export class CategoriesService {
       },
       orderBy: { name: 'asc' },
     });
+    return localizeCategories(categories);
   }
 
   async findOne(id: number) {
-    return this.prisma.category.findUnique({
+    const category = await this.prisma.category.findUnique({
       where: { id },
       include: {
         poems: true,
@@ -26,10 +32,15 @@ export class CategoriesService {
         },
       },
     });
+    if (!category) return null;
+    return {
+      ...localizeCategory(category),
+      poems: localizePoems(category.poems),
+    };
   }
 
   async findBySlug(slug: string) {
-    return this.prisma.category.findUnique({
+    const category = await this.prisma.category.findUnique({
       where: { slug },
       include: {
         poems: true,
@@ -38,5 +49,10 @@ export class CategoriesService {
         },
       },
     });
+    if (!category) return null;
+    return {
+      ...localizeCategory(category),
+      poems: localizePoems(category.poems),
+    };
   }
 }

@@ -38,6 +38,7 @@ export class AuthService {
         email: dto.email,
         password: hashedPassword,
         name: dto.name || dto.email.split("@")[0],
+        role: dto.role || "STUDENT",
       },
     });
 

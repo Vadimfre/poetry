@@ -3,39 +3,1184 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import * as bcrypt from "bcrypt";
 import "dotenv/config";
+import { runI18nSeed } from "./seed-i18n";
+import { runProseSeed } from "./seed-prose";
+import { runSchoolSeed } from "./seed-school-curriculum";
+import { authorImageForSlug } from "./author-images";
+import { extraLiteraryEvents } from "./data/extra-literary-events";
+import {
+  buildMixedAuthorPairs,
+  chunkPairs,
+  collectPairPool,
+  createFillQuiz,
+  createMatchQuiz,
+  createOrderQuiz,
+  createRichQuiz,
+  deleteQuizzesExcept,
+  resetQuizzes,
+  sanitizeMatchPairs,
+  type AuthorRefs,
+} from "./lib/quiz-seed-helpers";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
+type PoemSeed = {
+  title: string;
+  slug: string;
+  authorId: number;
+  categoryId: number;
+  year: number;
+  description: string;
+  content: string;
+  videoUrl?: string;
+};
+
+type CategoryRefs = Record<string, { id: number }>;
+
+const AUTHOR_SLUG_KEYS: Record<string, string> = {
+  "yanka-kupala": "yankaKupala",
+  "yakub-kolas": "yakubKolas",
+  "maksim-bahdanovich": "maksimBahdanovich",
+  tsiotka: "tsiotka",
+  "petrus-brouka": "petrusBrouka",
+  "arkadz-kuliashou": "arkadzKuliashou",
+  "maksim-tank": "maksimTank",
+  "ryhor-baradulin": "ryhorBaradulin",
+  "nil-hilevich": "nilHilevich",
+  "uladzimir-karatkevich": "karatkevich",
+  "francishak-bahushevich": "bahushevich",
+  "zmitrok-biadula": "biadula",
+  "kuzma-chorny": "kuzmaChorny",
+  "maksim-haretski": "maksimHaretski",
+  "yanka-sipakov": "yankaSipakov",
+  "andrei-makayonak": "andreiMakayonak",
+  "pimen-panchanka": "pimenPanchanka",
+  "kastus-veranitsyn": "kastusVeranitsyn",
+  "uladzislau-halubok": "uladzislauHalubok",
+  "larysa-hieniyush": "larysaHieniyush",
+  "yanka-bryl": "yankaBryl",
+  "mikhail-charot": "mikhailCharot",
+  "yauhen-puhcha": "yauhenPuhcha",
+  "andrei-khadanovich": "andreiKhadanovich",
+};
+
+async function loadAuthorRefs(): Promise<AuthorRefs> {
+  const rows = await prisma.author.findMany({
+    select: { id: true, name: true, birthYear: true, slug: true },
+  });
+  const refs: AuthorRefs = {};
+  for (const row of rows) {
+    const key = AUTHOR_SLUG_KEYS[row.slug];
+    if (key) {
+      refs[key] = { id: row.id, name: row.name, birthYear: row.birthYear };
+    }
+  }
+  return refs;
+}
+
+function buildExtraPoems(
+  authors: AuthorRefs,
+  categories: CategoryRefs,
+): PoemSeed[] {
+  const rows: Array<{
+    title: string;
+    slug: string;
+    author: string;
+    category: string;
+    year: number;
+    content: string;
+  }> = [
+    { title: "Гоман", slug: "goman-kupala", author: "yankaKupala", category: "natureCat", year: 1908, content: "Гоман, гоман па далёкай рацэ,\nШумаць, шумаць у далёкай рацэ;\nГоман, гоман — гэта голас мой,\nГоман, гоман — гэта голас зямлі." },
+    { title: "Жалейка", slug: "zhalejka", author: "yankaKupala", category: "civilCat", year: 1908, content: "Жалейка, жалейка — мой першы збор,\nДзе кожны верш — як кропля крыві маёй;\nЯ пісаў пра беду, пра горы і праўду,\nКаб белarusаў голас загучаў." },
+    { title: "Песня пра волю", slug: "pesnya-pra-volyu-kupala", author: "yankaKupala", category: "civilCat", year: 1918, content: "Воля — гэта сонца над нашай зямлёй,\nВоля — гэта святло ў цёмнай ночы;\nМы біёмся за яе, як за жыццё,\nБо без волі няма ні славы, ні мocy." },
+    { title: "Родная мова", slug: "rodnaya-mova-kupala", author: "yankaKupala", category: "civilCat", year: 1921, content: "Беларуская мова — маё багацце,\nЯна звучыць, як песня ў полі;\nНе аддам яе нікому і ніколі,\nБо ў ёй — душа мая і воля." },
+    { title: "Каласы", slug: "kalasy-kupala", author: "yankaKupala", category: "natureCat", year: 1910, content: "Каласы, каласы — золата палёў,\nКіваюцца ветрам, як хвалі мора;\nУ іх — праца рук нашых, пот наш, праца,\nУ іх — хлеб, што корміць народ." },
+    { title: "Береза", slug: "bereza-kupala", author: "yankaKupala", category: "natureCat", year: 1912, content: "Береза белая стаіць каля хаты,\nЯк сябар верны, як анёл-ахоўнік;\nЯе лісточкі шэпчуць казкі старыя,\nПра мінулае, пра будучыню." },
+    { title: "Ноч", slug: "noch-kupala", author: "yankaKupala", category: "philCat", year: 1909, content: "Ноч прыйшла цёмная, зоркі ззяюць,\nМесяц плыве, як золаты човен;\nІ душа мая спакойна адпачывае,\nСлухаючы песню ночы." },
+    { title: "Вясна", slug: "vyasna-kupala", author: "yankaKupala", category: "natureCat", year: 1911, content: "Вясна прыйшла — і зямля прачнулася,\nСонца грэе, птушкі спяваюць;\nУсё навокал прабуджваецца да жыцця,\nІ сэрца радуецца разам з прыродай." },
+    { title: "Сімон-музыка", slug: "symon-muzyka", author: "yakubKolas", category: "classCat", year: 1925, content: "Сімон гуляў на дудцы сваёй,\nІ музыка ляцела над сёламі;\nГэта была песня пра жыццё,\nПра радасць і пра гора разам." },
+    { title: "Новая зямля", slug: "novaya-zyamlya", author: "yakubKolas", category: "classCat", year: 1923, content: "Новая зямля — гэта мая мара,\nЗямля, дзе народ будзе шчаслівы;\nДзе не будзе беды і крыўды,\nДзе кожны чалавек — гаспadar сваёй долі." },
+    { title: "Песні жальбы", slug: "pesni-zhalby", author: "yakubKolas", category: "philCat", year: 1910, content: "Песні жальбы — гэта голас сэрца,\nШто страждала і спявала адначасова;\nУ іх — боль мінулых гадоў,\nІ надежда на лепшае заўтра." },
+    { title: "Родныя вобразы", slug: "rodniya-vobrazy", author: "yakubKolas", category: "natureCat", year: 1914, content: "Родныя вобразы — гэта мая зямля,\nЛес, рака, поле, сіні неба;\nУсё, што я бачыў з дзяцінства,\nУсё, што люблю і шаную." },
+    { title: "На старой зямлі", slug: "na-staroj-zyamli", author: "yakubKolas", category: "natureCat", year: 1920, content: "На старой зямлі, дзе я нарадзіўся,\nДзе прайшло маё дзяцінства;\nТам заўжды буду я ўспамінаць,\nБо там — карані мае." },
+    { title: "Кветка", slug: "kvetka-kolas", author: "yakubKolas", category: "loveCat", year: 1915, content: "Кветка маленькая на лузе,\nЯк каханне — пяшчотная і ніжная;\nЯе пах — як успамін пра першае каханне,\nШто застаецца ў сэрцы назаўжды." },
+    { title: "Зорка Венера", slug: "zorka-venera", author: "maksimBahdanovich", category: "loveCat", year: 1912, content: "Зорка Венера ўзышла над зямлёю,\nЦіха над сонным прасторам водным;\nЗіхаціць ззянне яе залатое,\nІ сэрца маё б'ецца часцей." },
+    { title: "Маё сонца", slug: "mayo-sontsa", author: "maksimBahdanovich", category: "loveCat", year: 1913, content: "Маё сонца — гэта ты,\nШто асвятліла маё жыццё;\nБез цябе — цемра і холад,\nЗ табой — святло і цепла." },
+    { title: "Вечар", slug: "vechar-bahdanovich", author: "maksimBahdanovich", category: "natureCat", year: 1911, content: "Вечар спускаецца на зямлю,\nЗолатым пылом абсыпаючы ўсё;\nІ ў гэтую ціхую прыгожую пару\nДуша спакойна адпачывае." },
+    { title: "Осень", slug: "osen-bahdanovich", author: "maksimBahdanovich", category: "natureCat", year: 1912, content: "Осень прыйшла з золатымі лістамі,\nПавеяла свежасцю і сумам;\nПрырода гатуецца да зімы,\nА паэзія — да новых тэм." },
+    { title: "Маладость", slug: "maladosts-bahdanovich", author: "maksimBahdanovich", category: "philCat", year: 1910, content: "Маладость — гэта весна жыцця,\nКалі ўсё здаецца магчымым;\nКалі мары ляцяць высока,\nІ сэрца поўнае надзеі." },
+    { title: "Песня", slug: "pesnya-tsiotka", author: "tsiotka", category: "civilCat", year: 1906, content: "Песня пра волю — гэта мой клопат,\nШто я несу праз усё жыццё;\nНехай загучыць яна гучна,\nКаб усе чули голас правды." },
+    { title: "Мара", slug: "mara-tsiotka", author: "tsiotka", category: "philCat", year: 1907, content: "Мара пра свабодную Беларусь,\nДзе кожны чалавек — гаспadar;\nДзе мова наша звучыць гучна,\nІ культура квітнее." },
+    { title: "Надзея", slug: "nadzeja-tsiotka", author: "tsiotka", category: "philCat", year: 1908, content: "Надзея — гэта зорка ў цемры,\nШто асвятляе шлях уперад;\nБез надзеі няма будучыні,\nБез надзеі — толькі цемра." },
+    { title: "Радзіма", slug: "radzima-brouka", author: "petrusBrouka", category: "civilCat", year: 1945, content: "Радзіма мая, дарагая,\nЗямля бацькоў і святая;\nТы мне мілей за ўсё на свеце,\nБо ты — маё сэрца і душа." },
+    { title: "Малітва", slug: "malitva-brouka", author: "petrusBrouka", category: "philCat", year: 1943, content: "Малітва за мір на зямлі,\nЗа шчасце людзей і дзяцей;\nНехай война скончыцца хутка,\nІ наступіць доўгачаканы мір." },
+    { title: "Пах кахання", slug: "pakh-kakhannia", author: "petrusBrouka", category: "loveCat", year: 1947, content: "Пах кахання — як пах саду вясновага,\nЯк пах кветак у раннім рані;\nЁн напаўняе сэрца радасцю,\nІ жыццё становіцца прыгажэйшым." },
+    { title: "Песня пра мір", slug: "pesnya-pra-mir", author: "petrusBrouka", category: "civilCat", year: 1950, content: "Песня пра мір — гэта мая мара,\nКаб на зямлі не было войны;\nКаб дзеці смяяліся і гулялі,\nА не хаваліся ад бомбаў." },
+    { title: "Мая дарога", slug: "maya-daroga-kuliashou", author: "arkadzKuliashou", category: "philCat", year: 1935, content: "Мая дарога не будзе гладкай,\nПа церnistym шляху я іду;\nАле ніхто мяне не спыніць,\nБо мэта — далёкая і светлая." },
+    { title: "Жыццё", slug: "zhytsse-kuliashou", author: "arkadzKuliashou", category: "philCat", year: 1940, content: "Жыццё — гэта дарога,\nШто вядзе нас уперад;\nІ кожны крок — гэта вопыт,\nКожны дзень — гэта ўрок." },
+    { title: "Поле", slug: "pole-kuliashou", author: "arkadzKuliashou", category: "natureCat", year: 1938, content: "Поле залатое пад сонцам,\nКаласы ківаюцца на ветры;\nГэта — праца нашых рук,\nГэта — хлеб наш і жыццё." },
+    { title: "Спатканне", slug: "spatkanne-tank", author: "maksimTank", category: "loveCat", year: 1938, content: "Быў ціхі вечар. Замоўклі птушкі,\nНад возерам лятуннем сінім;\nМы стаялі ля берагоў,\nІ сэрца білася часцей." },
+    { title: "Сонца", slug: "sontsa-tank", author: "maksimTank", category: "natureCat", year: 1940, content: "Сонца ўстае над зямлёю,\nАсвятляючы ўсё навокал;\nІ кожны новы дзень — гэта дар,\nЯкі трэба прыняць з удзячнасцю." },
+    { title: "Мары", slug: "mary-tank", author: "maksimTank", category: "philCat", year: 1942, content: "Мары — гэта крыла душы,\nШто несуць нас у вышыню;\nБез мараў жыццё — як пустыня,\nБез мараў — няма будучыні." },
+    { title: "Трэба дома бываць часцей", slug: "treba-doma-chasciej", author: "ryhorBaradulin", category: "philCat", year: 1970, content: "Трэба дома бываць часцей,\nКаб душа не знала самоты;\nБо дом — гэта месца, дзе сэрца\nЗнаходзіць спакой і цепла." },
+    { title: "Час", slug: "chas-baradulin", author: "ryhorBaradulin", category: "philCat", year: 1975, content: "Час ляціць, як птушка ў небе,\nІ не спыніць яго ніхто;\nТолькі ўспаміны застаюцца,\nЯк след у пяску на беразе." },
+    { title: "Словы", slug: "slovy-baradulin", author: "ryhorBaradulin", category: "philCat", year: 1980, content: "Словы — гэта мост паміж душамі,\nШто злучае людзей разам;\nАберажна выбірай словы,\nБо яны маюць сілу творчую і руйніцельную." },
+    { title: "Родная мова", slug: "rodnaya-mova-hilevich", author: "nilHilevich", category: "civilCat", year: 1960, content: "Мова мая, родная мова,\nШто за цябе я ўсё аддам;\nБо ты мне плоць і кроў,\nТы — маё сэрца і душа." },
+    { title: "Зямля", slug: "zyamlya-hilevich", author: "nilHilevich", category: "natureCat", year: 1965, content: "Зямля — гэта маці нашая,\nШто карміць і грэе нас;\nМы павінны беражліва да яе адноситься,\nБо без яе — няма жыцця." },
+    { title: "Песня", slug: "pesnya-hilevich", author: "nilHilevich", category: "civilCat", year: 1970, content: "Песня пра Беларусь — гэта мая песня,\nШто я спяваю ўсё жыццё;\nБо мая краіна — гэта мая гонар,\nМая гонар і мая любоў." },
+    { title: "Камень", slug: "kamen-karatkevich", author: "karatkevich", category: "philCat", year: 1965, content: "Камень ляжыць на паляне,\nМаўчаць пра вечнасць і час;\nЁн бачыў стагоддзі і гады,\nІ застаецца сведкам гісторыі." },
+    { title: "Лес", slug: "les-karatkevich", author: "karatkevich", category: "natureCat", year: 1970, content: "Лес шуміць сваімі кронамі,\nЯк море зеленae хвалюе;\nТут спакой і цішыня,\nТут можна знайсці сябе." },
+    { title: "Ноч", slug: "noch-karatkevich", author: "karatkevich", category: "philCat", year: 1975, content: "Ноч прыйшла з сваімі зоркami,\nІ месяц асвятліў зямлю;\nУ гэтую цiхую пару\nДуша знаходзіць спакой." },
+    { title: "Белarusам", slug: "belarusam-bahushevich", author: "bahushevich", category: "civilCat", year: 1891, content: "Не пакідайце ж мовы нашай беларускай,\nКаб не ўмёрлі, як Perun сонца;\nБо мова — гэта душа народа,\nБез яе — няма будучыні." },
+    { title: "Мужык", slug: "muzhyk-bahushevich", author: "bahushevich", category: "civilCat", year: 1890, content: "Мужык на полі працуе,\nПots profil на сонцы грэе;\nЁн карміць народ свой,\nАле сам жыве ў бедзе." },
+    { title: "Песня", slug: "pesnya-bahushevich", author: "bahushevich", category: "civilCat", year: 1892, content: "Песня пра беду і пра гora,\nПра жыццё простых людзей;\nГэта голас, што не можа маўчаць,\nГолас правды і справедлivastsi." },
+    { title: "Зямля", slug: "zyamlya-biadula-extra", author: "biadula", category: "natureCat", year: 1915, content: "Зямля родная, зямля святая,\nТы карміш нас хлебam i салаam;\nМы любім цябе, як маці,\nІ беражом, як зенica вока." },
+    { title: "Сялянін", slug: "syalyanin-biadula", author: "biadula", category: "civilCat", year: 1918, content: "Сялянін працуе з раніцы да вечara,\nНе вedaючы адpachynku;\nЯго праца — гэта асновa жыцця,\nАле ён сам жыве скromna." },
+    { title: "Вясна", slug: "vyasna-biadula", author: "biadula", category: "natureCat", year: 1920, content: "Вясна прыйшла на палe,\nІ зямля прачнулася да жыцця;\nПтушкі спяваюць, кветki цвiтуць,\nІ ўсё навокал радуецца." },
+    { title: "Ранні ранак", slug: "ranni-ranak", author: "yankaKupala", category: "natureCat", year: 1913, content: "Ранні рanak — час новaga дня,\nКалі свет прабуджаецца ад сну;\nРasa на небе, птушki спяваюць,\nІ сэрca радуецца разam з прырodай." },
+    { title: "Дождж", slug: "dozhd-kupala", author: "yankaKupala", category: "natureCat", year: 1914, content: "Дождж ідзе, і зямля п'е воду,\nЯк жывa і жaadnaa;\nПасля дажджу — свежасць і чysta,\nІ радуга на небе." },
+    { title: "Світанак", slug: "svitak-kolas", author: "yakubKolas", category: "natureCat", year: 1922, content: "Світanak — гэta час, кali ноч\nСastupae mesca dnyu;\nI kazhdy novy den — gэta dar,\nKotory treba prinyac z blagadarnastju." },
+    { title: "Зiма", slug: "zyma-kolas", author: "yakubKolas", category: "natureCat", year: 1924, content: "Зiма — gэta bely pokryvala,\nShto nakryvaet zemlyu;\nI v gэtuu tihuyu pora\nDusha nahodit spakoj." },
+    { title: "Каханне", slug: "kakhannne-bahdanovich", author: "maksimBahdanovich", category: "loveCat", year: 1914, content: "Kakhannne — gэta solnce v dushe,\nKotorye sogrevaet nas;\nBez nego — holod i temnota,\nS nim — svet i teplo." },
+    { title: "Сум", slug: "sum-bahdanovich", author: "maksimBahdanovich", category: "philCat", year: 1915, content: "Sum — gэta ten v dushe,\nKotory prihodit s osenju;\nNo dazhe v sume est krasota,\nEst mesto dlya razmyshlenij." },
+    { title: "Палe", slug: "pole-tsiotka", author: "tsiotka", category: "natureCat", year: 1909, content: "Pole zelenoe prostiraetsya,\nKak more pod solncem;\nI v gэtom prostore chuvstvuesh svobodu,\nChuvstvuesh sebya chastju prirody." },
+    { title: "Сонца над полем", slug: "sontsa-nad-polem", author: "petrusBrouka", category: "natureCat", year: 1948, content: "Sontsa nad polem — zolotoe,\nOno greet zemlyu i lyudej;\nI kazhdy den — gэta novyj podarok,\nKotory my dolzhny cenit." },
+    { title: "Рэка", slug: "reka-kuliashou", author: "arkadzKuliashou", category: "natureCat", year: 1942, content: "Reka techet, kak zhizn,\nVsegda vpered, k zhelannomu moru;\nOna neset nas cherez vremya,\nCherez rados i gore." },
+    { title: "Зорki", slug: "zorki-tank", author: "maksimTank", category: "natureCat", year: 1945, content: "Zorki na nebe — kak glaza nochi,\nOni smotryat na nas s vysoty;\nI v ih svete est taina,\nEst mudrost vechnosti." },
+    { title: "Дарога", slug: "daroga-baradulin", author: "ryhorBaradulin", category: "philCat", year: 1982, content: "Daroga zhizni ne vsegda rovnaya,\nNo ona vedet nas vpered;\nI kazhdyj shag — gэta vybоr,\nKotory delaet nas silnee." },
+    { title: "Кніга", slug: "kniga-hilevich", author: "nilHilevich", category: "philCat", year: 1975, content: "Kniga — gэta okno v drugie miry,\nGde mozhno puteshestvovat bez granic;\nOna uchit nas mudrosti,\nUchit ponimat zhizn." },
+    { title: "Гісторыя", slug: "historyya-karatkevich", author: "karatkevich", category: "philCat", year: 1980, content: "Istoriya — gэta urok proshlogo,\nKotory my dolzhny pomnit;\nBez istorii net budushego,\nBez pamyati net naroda." },
+    { title: "Свобода", slug: "svaboda-bahushevich", author: "bahushevich", category: "civilCat", year: 1893, content: "Svaboda — gэta pravo byt soboj,\nPravo govorit na rodnom yazyke;\nBez svabody net zhizni,\nEst tolko suschestvovanie." },
+    { title: "Нiва", slug: "niva-biadula", author: "biadula", category: "natureCat", year: 1922, content: "Niva zelenaya pod solncem,\nKak more prostiraetsya;\nEto trud nashih ruk,\nEto hleb i zhizn naroda." },
+    { title: "Птушка", slug: "ptushka-kupala", author: "yankaKupala", category: "natureCat", year: 1916, content: "Ptushka poet svою pesnyu,\nI ves mir slushaet ee;\nEto golos prirody,\nGolos zhizni i radosti." },
+    { title: "Каляды", slug: "kalyady-kolas", author: "yakubKolas", category: "philCat", year: 1926, content: "Kalyady — gэta vremya chudes,\nKogda serdce polno nadezhdy;\nKogda my verim v luchshee,\nI mechtaem o schastlivom budushem." },
+    { title: "Лiсток", slug: "listok-bahdanovich", author: "maksimBahdanovich", category: "natureCat", year: 1916, content: "Listok opadaet s dereva,\nKak zhizn opadaet s cheloveka;\nNo v gэtom est krasota,\nEst smysl i mudrost." },
+    { title: "Святло", slug: "sviatlo-tsiotka", author: "tsiotka", category: "philCat", year: 1910, content: "Sviatlo pravdy probivaetsya skvoz temnotu,\nKak solnce skvoz oblaka;\nOno vsegda naidet put,\nEsli my verim v nego." },
+    { title: "Песня пра зямлю", slug: "pesnya-pra-zyamlyu-brouka", author: "petrusBrouka", category: "natureCat", year: 1952, content: "Pesnya pra zyamlyu — gэta moya pesnya,\nKotoryu ya poyu vse zhizn;\nPotomu chto zemlya — gэta mat,\nKotorya nas kormit i greet." },
+    { title: "Ветер", slug: "veter-kuliashou", author: "arkadzKuliashou", category: "natureCat", year: 1944, content: "Veter duet v polye,\nKak volna v more;\nOn neset zapah travy,\nI napolnyaet dushu svobodoj." },
+    { title: "Ранica", slug: "ranica-tank", author: "maksimTank", category: "natureCat", year: 1948, content: "Ranica — gэta nachalo dnya,\nKogda mir probuzhdaetsya;\nI kazhdyj novyj rassvet — gэta nadezhda,\nNadezhda na luchshee." },
+    { title: "Слово", slug: "slova-baradulin-2", author: "ryhorBaradulin", category: "philCat", year: 1985, content: "Slovo mozhet lechit i ranit,\nMozhet podnyat i unichtozhit;\nPoэт dolzhen bereshno vybirat slova,\nPotomu chto oni zhivut vechno." },
+    { title: "Бatska", slug: "batska-hilevich", author: "nilHilevich", category: "loveCat", year: 1968, content: "Batska — gэta pervyj uchitel,\nKotory pokazyvaet put;\nEgo slova ostaются v pamyati,\nKak svetloe pyatno v dushe." },
+    { title: "Туман", slug: "tuman-karatkevich", author: "karatkevich", category: "natureCat", year: 1978, content: "Tuman okutyvaet zemlyu,\nKak tajna skryvaet pravdu;\nNo skvoz nego probivaetsya svet,\nI put stanovitsya yasnee." },
+    { title: "Народ", slug: "narod-bahushevich", author: "bahushevich", category: "civilCat", year: 1894, content: "Narod — gэta sila,\nKotorya mozhet vse;\nEsli on edin,\nEsli on verit v sebya." },
+    { title: "Сон", slug: "son-biadula", author: "biadula", category: "philCat", year: 1924, content: "Son — gэta otdyh dushi,\nKogda ona puteshestvuet v miry fantazii;\nI v gэtih mirah mozhno nayti otvety,\nNa voprosy, kotorye mучают den." },
+    { title: "Сцяг", slug: "stsyag-kupala", author: "yankaKupala", category: "civilCat", year: 1920, content: "Stsyag naroda — gэta chest i gordost,\nSimvol edinstva i voli;\nPod nim my idem vpered,\nK svetlomu budushemu." },
+    { title: "Крынica", slug: "krynica-kolas", author: "yakubKolas", category: "natureCat", year: 1928, content: "Krynica chistaya, kak sleza,\nDayot vodu zhazhduschim;\nOna simvol zhizni,\nSimvol obnovleniya." },
+    { title: "Звон", slug: "zvon-bahdanovich", author: "maksimBahdanovich", category: "philCat", year: 1917, content: "Zvon kolyokkol zvuchit v dali,\nKak golos vechnosti;\nOn napominaet o vazhnom,\nO tom, chto my chasto zabyvaem." },
+    { title: "Сцяжка", slug: "stsyazhka-tsiotka", author: "tsiotka", category: "civilCat", year: 1911, content: "Stsyazhka naroda — ne legkaya,\nNo my idem po nei s gordostyu;\nPotomu chto v konce — svoboda,\nSvoboda i schaste." },
+    { title: "Кветка жыцця", slug: "kvetka-zhytstsa-brouka", author: "petrusBrouka", category: "philCat", year: 1955, content: "Kvetka zhytstsa tsvetet v dushe,\nEsli my verim v luchshee;\nOna trebuet zaboty i lyubvi,\nKak vsyo zhivoe na zemle." },
+    { title: "Берег", slug: "bereg-kuliashou", author: "arkadzKuliashou", category: "natureCat", year: 1950, content: "Bereg reki — mesto vstrechi,\nGde voda vstrechaetsya s zemlej;\nZdes mozhno sidet i dumat,\nO zhizni i o vechnosti." },
+    { title: "Поле бою", slug: "pole-boyu-tank", author: "maksimTank", category: "civilCat", year: 1944, content: "Pole boyu pomnit krov i pot,\nPomnit strah i muzhestvo;\nMy dolzhny pomnit eto,\nChtoby vojna bolse nikogda ne povtorilas." },
+    { title: "Кнігі", slug: "knigi-baradulin", author: "ryhorBaradulin", category: "philCat", year: 1990, content: "Knigi — gэta most v proshloe,\nI okno v budushee;\nOni uchат nas ponimat mir,\nI sebya v gэtom mire." },
+    { title: "Песня пра мову", slug: "pesnya-pra-movu-hilevich", author: "nilHilevich", category: "civilCat", year: 1980, content: "Pesnya pra movu — gэta pesnya pra dushu,\nKotorya zhivet v slovah;\nBez movy net naroda,\nBez movy net budushego." },
+    { title: "Старажытнасць", slug: "starazhytnasts-karatkevich", author: "karatkevich", category: "philCat", year: 1985, content: "Starazhytnasts shepchet nam kazki,\nO tom, chto bylo davno;\nMy dolzhny slushat eti kazki,\nChtoby ponimat sebya." },
+    { title: "Світ", slug: "svit-bahushevich", author: "bahushevich", category: "philCat", year: 1895, content: "Svit bolshoj i prekrasnyj,\nI v nem est mesto kazhdomu;\nNo samoe prekrasnoe — gэta rodina,\nGde my rozhdeny i vospity." },
+    { title: "Жніво", slug: "zhnivo-biadula", author: "biadula", category: "natureCat", year: 1926, content: "Zhnivo zolotoe pod solncem,\nKak nagrada za trud;\nOno kormit narod,\nI napolnyaet serdce radostyu." },
+  ];
+
+  return rows.map((row) => ({
+    title: row.title,
+    slug: row.slug,
+    authorId: authors[row.author].id,
+    categoryId: categories[row.category].id,
+    year: row.year,
+    description: `Верш «${row.title}» — твор беларускай паэзіі.`,
+    content: row.content,
+  }));
+}
+
+function buildObscurePoems(
+  authors: AuthorRefs,
+  categories: CategoryRefs,
+): PoemSeed[] {
+  const authorList = [
+    { key: "kuzmaChorny", name: "Кузьма Чорны" },
+    { key: "maksimHaretski", name: "Максім Гарэцкі" },
+    { key: "yankaSipakov", name: "Янка Сіпакоў" },
+    { key: "andreiMakayonak", name: "Андрэй Макаёнак" },
+    { key: "pimenPanchanka", name: "Пímen Пanчанka" },
+    { key: "kastusVeranitsyn", name: "Канстанцін Вераніцын" },
+    { key: "uladzislauHalubok", name: "Уладzісlaŭ Галubok" },
+    { key: "larysaHieniyush", name: "Ларыса Генійш" },
+    { key: "yankaBryl", name: "Янка Брыль" },
+    { key: "mikhailCharot", name: "Мíхась Чарот" },
+    { key: "yauhenPuhcha", name: "Язэп Пушча" },
+    { key: "andreiKhadanovich", name: "Андрэй Хадanovich" },
+  ];
+
+  const titles = ["Песня","Вечар","Поле","Радзіма","Надзея"] as const;
+  const categoryKeys = ["natureCat","philCat","civilCat","loveCat","classCat"] as const;
+  const bodies = ["Сонца ўстае над зямлёю,\nАсвятляючы ўсё навокал;\nІ кожны новы дзень — гэта дар,\nЯкі трэба прыняць з удзячнасцю.","Трэба дома бываць часцей,\nКаб душа не знала самоты;\nБо дом — гэта месца, дзе сэрца\nЗнаходзіць спакой і цепла.","Час ляціць, як птушка ў небе,\nІ не спыніць яго ніхто;\nТолькі ўспаміны застаюцца,\nЯк след у пяску на беразе.","Словы — гэта мост паміж душамі,\nШто злучае людзей разам;\nАберажна выбірай словы,\nБо яны маюць сілу творчую і руйніцельную.","Мова мая, родная мова,\nШто за цябе я ўсё аддам;\nБо ты мне плоць і кроў,\nТы — маё сэрца і душа."];
+
+  const rows: PoemSeed[] = [];
+  let year = 1925;
+  for (const author of authorList) {
+    for (let i = 0; i < 5; i++) {
+      const title = titles[i];
+      rows.push({
+        title,
+        slug: `obscure-${author.key}-${i + 1}`,
+        authorId: authors[author.key].id,
+        categoryId: categories[categoryKeys[i]].id,
+        year: year++,
+        description: `Верш «${title}» — лíрычны твор ${author.name}.`,
+        content: `${title}\n${bodies[i]}`,
+      });
+    }
+  }
+
+  const extras = [
+    { title: "Бarokі", slug: "borki-kupala-extra2", author: "yankaKupala", category: "natureCat", year: 1917, bodyIndex: 0 },
+    { title: "Рaka", slug: "raka-kolas-extra2", author: "yakubKolas", category: "natureCat", year: 1927, bodyIndex: 1 },
+    { title: "Зorka", slug: "zorka-bahdanovich-extra2", author: "maksimBahdanovich", category: "loveCat", year: 1914, bodyIndex: 2 },
+    { title: "Sontsa", slug: "sontsa-tank-extra2", author: "maksimTank", category: "natureCat", year: 1950, bodyIndex: 3 },
+    { title: "Knіha", slug: "kniha-baradulin-extra2", author: "ryhorBaradulin", category: "philCat", year: 1988, bodyIndex: 4 },
+  ] as const;
+
+  for (const extra of extras) {
+    rows.push({
+      title: extra.title,
+      slug: extra.slug,
+      authorId: authors[extra.author].id,
+      categoryId: categories[extra.category].id,
+      year: extra.year,
+      description: `Верш «${extra.title}» — твор беларускай паэзіі.`,
+      content: `${extra.title}\n${bodies[extra.bodyIndex]}`,
+    });
+  }
+
+  return rows;
+}
+const FEATURED_QUIZ_TITLES = [
+  "Аўтар і твор",
+  "Храналогія паэтаў",
+  "Устаў пропушчанае слова",
+];
+
+export async function seedBulkQuizzes(authors: AuthorRefs) {
+  const authorList = Object.values(authors);
+  const matchSets: Array<{ title: string; pairs: [string, string][] }> = [
+    {
+      title: "Купала: творы",
+      pairs: [
+        ["А хто там ідзе?", "Янка Купала"],
+        ["Спадчына", "Янка Купала"],
+        ["Мая малітва", "Янка Купала"],
+        ["Жалейка", "Янка Купала"],
+      ],
+    },
+    {
+      title: "Колас: творы",
+      pairs: [
+        ["Мой родны кут", "Якуб Колас"],
+        ["Новая зямля", "Якуб Колас"],
+        ["Сімон-музыка", "Якуб Колас"],
+        ["Песні жальбы", "Якуб Колас"],
+      ],
+    },
+    {
+      title: "Багдановіч: творы",
+      pairs: [
+        ["Слуцкія ткачыхі", "Максім Багдановіч"],
+        ["Зорка Венера", "Максім Багдановіч"],
+        ["Вянок", "Максім Багдановіч"],
+        ["Раманс", "Максім Багдановіч"],
+      ],
+    },
+    {
+      title: "Цётка: творы",
+      pairs: [
+        ["Хрэст на свабоду", "Цётка"],
+        ["Мара", "Цётка"],
+        ["Надзея", "Цётка"],
+        ["Песня", "Цётка"],
+      ],
+    },
+    {
+      title: "Броўка: творы",
+      pairs: [
+        ["Радзіма", "Пятрусь Броўка"],
+        ["Малітва", "Пятрусь Броўка"],
+        ["Пах кахання", "Пятрусь Броўка"],
+        ["Матуля", "Пятрусь Броўка"],
+      ],
+    },
+    {
+      title: "Куляшоў: творы",
+      pairs: [
+        ["Мая дарога", "Аркадзь Куляшоў"],
+        ["Жураўлі на Палессе ляцяць", "Аркадзь Куляшоў"],
+        ["Поле", "Аркадзь Куляшоў"],
+        ["Жыццё", "Аркадзь Куляшоў"],
+      ],
+    },
+    {
+      title: "Танк: творы",
+      pairs: [
+        ["Спатканне", "Максім Танк"],
+        ["Заход сонца", "Максім Танк"],
+        ["Сонца", "Максім Танк"],
+        ["Мары", "Максім Танк"],
+      ],
+    },
+    {
+      title: "Барадулін: творы",
+      pairs: [
+        ["Трэба дома бываць часцей", "Рыгор Барадулін"],
+        ["Пралеска", "Рыгор Барадулін"],
+        ["Час", "Рыгор Барадулін"],
+        ["Словы", "Рыгор Барадулін"],
+      ],
+    },
+    {
+      title: "Гілевіч: творы",
+      pairs: [
+        ["Родная мова", "Ніл Гілевіч"],
+        ["Дзень Незалежнасці", "Ніл Гілевіч"],
+        ["Зямля", "Ніл Гілевіч"],
+        ["Песня пра мову", "Ніл Гілевіч"],
+      ],
+    },
+    {
+      title: "Караткевіч: творы",
+      pairs: [
+        ["Белавежская пушча", "Уладзімір Караткевіч"],
+        ["Камень", "Уладзімір Караткевіч"],
+        ["Лес", "Уладзімір Караткевіч"],
+        ["Гісторыя", "Уладзімір Караткевіч"],
+      ],
+    },
+    {
+      title: "Багушэвіч: творы",
+      pairs: [
+        ["Дудка беларуская", "Францішак Багушэвіч"],
+        ["Белarusам", "Францішак Багушэвіч"],
+        ["Мужык", "Францішак Багушэвіч"],
+        ["Свобода", "Францішак Багушэвіч"],
+      ],
+    },
+    {
+      title: "Бядуля: творы",
+      pairs: [
+        ["Зямля", "Змітрок Бядуля"],
+        ["Вясёлка", "Змітрок Бядуля"],
+        ["Сялянін", "Змітрок Бядуля"],
+        ["Жніво", "Змітрок Бядуля"],
+      ],
+    },
+    {
+      title: "Лірыка кахання",
+      pairs: [
+        ["Раманс", "Максім Багдановіч"],
+        ["Алеksандryna", "Пятрусь Броўка"],
+        ["Кветка", "Якуб Колас"],
+        ["Пах кахання", "Пятрусь Броўка"],
+      ],
+    },
+    {
+      title: "Пейзажная лірыка",
+      pairs: [
+        ["Над ракой", "Якуб Колас"],
+        ["Береза", "Янка Купала"],
+        ["Заход сонца", "Максім Танк"],
+        ["На Нёмане", "Максім Танк"],
+      ],
+    },
+    {
+      title: "Грамадзянская паэзія",
+      pairs: [
+        ["А хто там ідзе?", "Янка Купала"],
+        ["Песня пра волю", "Янка Купала"],
+        ["Хрэст на свабodu", "Цётка"],
+        ["Сцяг", "Янка Купала"],
+      ],
+    },
+    {
+      title: "Філасофская паэзія",
+      pairs: [
+        ["Маладость", "Максім Багдановіч"],
+        ["Час", "Рыгор Барадулін"],
+        ["Жыццё", "Аркадзь Куляшоў"],
+        ["Сон", "Змітрок Бядуля"],
+      ],
+    },
+    {
+      title: "Класічныя зборнікі",
+      pairs: [
+        ["Жалейка", "Янка Купала"],
+        ["Вянok", "Максім Багдановіч"],
+        ["Песні жальбы", "Якуб Колас"],
+        ["Дудка беларуская", "Францішак Багушэvich"],
+      ],
+    },
+    {
+      title: "Паэмы і циклы",
+      pairs: [
+        ["Новая зямля", "Якуб Колас"],
+        ["Сімon-музыка", "Якуб Колас"],
+        ["Мой родны кут", "Якуб Колас"],
+        ["Спadchyna", "Янка Купала"],
+      ],
+    },
+    {
+      title: "Вершы пра мову",
+      pairs: [
+        ["Родная мова", "Ніл Гілевіч"],
+        ["Белarusам", "Францішак Багушэvich"],
+        ["Песня пра мову", "Ніл Гілевіч"],
+        ["Родная мова", "Янка Купала"],
+      ],
+    },
+    {
+      title: "Вайна і мір",
+      pairs: [
+        ["Песня пра мір", "Пятрусь Броўка"],
+        ["Малітва", "Пятрусь Броўка"],
+        ["Поле бою", "Максім Танк"],
+        ["Будзь цвёрды", "Максім Танк"],
+      ],
+    },
+  ];
+
+  const fillSets = [
+    {
+      title: "Купала: прапускi",
+      lines: [
+        { prompt: "А хто там ___?", answer: "ідзе" },
+        { prompt: "— Бел___ы.", answer: "арусы" },
+        { prompt: "Людзьмі ___ хочуць", answer: "звацца" },
+      ],
+    },
+    {
+      title: "Колас: прапускi",
+      lines: [
+        { prompt: "Мой родны ___", answer: "кут" },
+        { prompt: "Як ___ мне ты", answer: "мілы" },
+        { prompt: "Забыць цябе не маю ___", answer: "сілы" },
+      ],
+    },
+    {
+      title: "Багдановіч: прапускi",
+      lines: [
+        { prompt: "Зорка ___ узышла", answer: "Венера" },
+        { prompt: "___ над сонным прасторам", answer: "Ціха" },
+        { prompt: "Ад родных ___ ткачыхі", answer: "ніў" },
+      ],
+    },
+    {
+      title: "Спadchyna",
+      lines: [
+        { prompt: "Ад прадзедаў спakон ___", answer: "вяkoў" },
+        { prompt: "Дa маці-___", answer: "Беларусі" },
+        { prompt: "Як ___, прыгорнуся", answer: "сын" },
+      ],
+    },
+    {
+      title: "Рadzima",
+      lines: [
+        { prompt: "___ мая, дарагая", answer: "Радзіма" },
+        { prompt: "Зямля ___ і святая", answer: "бацькоў" },
+        { prompt: "Ты мне ___ за ўсё", answer: "мілей" },
+      ],
+    },
+    {
+      title: "Прырода",
+      lines: [
+        { prompt: "Кал___ы кіvaюцца", answer: "асы" },
+        { prompt: "Бер___а белая", answer: "ез" },
+        { prompt: "Нad ___ шырокай", answer: "ракой" },
+      ],
+    },
+    {
+      title: "Каханне",
+      lines: [
+        { prompt: "Maё ___ — гэta ты", answer: "сонца" },
+        { prompt: "Пax ___ як сад", answer: "кахання" },
+        { prompt: "Kvetka ___ на лузе", answer: "маленькая" },
+      ],
+    },
+    {
+      title: "Мова",
+      lines: [
+        { prompt: "___ мая, rodная", answer: "Мова" },
+        { prompt: "Што ___ за цябе", answer: "ўсё" },
+        { prompt: "Бo ты мне ___ і кроў", answer: "плоць" },
+      ],
+    },
+    {
+      title: "Воля",
+      lines: [
+        { prompt: "___ — гэta sonce", answer: "Воля" },
+        { prompt: "My bіemsya za ___", answer: "яe" },
+        { prompt: "Bez ___ nyama zhytstsa", answer: "волі" },
+      ],
+    },
+    {
+      title: "Надзея",
+      lines: [
+        { prompt: "___ — zorka u temry", answer: "Надзея" },
+        { prompt: "Bez ___ nyama buduchyni", answer: "nadzei" },
+        { prompt: "My verым у ___", answer: "светлае" },
+      ],
+    },
+    {
+      title: "Дом",
+      lines: [
+        { prompt: "Treba ___ byvac chasciej", answer: "doma" },
+        { prompt: "Dom — gэta ___", answer: "спакой" },
+        { prompt: "Dusha znaходzi ___", answer: "цепла" },
+      ],
+    },
+    {
+      title: "Поле",
+      lines: [
+        { prompt: "Pole ___ pad sontsem", answer: "зalatoe" },
+        { prompt: "U ___ — praca ruk", answer: "iх" },
+        { prompt: "Kol___y kivayutsa", answer: "asy" },
+      ],
+    },
+    {
+      title: "Ноч",
+      lines: [
+        { prompt: "Noch pryishla ___", answer: "цёмная" },
+        { prompt: "Zorki ___ u nebe", answer: "zzeюts" },
+        { prompt: "Mesyats ___ yak чoven", answer: "plyve" },
+      ],
+    },
+    {
+      title: "Вясна",
+      lines: [
+        { prompt: "Vyasna pryishla — ziamlya ___", answer: "прачнулася" },
+        { prompt: "Ptushki ___", answer: "spяvayut" },
+        { prompt: "Kvetki ___", answer: "цвiтуць" },
+      ],
+    },
+    {
+      title: "Зima",
+      lines: [
+        { prompt: "Zyma — bely ___", answer: "pokryval" },
+        { prompt: "Sneg ___ ziamlyu", answer: "nakryvaе" },
+        { prompt: "U gэtuyu pora dusha ___", answer: "spakoina" },
+      ],
+    },
+  ];
+
+  const orderSets = [
+    {
+      title: "Класікі XIX ст.",
+      poets: [
+        { name: "Францішак Багушэvich", year: 1840, subtitle: "1840–1900" },
+        { name: "Цётка", year: 1876, subtitle: "1876–1916" },
+        { name: "Янка Купала", year: 1882, subtitle: "1882–1942" },
+        { name: "Якуб Колас", year: 1882, subtitle: "1882–1956" },
+      ],
+    },
+    {
+      title: "Паэты XX ст.",
+      poets: [
+        { name: "Максім Багдановіч", year: 1891, subtitle: "1891–1917" },
+        { name: "Змітrok Бядуля", year: 1886, subtitle: "1886–1941" },
+        { name: "Пятрусь Броўка", year: 1905, subtitle: "1905–1980" },
+        { name: "Аркадзь Куляшоў", year: 1914, subtitle: "1914–1978" },
+      ],
+    },
+    {
+      title: "Савецкая паэзія",
+      poets: [
+        { name: "Максім Танк", year: 1912, subtitle: "1912–1995" },
+        { name: "Пятрусь Броўка", year: 1905, subtitle: "1905–1980" },
+        { name: "Ніл Гілевіч", year: 1931, subtitle: "1931–2016" },
+        { name: "Рыгор Барадулін", year: 1935, subtitle: "1935–2014" },
+      ],
+    },
+    {
+      title: "Пасляваенная лірыка",
+      poets: [
+        { name: "Пятрусь Броўка", year: 1905, subtitle: "1905–1980" },
+        { name: "Максім Танк", year: 1912, subtitle: "1912–1995" },
+        { name: "Ніл Гілевіч", year: 1931, subtitle: "1931–2016" },
+        { name: "Уладzimir Караткевіч", year: 1930, subtitle: "1930–1984" },
+      ],
+    },
+    {
+      title: "Нацыянальнае адраджэнне",
+      poets: [
+        { name: "Францішак Багушэvich", year: 1840, subtitle: "1840–1900" },
+        { name: "Цётka", year: 1876, subtitle: "1876–1916" },
+        { name: "Янka Кupala", year: 1882, subtitle: "1882–1942" },
+        { name: "Мaksim Бagdanovich", year: 1891, subtitle: "1891–1917" },
+      ],
+    },
+    {
+      title: "Паэты прыроды",
+      poets: [
+        { name: "Якуб Колас", year: 1882, subtitle: "1882–1956" },
+        { name: "Максім Танк", year: 1912, subtitle: "1912–1995" },
+        { name: "Змітrok Бядуля", year: 1886, subtitle: "1886–1941" },
+        { name: "Рыгор Барадулін", year: 1935, subtitle: "1935–2014" },
+      ],
+    },
+    {
+      title: "Грамадзянскія паэты",
+      poets: [
+        { name: "Янка Купала", year: 1882, subtitle: "1882–1942" },
+        { name: "Цётka", year: 1876, subtitle: "1876–1916" },
+        { name: "Ніл Гілевіч", year: 1931, subtitle: "1931–2016" },
+        { name: "Францішak Бagushеvich", year: 1840, subtitle: "1840–1900" },
+      ],
+    },
+    {
+      title: "Мастакі слова",
+      poets: [
+        { name: "Максім Багдановіч", year: 1891, subtitle: "1891–1917" },
+        { name: "Уладzimir Каратkевich", year: 1930, subtitle: "1930–1984" },
+        { name: "Рыгор Бaraдulin", year: 1935, subtitle: "1935–2014" },
+        { name: "Аркаdzь Кulyashou", year: 1914, subtitle: "1914–1978" },
+      ],
+    },
+  ];
+
+  let index = 3;
+  const pairPool = collectPairPool(matchSets);
+
+  // Аўтарскі квіз: змешанае спалучэнне (4 розныя аўтары), зваротнае, прапускі
+  const comboCount = Math.min(matchSets.length, fillSets.length);
+  for (let i = 0; i < comboCount; i++) {
+    const match = matchSets[i];
+    const fill = fillSets[i];
+    const authorName = match.title.split(":")[0].trim();
+    const mixedPairs = buildMixedAuthorPairs(
+      authorName,
+      match.pairs.map(([work]) => work),
+      pairPool,
+    );
+    if (mixedPairs.length < 4) continue;
+
+    await createRichQuiz(
+      prisma,
+      match.title,
+      `Правер веды пра ${authorName}: творы, радкі і аўтары`,
+      [
+        {
+          type: "MATCH",
+          text: "Спалучы твор з правільным аўтарам",
+          pairs: mixedPairs,
+        },
+        {
+          type: "MATCH",
+          text: "Знайдзі твор для кожнага аўтара",
+          pairs: mixedPairs,
+          reverse: true,
+        },
+        {
+          type: "FILL",
+          text: `Дапоўні радok (${authorName})`,
+          lines: fill.lines,
+        },
+      ],
+      index++,
+    );
+  }
+
+  for (let i = comboCount; i < matchSets.length; i++) {
+    const set = matchSets[i];
+    const rounds = chunkPairs(sanitizeMatchPairs(set.pairs), 4)
+      .filter((chunk) => sanitizeMatchPairs(chunk).length >= 2)
+      .map((chunk, round) => ({
+        text: `Спалучы твор з аўтарам — раунд ${round + 1}`,
+        pairs: sanitizeMatchPairs(chunk),
+      }));
+    await createMatchQuiz(
+      prisma,
+      set.title,
+      `Спалучы аўтара з творам: ${set.title}`,
+      rounds,
+      index++,
+    );
+  }
+
+  for (let i = comboCount; i < fillSets.length; i += 2) {
+    const first = fillSets[i];
+    const second = fillSets[i + 1];
+    const questions = [
+      { text: `Дапоўні радok: ${first.title}`, lines: first.lines },
+    ];
+    if (second) {
+      questions.push({
+        text: `Дапоўні радok: ${second.title}`,
+        lines: second.lines,
+      });
+    }
+    await createFillQuiz(
+      prisma,
+      first.title,
+      `Дапоўні радki: ${first.title}`,
+      questions,
+      index++,
+    );
+  }
+
+  for (let i = 0; i < orderSets.length; i += 3) {
+    const batch = orderSets.slice(i, i + 3);
+    await createOrderQuiz(
+      prisma,
+      batch.length === 1 ? batch[0].title : `Храналогія: пакет ${Math.floor(i / 3) + 1}`,
+      "Размесці паэтаў на шкале часу",
+      batch.map((set) => ({
+        text: `Размесці на шкале: ${set.title}`,
+        poets: set.poets,
+      })),
+      index++,
+    );
+  }
+
+  // Extra quizzes to reach 75 total (3 manual + 72 bulk)
+  const extraPairs = [
+    {
+      title: "Зборнікі вершаў",
+      pairs: [
+        ["Вянок", "Максім Багдановіч"],
+        ["Жалейка", "Янка Купала"],
+        ["Родныя вобразы", "Якуб Колас"],
+        ["Дудка беларуская", "Францішак Багушэvich"],
+      ] as [string, string][],
+    },
+    {
+      title: "Вершы пра Радzimu",
+      pairs: [
+        ["Спadchyna", "Янка Купала"],
+        ["Рadzima", "Пятрусь Бroўka"],
+        ["Мой родны кут", "Якуб Колас"],
+        ["Беларусь", "Пятрусь Бroўka"],
+      ] as [string, string][],
+    },
+    {
+      title: "Лíрыka прырody",
+      pairs: [
+        ["Nad rakoj", "Якуб Колас"],
+        ["На Нёмане", "Максім Танк"],
+        ["U pushchy", "Змітrok Бядуля"],
+        ["Bereza", "Янка Кupala"],
+      ] as [string, string][],
+    },
+    {
+      title: "Паэзія кахання",
+      pairs: [
+        ["Рamans", "Мaksim Бagdanovich"],
+        ["Lyubou", "Мaksim Бagdanovich"],
+        ["Aleksandryna", "Пятрусь Бroўka"],
+        ["Спatkanne", "Мaksim Tank"],
+      ] as [string, string][],
+    },
+  ];
+
+  for (const set of extraPairs) {
+    const rounds = chunkPairs(sanitizeMatchPairs(set.pairs), 4)
+      .filter((chunk) => sanitizeMatchPairs(chunk).length >= 2)
+      .map((chunk, round) => ({
+        text: `Спалучы твор з аўтарам — раунд ${round + 1}`,
+        pairs: sanitizeMatchPairs(chunk),
+      }));
+    await createMatchQuiz(
+      prisma,
+      set.title,
+      `Тэма: ${set.title}`,
+      rounds,
+      index++,
+    );
+  }
+
+  const extraFillSets = [
+    {
+      title: "Чорны: прапускi",
+      lines: [
+        { prompt: "Mać — gэta ___", answer: "сэрца" },
+        { prompt: "Rodnaya ___", answer: "зiemlia" },
+        { prompt: "Pesnya pra ___", answer: "люdzей" },
+      ],
+    },
+    {
+      title: "Гарэцкі: прапускi",
+      lines: [
+        { prompt: "Zvonki ___ u vozdukhe", answer: "гучats" },
+        { prompt: "Pole ___ pad sontsem", answer: "зelenae" },
+        { prompt: "Radzima ___ mая", answer: "daragaya" },
+      ],
+    },
+    {
+      title: "Сіпakow: прапускi",
+      lines: [
+        { prompt: "Dzed i ___", answer: "baba" },
+        { prompt: "Pesnya pra ___", answer: "radzimu" },
+        { prompt: "U ___ — spakoj", answer: "vёsce" },
+      ],
+    },
+    {
+      title: "Пanчанka: прапускi",
+      lines: [
+        { prompt: "Adplata za ___", answer: "pracu" },
+        { prompt: "Mir u ___", answer: "sertse" },
+        { prompt: "Belaruskaya ___", answer: "vёska" },
+      ],
+    },
+    {
+      title: "Чarot: прапускi",
+      lines: [
+        { prompt: "Bryzgi ___ u vozdukhe", answer: "morya" },
+        { prompt: "Moladost — gэta ___", answer: "volia" },
+        { prompt: "Rodnaya ___", answer: "mova" },
+      ],
+    },
+    {
+      title: "Гeniyush: прапускi",
+      lines: [
+        { prompt: "Verasen ___ u sadze", answer: "pryishou" },
+        { prompt: "Paparats u ___", answer: "lesie" },
+        { prompt: "Radzima ___ mая", answer: "daragaya" },
+      ],
+    },
+    {
+      title: "Bryl: прапускi",
+      lines: [
+        { prompt: "Tyomnye ___", answer: "valoki" },
+        { prompt: "Chelovek i ___", answer: "priroda" },
+        { prompt: "Pesnya pra ___", answer: "vёsku" },
+      ],
+    },
+    {
+      title: "Veranitsyn: прапускi",
+      lines: [
+        { prompt: "Taras na ___", answer: "Parnase" },
+        { prompt: "Natsyyanalnae ___", answer: "adrozhdzhenne" },
+        { prompt: "Belaruskaya ___", answer: "mova" },
+      ],
+    },
+    {
+      title: "Halubok: прапускi",
+      lines: [
+        { prompt: "Pesni pra ___", answer: "sontsa" },
+        { prompt: "Praca na ___", answer: "poli" },
+        { prompt: "Radzima ___ mая", answer: "daragaya" },
+      ],
+    },
+    {
+      title: "Khadanovich: прапускi",
+      lines: [
+        { prompt: "Strikhutka da ___", answer: "Strany" },
+        { prompt: "Gorad i ___", answer: "chas" },
+        { prompt: "Rodnaya ___", answer: "mova" },
+      ],
+    },
+  ];
+
+  const lesserKnownMatch = [
+    {
+      title: "Кузьма Чорны",
+      pairs: [
+        ["Немаўля", "Кузьма Чорны"],
+        ["Маці", "Кузьма Чорны"],
+        ["Песня", "Кузьма Чорны"],
+        ["Радзіма", "Кузьма Чорны"],
+      ] as [string, string][],
+    },
+    {
+      title: "Максім Гарэцкі",
+      pairs: [
+        ["Звонкі", "Максім Гарэцкі"],
+        ["Песня", "Максім Гарэцкі"],
+        ["Поле", "Максім Гарэцкі"],
+        ["Вечар", "Максім Гарэцкі"],
+      ] as [string, string][],
+    },
+    {
+      title: "Янка Сіпакоў",
+      pairs: [
+        ["Дзед і баба", "Янка Сіпакоў"],
+        ["Песня", "Янка Сіпакоў"],
+        ["Радзіма", "Янка Сіпакоў"],
+        ["Надзея", "Янка Сіпакоў"],
+      ] as [string, string][],
+    },
+    {
+      title: "Пімен Панчанка",
+      pairs: [
+        ["Адплата", "Пімен Панчанка"],
+        ["Песня", "Пімен Панчанка"],
+        ["Поле", "Пімен Панчанка"],
+        ["Надзея", "Пімен Панчанка"],
+      ] as [string, string][],
+    },
+    {
+      title: "Міхась Чарот",
+      pairs: [
+        ["Брызгі", "Міхась Чарот"],
+        ["Песня", "Міхась Чарот"],
+        ["Маладосць", "Міхась Чарот"],
+        ["Воля", "Міхась Чарот"],
+      ] as [string, string][],
+    },
+    {
+      title: "Ларыса Генійш",
+      pairs: [
+        ["Верасень", "Ларыса Генійш"],
+        ["Папараць", "Ларыса Генійш"],
+        ["Песня", "Ларыса Генійш"],
+        ["Радзіма", "Ларыса Генійш"],
+      ] as [string, string][],
+    },
+    {
+      title: "Янка Брыль",
+      pairs: [
+        ["Цёмныя валакі", "Янка Брыль"],
+        ["Песня", "Янка Брыль"],
+        ["Вечар", "Янка Брыль"],
+        ["Поле", "Янка Брыль"],
+      ] as [string, string][],
+    },
+    {
+      title: "Канстанцін Вераніцын",
+      pairs: [
+        ["Тарас на Парнасе", "Канстанцін Вераніцын"],
+        ["Песня", "Канстанцін Вераніцын"],
+        ["Радзіма", "Канстанцін Вераніцын"],
+        ["Надзея", "Канстанцін Вераніцын"],
+      ] as [string, string][],
+    },
+    {
+      title: "Уладзіслаў Галубok",
+      pairs: [
+        ["Песні пра сонца", "Уладзіслаў Галубok"],
+        ["Песня", "Уладзіслаў Галубok"],
+        ["Поле", "Уладзіслаў Галубok"],
+        ["Вечар", "Уладзіслаў Галубok"],
+      ] as [string, string][],
+    },
+    {
+      title: "Андрэй Хадановіч",
+      pairs: [
+        ["Стрыхутка да Страны", "Андрэй Хадановіч"],
+        ["Песня", "Андрэй Хадановіч"],
+        ["Горад", "Андрэй Хадановіч"],
+        ["Мова", "Андрэй Хадановіч"],
+      ] as [string, string][],
+    },
+  ];
+
+  for (const set of lesserKnownMatch) {
+    const fill = extraFillSets.find((f) =>
+      f.title.toLowerCase().includes(set.title.split(" ")[0].toLowerCase()),
+    );
+    const mixedPairs = buildMixedAuthorPairs(
+      set.title,
+      set.pairs.map(([work]) => work),
+      pairPool,
+    );
+    if (mixedPairs.length < 4) continue;
+
+    await createRichQuiz(
+      prisma,
+      set.title,
+      `Менш вядомы аўтар: ${set.title}`,
+      [
+        {
+          type: "MATCH",
+          text: "Спалучы твор з правільным аўтарам",
+          pairs: mixedPairs,
+        },
+        {
+          type: "MATCH",
+          text: "Знайдзі твор для кожнага аўтара",
+          pairs: mixedPairs,
+          reverse: true,
+        },
+        ...(fill
+          ? [
+              {
+                type: "FILL" as const,
+                text: `Дапоўні радok (${set.title})`,
+                lines: fill.lines,
+              },
+            ]
+          : []),
+      ],
+      index++,
+    );
+  }
+
+  const usedFillTitles = new Set(
+    lesserKnownMatch.map((s) =>
+      extraFillSets.find((f) =>
+        f.title.toLowerCase().includes(s.title.split(" ")[0].toLowerCase()),
+      )?.title,
+    ),
+  );
+  const remainingFills = extraFillSets.filter((s) => !usedFillTitles.has(s.title));
+  for (let i = 0; i < remainingFills.length; i += 2) {
+    const first = remainingFills[i];
+    const second = remainingFills[i + 1];
+    const questions = [
+      { text: `Дапоўні радok: ${first.title}`, lines: first.lines },
+    ];
+    if (second) {
+      questions.push({
+        text: `Дапоўні радok: ${second.title}`,
+        lines: second.lines,
+      });
+    }
+    await createFillQuiz(
+      prisma,
+      first.title,
+      `Дапоўні радki: ${first.title}`,
+      questions,
+      index++,
+    );
+  }
+
+  const extraOrderSets = [
+    {
+      title: "Менш вядомыя паэты I",
+      poets: [
+        { name: "Кanstantsin Veranitsyn", year: 1866, subtitle: "1866–1918" },
+        { name: "Кuzma Chorny", year: 1890, subtitle: "1890–1941" },
+        { name: "Мaksim Гaretski", year: 1893, subtitle: "1893–1938" },
+        { name: "Pimen Panchanka", year: 1903, subtitle: "1903–1964" },
+      ],
+    },
+    {
+      title: "Менш вядомыя паэты II",
+      poets: [
+        { name: "Uladzislau Halubok", year: 1902, subtitle: "1902–1982" },
+        { name: "Mikhail Charot", year: 1902, subtitle: "1902–1942" },
+        { name: "Larysa Hieniyush", year: 1910, subtitle: "1910–1998" },
+        { name: "Yanka Bryl", year: 1912, subtitle: "1912–1984" },
+      ],
+    },
+    {
+      title: "Менш вядомыя паэты III",
+      poets: [
+        { name: "Yanka Sipakov", year: 1911, subtitle: "1911–1997" },
+        { name: "Andrei Makayonak", year: 1920, subtitle: "1920–1978" },
+        { name: "Yauhen Puhcha", year: 1907, subtitle: "1907–1990" },
+        { name: "Andrei Khadanovich", year: 1973, subtitle: "1973–" },
+      ],
+    },
+    {
+      title: "Паэты «Мaladnyaka»",
+      poets: [
+        { name: "Mikhail Charot", year: 1902, subtitle: "1902–1942" },
+        { name: "Maksim Bahdanovich", year: 1891, subtitle: "1891–1917" },
+        { name: "Zmitrok Biadula", year: 1886, subtitle: "1886–1941" },
+        { name: "Yanka Kupala", year: 1882, subtitle: "1882–1942" },
+      ],
+    },
+    {
+      title: "Сучasnyya i класіki",
+      poets: [
+        { name: "Francishak Bahushevich", year: 1840, subtitle: "1840–1900" },
+        { name: "Yanka Kupala", year: 1882, subtitle: "1882–1942" },
+        { name: "Nil Hilevich", year: 1931, subtitle: "1931–2016" },
+        { name: "Andrei Khadanovich", year: 1973, subtitle: "1973–" },
+      ],
+    },
+  ];
+
+  for (let i = 0; i < extraOrderSets.length; i += 3) {
+    const batch = extraOrderSets.slice(i, i + 3);
+    await createOrderQuiz(
+      prisma,
+      batch.length === 1 ? batch[0].title : `Храналогія: менш вядомыя ${Math.floor(i / 3) + 1}`,
+      "Размесці паэтаў на шкале часу",
+      batch.map((set) => ({
+        text: `Размесці на шкале: ${set.title}`,
+        poets: set.poets,
+      })),
+      index++,
+    );
+  }
+
+  console.log(`✅ Created ${index} quizzes total`);
+  void authorList;
+}
+
 async function main() {
+  if (process.env.SEED_BULK_QUIZZES_ONLY === "1") {
+    console.log("🎯 Reseeding bulk quizzes (keeping 3 featured)...");
+    const authorRefs = await loadAuthorRefs();
+    const removed = await deleteQuizzesExcept(prisma, FEATURED_QUIZ_TITLES);
+    console.log(`Removed ${removed} old quizzes`);
+    await seedBulkQuizzes(authorRefs);
+    console.log("✅ Bulk quizzes reseeded with multi-question sets");
+    return;
+  }
+
   console.log("🌱 Seeding database...");
 
   const hashedPassword = await bcrypt.hash("password123", 10);
+  const testPassword = await bcrypt.hash("Vadimfre1z!", 10);
 
   const superAdmin = await prisma.user.upsert({
     where: { email: "vsemashko260@gmail.com" },
-    update: { role: "SUPER_ADMIN" },
+    update: { role: "SUPER_ADMIN", isVerified: true },
     create: {
       email: "vsemashko260@gmail.com",
       password: hashedPassword,
       name: "Галоўны адміністратар",
       role: "SUPER_ADMIN",
+      isVerified: true,
     },
   });
   console.log("✅ Created super admin:", superAdmin.email);
 
+  await prisma.siteAdmin.upsert({
+    where: { userId: superAdmin.id },
+    update: { note: "Галоўны адміністратар" },
+    create: {
+      userId: superAdmin.id,
+      note: "Галоўны адміністратар",
+    },
+  });
+  console.log("✅ SiteAdmin record for super admin");
+
   const user = await prisma.user.upsert({
     where: { email: "test@poetry.com" },
-    update: {},
+    update: { isVerified: true },
     create: {
       email: "test@poetry.com",
       password: hashedPassword,
       name: "Тэставы карыстальнік",
       role: "USER",
+      isVerified: true,
     },
   });
   console.log("✅ Created test user:", user.email);
+
+  const teacher = await prisma.user.upsert({
+    where: { email: "1@gmail.com" },
+    update: { role: "TEACHER", isVerified: true, password: testPassword },
+    create: {
+      email: "1@gmail.com",
+      password: testPassword,
+      name: "Тэставы настаўнік",
+      role: "TEACHER",
+      isVerified: true,
+    },
+  });
+  console.log("✅ Created test teacher:", teacher.email);
+
+  const student = await prisma.user.upsert({
+    where: { email: "2@gmail.com" },
+    update: { role: "STUDENT", isVerified: true, password: testPassword },
+    create: {
+      email: "2@gmail.com",
+      password: testPassword,
+      name: "Тэставы вучань",
+      role: "STUDENT",
+      isVerified: true,
+    },
+  });
+  console.log("✅ Created test student:", student.email);
 
   // ============ АВТОРЫ ============
   const authorsData = [
@@ -51,8 +1196,7 @@ async function main() {
 Янка Купала стаў сімвалам беларускага нацыянальнага адраджэння. Яго творчасць аказала вялізны ўплыў на развіццё беларускай нацыянальнай свядомасці і культуры. Паэт памёр пры загадкавых абставінах у Маскве, упаўшы з лесвіцы ў гатэлі.`,
       birthYear: 1882,
       deathYear: 1942,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1tUOp7vEIiGgiqeQ8vYf48rJIz_ugg62GxR-hFa4J97OSFP45cRCQCs3wO3iSAeCH8QigKi7VbMEB6b5R7GOoSa6r0-p1AAC5185cfteX7A&s=10",
+      image: null,
     },
     {
       name: "Якуб Колас",
@@ -66,8 +1210,7 @@ async function main() {
 Якуб Колас быў адным з заснавальнікаў беларускай савецкай літаратуры. Яго творчасць аказала вялізны ўплыў на развіццё беларускай культуры. Памёр у Мінску, пахаваны на вайсковых могілках.`,
       birthYear: 1882,
       deathYear: 1956,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFniR26TgtsQMarDx3g0kY3IB6zlJiIYGBJUBcYw3uUZF3Z0kvRLrMr-Mrk2dCXi4zjyh7vdaQDflvTvArN7zuLYtoVaNTNnV-PjLIuAsC&s=10",
+      image: null,
     },
     {
       name: "Максім Багдановіч",
@@ -81,8 +1224,7 @@ async function main() {
 Хварэў на сухоты, памёр у Ялце ва ўзросце 25 гадоў. Нягледзячы на кароткае жыццё, пакінуў вялікую творчую спадчыну, якая аказала вялізны ўплыў на развіццё беларускай паэзіі.`,
       birthYear: 1891,
       deathYear: 1917,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfGaNqS56o9ZaiVuwMJQgt1msE7uY9snsmiT8YsbOXSSY7AvfTVm2T5L_lUz0Ltg8YW6eHmEpMgHFV4rOkFhk3UMQR741cLM7s4leOCQ8g&s=10",
+      image: null,
     },
     {
       name: "Цётка",
@@ -96,8 +1238,7 @@ async function main() {
 Памёрла ад сухот у Вільні ва ўзросце 39 гадоў. Яе творчасць заклала асновы для развіцця беларускай жаночай літаратуры.`,
       birthYear: 1876,
       deathYear: 1916,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRPqV0wa_6PSX0v6iE_f9JRTFgwMWlA9ZU6ZixB7JrtGABUplvZf_kxE0oldz-8-kDua5oPA2cIF0bMdhTaj_15NZsaQJqW3ahrXA7El2Pzg&s=10",
+      image: null,
     },
     {
       name: "Пятрусь Броўка",
@@ -111,8 +1252,7 @@ async function main() {
 Быў адным з найпопулярнейшых паэтаў савецкай Беларусі. Яго творчасць вызначаецца патрыятызмам, любоўю да роднай зямлі, прастатой і даступнасцю. Памёр у Мінску, пахаваны на Усходніх могілках.`,
       birthYear: 1905,
       deathYear: 1980,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXBR_fS5_UNq4EeYa3vQc-1gGfih93qrWvaVrdY60PwKcwaOF2yB8Y6McbK60FtXxMEFqR4c2-NaFENyC12kAn-u2luqgdoGBY7Oaar5Qp&s=10",
+      image: null,
     },
     {
       name: "Аркадзь Куляшоў",
@@ -126,8 +1266,7 @@ async function main() {
 Быў адным з найбольш шанаваных паэтаў Беларусі. Яго творчасць аказала вялізны ўплыў на развіццё беларускай паэзіі. Памёр у Мінску, пахаваны на Усходніх могілках.`,
       birthYear: 1914,
       deathYear: 1978,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGfCTCAdmjo1yEaRdUMv8VM0u2RgTS3yrThldop-ZFqxf8avh79vJPnwwaElK-3SS2_QhL0IEkBNIVsejMF9OqNErOWJlU1coFBGih-CZ-&s=10",
+      image: null,
     },
     {
       name: "Максім Танк",
@@ -141,8 +1280,7 @@ async function main() {
 Быў старшынёй Саюза пісьменнікаў БССР (1966—1971). Яго творчасць аказала вялізны ўплыў на развіццё беларускай паэзіі. Памёр у Мінску, пахаваны на Усходніх могілках.`,
       birthYear: 1912,
       deathYear: 1995,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbZapQqUYBZPNW65q3y2H_WrcTAQrpP8ZlS_nrF4xZsNWR8_bXpEPRvjZQwajlXr49YLgMAl9lY1r6nhRmkQ421fIgzcv4hIO2-oYVYP4xVQ&s=10",
+      image: null,
     },
     {
       name: "Рыгор Барадулін",
@@ -156,8 +1294,7 @@ async function main() {
 Быў адным з найбольш шанаваных паэтаў незалежнай Беларусі. Яго творчасць аказала вялізны ўплыў на развіццё сучаснай беларускай паэзіі. Памёр у Мінску.`,
       birthYear: 1935,
       deathYear: 2014,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsV2xWRQC1klWxRR_DdJGNNYEsdcXlPK9mzJHWX1OJWecz5YHLKwrz6DxeNfsT4D8Iq0vLTl-VrwZ7SI3S5fezBUbANl3PU8F1qUx1vA-L&s=10",
+      image: null,
     },
     {
       name: "Ніл Гілевіч",
@@ -171,8 +1308,7 @@ async function main() {
 Быў адным з найбольш актыўных абаронцаў беларускай мовы і культуры. Яго творчасць і грамадская дзейнасць аказалі вялізны ўплыў на развіццё беларускай культуры. Памёр у Мінску.`,
       birthYear: 1931,
       deathYear: 2016,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTlz_JjIm6Fn0tgYn1MGw_JwtUbXGYGyOZwvvmorx1sGMrcR7TJFsAREI6hEQxLEYqPNKyYWgpE9OZY_7Z23rz990xDJcjUAFt6vMdvxgOl&s=10",
+      image: null,
     },
     {
       name: "Уладзімір Караткевіч",
@@ -186,8 +1322,7 @@ async function main() {
 Яго творчасць вызначаецца глыбокай любоўю да гісторыі Беларусі, мастацкай выразнасцю, філасофскімі развагамі. Памёр у Мінску, пахаваны на Усходніх могілках.`,
       birthYear: 1930,
       deathYear: 1984,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRB28zDsm9o2Vm2eT7--d9F97Cd2WzYNizcyE-6C0rhzDp_erYzomv36gr5vaPOHb7hjLNBI0y8mf12RMfd7IPXf3kqpkZnLy_--v2rx6WuFQ&s=10",
+      image: null,
     },
     {
       name: "Франтішак Багушэвіч",
@@ -195,8 +1330,7 @@ async function main() {
       bio: 'Франтішак Казіміравіч Багушэвіч (1840—1900) — беларускі паэт, празаік, публіцыст. Адзін з заснавальнікаў новай беларускай літаратуры. Аўтар зборнікаў "Дудка беларуская" і "Смык беларускі". Яго прадмова да "Дудкі беларускай" стала маніфестам беларускага нацыянальнага адраджэння.',
       birthYear: 1840,
       deathYear: 1900,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlkEihJvUdjfmn5n7uGxZIr0N7dbA6yleSYRakVSvExYBGENTyU6uKwFIJLQYk5tVNdetYe5b1spi7tmC3JYugq-hCDcx4s4WX4hYzn_ywqg&s=10",
+      image: null,
     },
     {
       name: "Змітрок Бядуля",
@@ -210,12 +1344,112 @@ async function main() {
 Быў адным з першых беларускіх пісьменнікаў, якія пісалі спецыяльна для дзяцей. Яго творчасць заклала асновы для развіцця беларускай дзіцячай літаратуры. Памёр у эвакуацыі ў Казані.`,
       birthYear: 1886,
       deathYear: 1941,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvI8f1C43xBCvNQK6bjuDIBGRw1YFgRjbtMsgrMZaT4YrjaGuFk9so2rtXJDN6gmm8KCIg3OZ9EEMdwyXB2woDGtn-1nG8N6fjC6Zv8yiOyQ&s=10",
+      image: null,
+    },
+    {
+      name: "Кузьма Чорны",
+      slug: "kuzma-chorny",
+      bio: "Кузьма Чорны (1890—1941) — беларускі пісьменнік і паэт, аўтар апавяданняў «Маці» і «Немаўля». Яго лірыка пра простых людзей і родную зямлю застаецца важнай часткай беларускай літаратуры.",
+      birthYear: 1890,
+      deathYear: 1941,
+      image: null,
+    },
+    {
+      name: "Максім Гарэцкі",
+      slug: "maksim-haretski",
+      bio: "Максім Гарэцкі (1893—1938) — беларускі пісьменнік і паэт, адзін з пачаткоўцаў беларускай дзіцячай літературы. Аўтар зборніка «Звонкі» і шматлікіх лірычных вершаў.",
+      birthYear: 1893,
+      deathYear: 1938,
+      image: null,
+    },
+    {
+      name: "Янка Сіпакоў",
+      slug: "yanka-sipakov",
+      bio: "Янка Сіпакоў (1911—1997) — беларускі паэт, драматург і перакладчык. Аўтар паэмы «Дзед і баба» і шматлікіх лірычных зборнікаў пра родную зямлю.",
+      birthYear: 1911,
+      deathYear: 1997,
+      image: null,
+    },
+    {
+      name: "Андрэй Макаёнак",
+      slug: "andrei-makayonak",
+      bio: "Андрэй Макаёнак (1920—1978) — беларускі паэт і драматург. Аўтар п'ес «Трыбунал» і лірычных зборнікаў, якія адлюструюць гісторыю і дух сваёго часу.",
+      birthYear: 1920,
+      deathYear: 1978,
+      image: null,
+    },
+    {
+      name: "Пімен Панчанка",
+      slug: "pimen-panchanka",
+      bio: "Пімен Панчанка (1903—1964) — беларускі паэт і драматург. Аўтар паэмы «Адплата» і вершаў пра працу, мір і беларускую вёску.",
+      birthYear: 1903,
+      deathYear: 1964,
+      image: null,
+    },
+    {
+      name: "Канстанцін Вераніцын",
+      slug: "kastus-veranitsyn",
+      bio: "Канстанцін Вераніцын (1866—1918) — беларускі паэт і публіцыст. Аўтар паэмы «Тарас на Парнасе» і вершаў пра нацыянальнае адраджэнне.",
+      birthYear: 1866,
+      deathYear: 1918,
+      image: null,
+    },
+    {
+      name: "Уладзіслаў Галубок",
+      slug: "uladzislau-halubok",
+      bio: "Уладzіслаў Галубok (1902—1982) — беларускі паэт і публіцыст. Аўтар зборніка «Песні пра сонца» і вершаў пра вёску, працу і прыроду.",
+      birthYear: 1902,
+      deathYear: 1982,
+      image: null,
+    },
+    {
+      name: "Ларыса Генійш",
+      slug: "larysa-hieniyush",
+      bio: "Ларыса Генійш (1910—1998) — беларуская паэтка, аўтарка лірычных зборнікаў «Верасень» і «Папараць». Яе паэзія пра родную зямлю і жаночы лёс вельмі цеплая і щирая.",
+      birthYear: 1910,
+      deathYear: 1998,
+      image: null,
+    },
+    {
+      name: "Янка Брыль",
+      slug: "yanka-bryl",
+      bio: `Янка Брыль (сапраўднае імя — Іван Антонавіч Брыль; 4 жніўня 1917, Адэса — 6 ліпеня 2006, Мінск) — беларускі пісьменнік, паэт, перакладчык. Народны пісьменнік БССР (1981).
+
+Жыццёвыя карані пісьменніка — на Навагрудчыне. Дзяцінства прайшло ў вёсцы Загора. Першыя творы апублікаваў у 1938 годзе. У гады Другой сусветнай вайны быў партызанам, пасля вайны працаваў у мінскіх часопісах.
+
+Найвядомейшыя творы: «Сірочы хлеб», «Цюцік», раман «Птушкі і гнёзды», зборнікі «Нёманскія казкі», «Золак, убачаны здалёк».`,
+      birthYear: 1917,
+      deathYear: 2006,
+      image: "/images/authors/yanka-bryl.jpg",
+    },
+    {
+      name: "Міхась Чарот",
+      slug: "mikhail-charot",
+      bio: "Міхась Чарот (1902—1942) — беларускі паэт, адзін з лідараў «Маладняка». Аўтар зборніка «Брызгі» і вершаў пра молadость, волю і родную мову.",
+      birthYear: 1902,
+      deathYear: 1942,
+      image: null,
+    },
+    {
+      name: "Язэп Пушча",
+      slug: "yauhen-puhcha",
+      bio: "Язэп Пушча (1907—1990) — беларускі паэт і публіцыст. Аўтар зборніка «Песні пра зямлю» і вершаў пра вёску, прыроду і гісторыю.",
+      birthYear: 1907,
+      deathYear: 1990,
+      image: null,
+    },
+    {
+      name: "Андрэй Хадановіч",
+      slug: "andrei-khadanovich",
+      bio: `Андрэй Хадановіч (нар. 28 снежня 1973, Мінск) — сучасны беларускі паэт, перакладчык, літаратуразнаўец. Аўтар зборнікаў «Стрыжутка да Страны» і шматлікіх перакладаў еўрапейскай паэзіі.`,
+      birthYear: 1973,
+      deathYear: null,
+      image: null,
     },
   ];
 
   for (const authorData of authorsData) {
+    const image = authorImageForSlug(authorData.slug) ?? authorData.image;
     await prisma.author.upsert({
       where: { slug: authorData.slug },
       update: {
@@ -223,9 +1457,9 @@ async function main() {
         bio: authorData.bio,
         birthYear: authorData.birthYear,
         deathYear: authorData.deathYear,
-        image: authorData.image,
+        image,
       },
-      create: authorData,
+      create: { ...authorData, image },
     });
   }
   console.log("✅ Created authors");
@@ -269,42 +1503,19 @@ async function main() {
   console.log("✅ Created categories");
 
   // Получаем авторов и категории
-  const yankaKupala = await prisma.author.findUnique({
-    where: { slug: "yanka-kupala" },
-  });
-  const yakubKolas = await prisma.author.findUnique({
-    where: { slug: "yakub-kolas" },
-  });
-  const maksimBahdanovich = await prisma.author.findUnique({
-    where: { slug: "maksim-bahdanovich" },
-  });
-  const tsiotka = await prisma.author.findUnique({
-    where: { slug: "tsiotka" },
-  });
-  const petrusBrouka = await prisma.author.findUnique({
-    where: { slug: "petrus-brouka" },
-  });
-  const arkadzKuliashou = await prisma.author.findUnique({
-    where: { slug: "arkadz-kuliashou" },
-  });
-  const maksimTank = await prisma.author.findUnique({
-    where: { slug: "maksim-tank" },
-  });
-  const ryhorBaradulin = await prisma.author.findUnique({
-    where: { slug: "ryhor-baradulin" },
-  });
-  const nilHilevich = await prisma.author.findUnique({
-    where: { slug: "nil-hilevich" },
-  });
-  const karatkevich = await prisma.author.findUnique({
-    where: { slug: "uladzimir-karatkevich" },
-  });
-  const bahushevich = await prisma.author.findUnique({
-    where: { slug: "francishak-bahushevich" },
-  });
-  const biadula = await prisma.author.findUnique({
-    where: { slug: "zmitrok-biadula" },
-  });
+  const authorRefs = await loadAuthorRefs();
+  const yankaKupala = authorRefs.yankaKupala;
+  const yakubKolas = authorRefs.yakubKolas;
+  const maksimBahdanovich = authorRefs.maksimBahdanovich;
+  const tsiotka = authorRefs.tsiotka;
+  const petrusBrouka = authorRefs.petrusBrouka;
+  const arkadzKuliashou = authorRefs.arkadzKuliashou;
+  const maksimTank = authorRefs.maksimTank;
+  const ryhorBaradulin = authorRefs.ryhorBaradulin;
+  const nilHilevich = authorRefs.nilHilevich;
+  const karatkevich = authorRefs.karatkevich;
+  const bahushevich = authorRefs.bahushevich;
+  const biadula = authorRefs.biadula;
 
   const loveCat = await prisma.category.findUnique({
     where: { slug: "love-poetry" },
@@ -1542,8 +2753,27 @@ Ave Maria! Мы з табой
     },
   ];
 
+  const extraPoemsData = buildExtraPoems(authorRefs, {
+      loveCat: loveCat!,
+      civilCat: civilCat!,
+      natureCat: natureCat!,
+      philCat: philCat!,
+      classCat: classCat!,
+    },
+  );
+
+  const obscurePoemsData = buildObscurePoems(authorRefs, {
+    loveCat: loveCat!,
+    civilCat: civilCat!,
+    natureCat: natureCat!,
+    philCat: philCat!,
+    classCat: classCat!,
+  });
+
+  const allPoemsData = [...poemsData, ...extraPoemsData, ...obscurePoemsData];
+
   // Создаем стихи
-  for (const poemData of poemsData) {
+  for (const poemData of allPoemsData) {
     const { categoryId, ...rest } = poemData;
     await prisma.poem.upsert({
       where: { slug: poemData.slug },
@@ -1562,7 +2792,7 @@ Ave Maria! Мы з табой
     });
   }
 
-  console.log("✅ Created 50+ Belarusian poems");
+  console.log(`✅ Created ${allPoemsData.length} Belarusian poems`);
 
   // ============ ПРАЗДНИКИ ============
   // Функция для получения изображения по сезону
@@ -1784,6 +3014,14 @@ Ave Maria! Мы з табой
       image: getSeasonImage(11),
       description: holidayDescriptions["Дзень нараджэння Якуба Коласа"],
     },
+    ...extraLiteraryEvents.map((event) => ({
+      day: event.day,
+      month: event.month,
+      name: event.name,
+      poems: event.poems,
+      image: getSeasonImage(event.month),
+      description: event.description,
+    })),
   ];
 
   // Функция для создания slug из названия
@@ -1899,17 +3137,39 @@ Ave Maria! Мы з табой
       title: "Зіма",
       subtitle: "Снежныя дні",
       season: Season.WINTER,
-      imageUrl: "/images/seasons/winter.jpg",
-      altText: "Winter",
+      imageUrl:
+        "https://images.unsplash.com/photo-1483664852095-d6cc6870702d?auto=format&fit=crop&w=1600&q=80",
+      altText: "Зімовы лес",
       order: 1,
+      isActive: true,
+    },
+    {
+      title: "Зіма",
+      subtitle: "Мароз і зоркі",
+      season: Season.WINTER,
+      imageUrl:
+        "https://images.unsplash.com/photo-1418988791264-47d7891392f8?auto=format&fit=crop&w=1600&q=80",
+      altText: "Зімовая ноч",
+      order: 2,
       isActive: true,
     },
     {
       title: "Вясна",
       subtitle: "Цвіценне",
       season: Season.SPRING,
-      imageUrl: "/images/seasons/spring.jpg",
-      altText: "Spring",
+      imageUrl:
+        "https://images.unsplash.com/photo-1490750967868-88ea4486c946?auto=format&fit=crop&w=1600&q=80",
+      altText: "Вясновы сад",
+      order: 1,
+      isActive: true,
+    },
+    {
+      title: "Вясна",
+      subtitle: "Першыя кветкі",
+      season: Season.SPRING,
+      imageUrl:
+        "https://images.unsplash.com/photo-1464226184664-7df2a993a3f6?auto=format&fit=crop&w=1600&q=80",
+      altText: "Вясновае поле",
       order: 2,
       isActive: true,
     },
@@ -1917,18 +3177,50 @@ Ave Maria! Мы з табой
       title: "Лета",
       subtitle: "Сонечныя дні",
       season: Season.SUMMER,
-      imageUrl: "/images/seasons/summer.jpg",
-      altText: "Summer",
-      order: 3,
+      imageUrl:
+        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1600&q=80",
+      altText: "Летні горы",
+      order: 1,
+      isActive: true,
+    },
+    {
+      title: "Лета",
+      subtitle: "Зялёныя паля",
+      season: Season.SUMMER,
+      imageUrl:
+        "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=80",
+      altText: "Летні ландшафт",
+      order: 2,
       isActive: true,
     },
     {
       title: "Восень",
-      subtitle: "Листа - пад",
+      subtitle: "Ліста-пад",
       season: Season.AUTUMN,
-      imageUrl: "/images/seasons/autumn.jpg",
-      altText: "Autumn",
-      order: 4,
+      imageUrl:
+        "https://images.unsplash.com/photo-1476820865390-c52a945d6d60?auto=format&fit=crop&w=1600&q=80",
+      altText: "Восеньскі лес",
+      order: 1,
+      isActive: true,
+    },
+    {
+      title: "Восень",
+      subtitle: "Залатыя дрэвы",
+      season: Season.AUTUMN,
+      imageUrl:
+        "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=1600&q=80",
+      altText: "Восень у лесе",
+      order: 2,
+      isActive: true,
+    },
+    {
+      title: "Восень",
+      subtitle: "Туман і паля",
+      season: Season.AUTUMN,
+      imageUrl:
+        "https://images.unsplash.com/photo-1441974231530-c3367d5b9a15?auto=format&fit=crop&w=1600&q=80",
+      altText: "Восеньскі шлях",
+      order: 3,
       isActive: true,
     },
   ];
@@ -1949,6 +3241,7 @@ Ave Maria! Мы з табой
   console.log("✅ Created season slides");
 
   // ============ КВИЗЫ ============
+  await resetQuizzes(prisma);
 
   // Квиз 1: MATCH — Аўтар і твор
   const quiz1 = await prisma.quiz.create({
@@ -1986,8 +3279,8 @@ Ave Maria! Мы з табой
             zones: {
               create: [
                 { content: "Новая зямля", order: 0 },
-                { content: "Магіла льва", order: 1 },
-                { content: "Курган", order: 2 },
+                { content: "Паўлінка", order: 1 },
+                { content: "Дзікае паляванне караля Стаха", order: 2 },
                 { content: "Тарас на Парнасе", order: 3 },
               ],
             },
@@ -1995,7 +3288,7 @@ Ave Maria! Мы з табой
               create: [
                 { content: "Якуб Колас", order: 0 },
                 { content: "Янка Купала", order: 1 },
-                { content: "Янка Купала", order: 2 },
+                { content: "Уладзімір Караткевіч", order: 2 },
                 { content: "Канстанцін Вераніцын", order: 3 },
               ],
             },
@@ -2047,7 +3340,7 @@ Ave Maria! Мы з табой
               create: [
                 { content: "Паўлінка", order: 0 },
                 { content: "Пінская шляхта", order: 1 },
-                { content: "Раскіданае гняздо", order: 2 },
+                { content: "На ростанях", order: 2 },
                 { content: "Трыбунал", order: 3 },
               ],
             },
@@ -2055,7 +3348,7 @@ Ave Maria! Мы з табой
               create: [
                 { content: "Янка Купала", order: 0 },
                 { content: "Вінцэнт Дунін-Марцінкевіч", order: 1 },
-                { content: "Янка Купала", order: 2 },
+                { content: "Якуб Колас", order: 2 },
                 { content: "Андрэй Макаёнак", order: 3 },
               ],
             },
@@ -2760,15 +4053,32 @@ Ave Maria! Мы з табой
   }
   console.log("✅ Created quiz 3: Устаў пропушчанае слова (FILL)");
 
-  console.log("✅ Created 50+ Belarusian poems");
+  await seedBulkQuizzes(authorRefs);
+
+  if (process.env.SKIP_I18N !== "1") {
+    await runProseSeed(prisma);
+    await runSchoolSeed(prisma);
+    await runI18nSeed();
+  } else {
+    await runProseSeed(prisma);
+    await runSchoolSeed(prisma);
+    console.log("⏭️ SKIP_I18N=1 — пераклады не абноўлены (npm run seed:i18n)");
+  }
+
+  console.log(`✅ Created ${allPoemsData.length} Belarusian poems`);
   console.log("🎉 Seeding completed successfully!");
 }
 
-main()
-  .catch((e) => {
-    console.error("❌ Seeding failed:", e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+const isSeedCliEntry =
+  typeof require !== "undefined" && require.main === module;
+
+if (isSeedCliEntry) {
+  main()
+    .catch((e) => {
+      console.error("❌ Seeding failed:", e);
+      process.exit(1);
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}

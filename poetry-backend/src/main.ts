@@ -8,9 +8,17 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // CORS
+  const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'http://localhost:3000',
+    'http://localhost:3002',
+  ].filter(Boolean);
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: allowedOrigins,
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept-Language', 'X-Locale'],
+    exposedHeaders: ['Content-Language'],
   });
 
   // Cookie parser
@@ -31,4 +39,4 @@ async function bootstrap() {
   console.log(`🚀 Poetry Backend is running on http://localhost:${port}`);
 }
 
-bootstrap();
+bootstrap(); 

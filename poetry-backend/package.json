@@ -21,7 +21,13 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "ts-node prisma/seed.ts",
+    "seed:bulk-quizzes": "cross-env SEED_BULK_QUIZZES_ONLY=1 ts-node prisma/seed.ts",
+    "seed:i18n": "ts-node prisma/seed-i18n.ts",
+    "fix:author-images": "ts-node prisma/fix-author-images.ts",
+    "fix:quiz-i18n-be": "ts-node prisma/fix-quiz-i18n-be.ts",
+    "import:prose": "ts-node prisma/import-wikisource-prose.ts",
+    "import:prose:dry": "ts-node prisma/import-wikisource-prose.ts --dry-run"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",
@@ -64,6 +70,7 @@
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
+    "google-translate-api-x": "^10.7.3",
     "jest": "^29.7.0",
     "prettier": "^3.4.2",
     "prisma": "^7.2.0",
