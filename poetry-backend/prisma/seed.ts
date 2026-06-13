@@ -3131,98 +3131,20 @@ Ave Maria! Мы з табой
 
   console.log("✅ Created holidays");
 
-  // Создаем слайды для сезонов
+  // Создаем слайды для сезонов (локальные фото)
   const seasonSlidesData = [
-    {
-      title: "Зіма",
-      subtitle: "Снежныя дні",
-      season: Season.WINTER,
-      imageUrl:
-        "https://images.unsplash.com/photo-1483664852095-d6cc6870702d?auto=format&fit=crop&w=1600&q=80",
-      altText: "Зімовы лес",
-      order: 1,
-      isActive: true,
-    },
-    {
-      title: "Зіма",
-      subtitle: "Мароз і зоркі",
-      season: Season.WINTER,
-      imageUrl:
-        "https://images.unsplash.com/photo-1418988791264-47d7891392f8?auto=format&fit=crop&w=1600&q=80",
-      altText: "Зімовая ноч",
-      order: 2,
-      isActive: true,
-    },
-    {
-      title: "Вясна",
-      subtitle: "Цвіценне",
-      season: Season.SPRING,
-      imageUrl:
-        "https://images.unsplash.com/photo-1490750967868-88ea4486c946?auto=format&fit=crop&w=1600&q=80",
-      altText: "Вясновы сад",
-      order: 1,
-      isActive: true,
-    },
-    {
-      title: "Вясна",
-      subtitle: "Першыя кветкі",
-      season: Season.SPRING,
-      imageUrl:
-        "https://images.unsplash.com/photo-1464226184664-7df2a993a3f6?auto=format&fit=crop&w=1600&q=80",
-      altText: "Вясновае поле",
-      order: 2,
-      isActive: true,
-    },
-    {
-      title: "Лета",
-      subtitle: "Сонечныя дні",
-      season: Season.SUMMER,
-      imageUrl:
-        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1600&q=80",
-      altText: "Летні горы",
-      order: 1,
-      isActive: true,
-    },
-    {
-      title: "Лета",
-      subtitle: "Зялёныя паля",
-      season: Season.SUMMER,
-      imageUrl:
-        "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=80",
-      altText: "Летні ландшафт",
-      order: 2,
-      isActive: true,
-    },
-    {
-      title: "Восень",
-      subtitle: "Ліста-пад",
-      season: Season.AUTUMN,
-      imageUrl:
-        "https://images.unsplash.com/photo-1476820865390-c52a945d6d60?auto=format&fit=crop&w=1600&q=80",
-      altText: "Восеньскі лес",
-      order: 1,
-      isActive: true,
-    },
-    {
-      title: "Восень",
-      subtitle: "Залатыя дрэвы",
-      season: Season.AUTUMN,
-      imageUrl:
-        "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=1600&q=80",
-      altText: "Восень у лесе",
-      order: 2,
-      isActive: true,
-    },
-    {
-      title: "Восень",
-      subtitle: "Туман і паля",
-      season: Season.AUTUMN,
-      imageUrl:
-        "https://images.unsplash.com/photo-1441974231530-c3367d5b9a15?auto=format&fit=crop&w=1600&q=80",
-      altText: "Восеньскі шлях",
-      order: 3,
-      isActive: true,
-    },
+    ...(["WINTER", "SPRING", "SUMMER", "AUTUMN"] as const).flatMap((season) => {
+      const key = season.toLowerCase() as "winter" | "spring" | "summer" | "autumn";
+      return [1, 2, 3].map((order) => ({
+        title: key,
+        subtitle: "",
+        season: Season[season],
+        imageUrl: `/images/seasons/${key}-${order}.png`,
+        altText: `${key} ${order}`,
+        order,
+        isActive: true,
+      }));
+    }),
   ];
 
   for (const slideData of seasonSlidesData) {

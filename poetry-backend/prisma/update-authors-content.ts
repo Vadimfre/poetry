@@ -45,7 +45,7 @@ async function main() {
     }
 
     const image =
-      entry.image ?? authorImageForSlug(author.slug) ?? author.image;
+      authorImageForSlug(author.slug) ?? entry.image ?? author.image;
     const birthYear = entry.birthYear ?? author.birthYear;
     const deathYear =
       entry.deathYear !== undefined ? entry.deathYear : author.deathYear;

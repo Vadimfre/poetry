@@ -24,16 +24,10 @@ function createSlug(name: string): string {
 }
 
 function getSeasonImage(month: number): string {
-  if (month === 12 || month <= 2) {
-    return "https://images.unsplash.com/photo-1483664852095-d6cc6870702d?auto=format&fit=crop&w=800&q=80";
-  }
-  if (month >= 3 && month <= 5) {
-    return "https://images.unsplash.com/photo-1490750967868-88ea4486c946?auto=format&fit=crop&w=800&q=80";
-  }
-  if (month >= 6 && month <= 8) {
-    return "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80";
-  }
-  return "https://images.unsplash.com/photo-1476820865390-c52a945d6d60?auto=format&fit=crop&w=800&q=80";
+  if (month === 12 || month <= 2) return "/images/seasons/winter.jpg";
+  if (month >= 3 && month <= 5) return "/images/seasons/spring.jpg";
+  if (month >= 6 && month <= 8) return "/images/seasons/summer.jpg";
+  return "/images/seasons/autumn.jpg";
 }
 
 async function main() {
