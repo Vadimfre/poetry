@@ -32,7 +32,7 @@ yarn-error.log*
 .env
 
 *.mp4
-public/
+public/**/*.mp4
 poetry-backend/upload/
 dist
 
