@@ -169,3 +169,17 @@
     flex: 1;
   }
 }
+
+@media (max-width: 480px) {
+  .section {
+    padding: 60px 0;
+  }
+
+  .title {
+    font-size: 26px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+}

@@ -151,3 +151,30 @@
 .replies .card::before {
   width: 2px;
 }
+
+@media (max-width: 768px) {
+  .card {
+    padding: 0.875rem;
+    padding-left: 1rem;
+  }
+
+  .header {
+    gap: 0.5rem;
+  }
+
+  .userName {
+    font-size: 0.75rem;
+  }
+
+  .text {
+    font-size: 0.8125rem;
+  }
+
+  .actions {
+    flex-wrap: wrap;
+  }
+
+  .replies {
+    padding-left: 0.5rem;
+  }
+}

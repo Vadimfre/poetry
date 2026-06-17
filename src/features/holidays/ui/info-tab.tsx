@@ -7,6 +7,7 @@ import { Holiday } from "@/src/shared";
 import styles from "./info-tab.module.css";
 import { useCalendarLabels } from "@/src/shared/i18n";
 import { useI18n, usePlural } from "@/src/shared/i18n";
+import { resolveMediaUrl } from "@/src/shared/lib/resolve-media-url";
 
 interface InfoTabProps {
   holiday: Holiday;
@@ -102,7 +103,7 @@ function AuthorChip({ author }: { author: { name: string; image?: string } }) {
     <div className={styles.authorChip}>
       {author.image ? (
         <Image
-          src={author.image}
+          src={resolveMediaUrl(author.image)}
           alt={author.name}
           width={20}
           height={20}

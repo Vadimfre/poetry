@@ -131,3 +131,20 @@
   background: #ef4444;
   color: #ffffff;
 }
+
+@media (max-width: 768px) {
+  .marker {
+    min-width: 100px;
+    max-width: 130px;
+    padding: 0.35rem 0.55rem 0.35rem 0.35rem;
+  }
+
+  .avatar {
+    width: 24px;
+    height: 24px;
+  }
+
+  .name {
+    font-size: 0.68rem;
+  }
+}

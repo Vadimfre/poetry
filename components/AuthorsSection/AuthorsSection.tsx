@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/src/shared/api/client";
 import { useLocaleQueryKey } from "@/src/shared/i18n/use-locale-query-key";
 import { useI18n } from "@/src/shared/i18n/context";
+import { resolveMediaUrl } from "@/src/shared/lib/resolve-media-url";
 import styles from "./AuthorsSection.module.css";
 
 interface Author {
@@ -96,7 +97,7 @@ const AuthorsSection = () => {
                 <div className={styles.authorImageWrapper}>
                   {author.image && !imageErrors[author.slug] ? (
                     <img
-                      src={author.image}
+                      src={resolveMediaUrl(author.image)}
                       alt={author.name}
                       className={styles.authorImage}
                       onError={() =>

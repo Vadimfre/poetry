@@ -19,3 +19,15 @@
 .empty p {
   margin: 0;
 }
+
+@media (max-width: 768px) {
+  .empty {
+    padding: 2rem 1rem;
+    font-size: 0.8125rem;
+  }
+
+  .emptyIcon {
+    width: 2rem;
+    height: 2rem;
+  }
+}

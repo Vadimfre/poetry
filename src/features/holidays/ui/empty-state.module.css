@@ -55,3 +55,15 @@
   width: 1rem;
   height: 1rem;
 }
+
+@media (max-width: 768px) {
+  .emptyContainer {
+    padding: 2.5rem 1rem;
+  }
+
+  .emptyButton {
+    width: 100%;
+    max-width: 280px;
+    justify-content: center;
+  }
+}

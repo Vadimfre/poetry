@@ -1,8 +1,8 @@
 import { QuizListClient } from "./QuizListClient";
 
 export const metadata = {
-  title: "Квізы | Poetry",
-  description: "Праверце свае веды беларускай паэзіі",
+  title: "Quizzes",
+  description: "Interactive quizzes about Belarusian literature",
 };
 
 export default function QuizPage() {

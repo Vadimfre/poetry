@@ -1,7 +1,12 @@
-/* Container */
 .container {
   display: flex;
   flex-direction: column;
   height: 100%;
   padding-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding-bottom: 0.5rem;
+  }
 }

@@ -119,3 +119,20 @@
     margin-top: 16px;
   }
 }
+
+@media (max-width: 480px) {
+  .shell {
+    padding: 10px 8px 40px;
+  }
+
+  .heroSection,
+  .featureCard,
+  .featureCardWide {
+    border-radius: 20px;
+  }
+
+  .featureStack,
+  .featureGrid {
+    gap: 14px;
+  }
+}

@@ -582,7 +582,31 @@
      font-size: 30px;
    }
  
-   .categoriesGrid {
-     grid-template-columns: 1fr;
-   }
- }
+  .categoriesGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    width: min(1180px, calc(100% - 24px));
+  }
+
+  .title {
+    font-size: 26px;
+  }
+
+  .headerRight {
+    width: 100%;
+  }
+
+  .quickLink,
+  .quickLinkSecondary {
+    flex: 1;
+    text-align: center;
+  }
+
+  .selectRow {
+    grid-template-columns: 1fr;
+  }
+}

@@ -139,26 +139,12 @@
   opacity: 0;
   transform: translateY(40px) scale(0.98);
   transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: visible;
 }
 
 .imageLoaded {
   opacity: 1;
   transform: translateY(0) scale(1);
-}
-
-.imageWrapper {
-  position: relative;
-  width: 100%;
-  height: 600px;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-}
-
-.heroImage {
-  object-fit: contain;
-  object-position: center;
-  transition: transform 0.5s ease;
 }
 
 
@@ -200,10 +186,6 @@
   .bottomSection {
     gap: 40px;
   }
-  
-  .imageWrapper {
-    height: 500px;
-  }
 }
 
 @media (max-width: 1024px) {
@@ -239,10 +221,6 @@
     margin: 20px 0;
   }
   
-  .imageWrapper {
-    height: 450px;
-  }
-  
   .imageDecor1,
   .imageDecor2 {
     display: none;
@@ -276,11 +254,6 @@
   .imageContainer {
     margin-top: 40px;
   }
-  
-  .imageWrapper {
-    height: 350px;
-    border-radius: 16px;
-  }
 }
 
 @media (max-width: 480px) {
@@ -290,9 +263,5 @@
   
   .subtitle {
     font-size: 11px;
-  }
-  
-  .imageWrapper {
-    height: 280px;
   }
 }

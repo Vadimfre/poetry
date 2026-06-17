@@ -125,3 +125,22 @@
   color: rgb(226, 232, 240);
   font-weight: 500;
 }
+
+@media (max-width: 768px) {
+  .scrollArea {
+    height: auto;
+    max-height: 480px;
+  }
+
+  .container {
+    padding: 1rem;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 1.1rem;
+  }
+}

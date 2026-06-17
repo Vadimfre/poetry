@@ -4,6 +4,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { commentsApi } from "@/src/shared/api/comments.api";
 import type { CreateCommentDto } from "@/src/shared/types";
 import { toastMessageHandler } from "@/src/shared/utils";
+import { getCookie } from "@/src/shared/i18n/cookie";
+import { LOCALE_COOKIE } from "@/src/shared/i18n/types";
+import { be } from "@/src/shared/i18n/locales/be";
+import { ru } from "@/src/shared/i18n/locales/ru";
+import type { Locale } from "@/src/shared/i18n/types";
 import { interactionKeys } from "@/src/shared/hooks/interactions/use-poem-interactions";
 import { PoemInteractionsData } from "@/src/shared/types/interactions.types";
 
@@ -48,9 +53,11 @@ export const useCreateComment = () => {
         );
       }
       if (error?.response?.status === 401) {
-        toastMessageHandler({
-          message: "Необходимо авторизоваться для создания комментария",
-        });
+        const locale = (getCookie(LOCALE_COOKIE) ?? "be") as Locale;
+        const authMessage =
+          { be: be.commentsSection.authRequired, ru: ru.commentsSection.authRequired }[locale] ??
+          be.commentsSection.authRequired;
+        toastMessageHandler({ message: authMessage });
       } else {
         toastMessageHandler(error);
       }

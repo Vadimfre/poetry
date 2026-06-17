@@ -93,3 +93,21 @@
 .word.dragging {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 20px rgba(167, 139, 250, 0.4);
 }
+
+@media (max-width: 768px) {
+  .default,
+  .bubble,
+  .word {
+    font-size: 0.85rem;
+  }
+
+  .bubble {
+    min-width: 130px;
+    max-width: 170px;
+  }
+
+  .word {
+    white-space: normal;
+    text-align: center;
+  }
+}

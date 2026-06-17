@@ -256,3 +256,17 @@
   
 }
 
+@media (max-width: 480px) {
+  .container {
+    padding: 80px 16px 32px;
+  }
+
+  .backButton {
+    left: 16px;
+    top: 88px;
+  }
+
+  .title {
+    font-size: 26px;
+  }
+}

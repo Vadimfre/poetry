@@ -92,3 +92,41 @@
   flex-direction: column;
   gap: 0.5rem;
 }
+
+@media (max-width: 768px) {
+  .main {
+    padding: 1.25rem 0 3rem;
+  }
+
+  .hero {
+    margin-bottom: 1.75rem;
+  }
+
+  .hero h1 {
+    font-size: clamp(1.6rem, 6vw, 2.25rem);
+  }
+
+  .description {
+    font-size: 0.95rem;
+  }
+
+  .readBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .chapters,
+  .quizzes {
+    margin-top: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .back {
+    font-size: 0.9rem;
+  }
+
+  .chapters ol {
+    padding-left: 1rem;
+  }
+}

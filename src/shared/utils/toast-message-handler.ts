@@ -1,25 +1,42 @@
 import { toast } from "sonner";
+import { getCookie } from "@/src/shared/i18n/cookie";
+import { LOCALE_COOKIE } from "@/src/shared/i18n/types";
+import { be } from "@/src/shared/i18n/locales/be";
+import { ru } from "@/src/shared/i18n/locales/ru";
+import type { Locale } from "@/src/shared/i18n/types";
 
-export function toastMessageHandler(error: any) {
-  // Определяем сообщение об ошибке
-  let message = "Ошибка со стороны сервера";
+const messages: Record<Locale, { errorServer: string }> = {
+  be: { errorServer: be.common.errorServer },
+  ru: { errorServer: ru.common.errorServer },
+};
+
+function getDefaultErrorMessage(): string {
+  if (typeof window === "undefined") return messages.be.errorServer;
+  const locale = (getCookie(LOCALE_COOKIE) ?? "be") as Locale;
+  return messages[locale]?.errorServer ?? messages.be.errorServer;
+}
+
+export function toastMessageHandler(error: unknown) {
+  let message = getDefaultErrorMessage();
   let description: string | undefined;
 
-  // Пытаемся извлечь сообщение из различных мест ошибки
-  if (error.response?.data?.message) {
-    message = error.response.data.message;
-  } else if (error.message) {
-    message = error.message;
+  const err = error as {
+    response?: { data?: { message?: string } };
+    message?: string;
+  };
+
+  if (err.response?.data?.message) {
+    message = err.response.data.message;
+  } else if (err.message) {
+    message = err.message;
   }
 
-  // Обрабатываем сообщение: разделяем на заголовок и описание по точке
   const firstDotIndex = message.indexOf(".");
 
   if (firstDotIndex !== -1) {
     const title = message.slice(0, firstDotIndex).trim();
     description = message.slice(firstDotIndex + 1).trim();
 
-    // Если описание пустое после точки, не показываем его
     if (description && description.length > 0) {
       toast.error(title, { description });
     } else {

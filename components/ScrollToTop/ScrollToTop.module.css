@@ -52,3 +52,11 @@
     display: none;
   }
 }
+
+@media (max-width: 480px) {
+  .button {
+    right: 12px;
+    bottom: 12px;
+    padding: 10px 12px;
+  }
+}

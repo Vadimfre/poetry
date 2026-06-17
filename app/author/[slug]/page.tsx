@@ -8,6 +8,7 @@ import { useI18n, usePlural } from "@/src/shared/i18n";
 import Header from "@/components/Header/Header";
 import Link from "next/link";
 import styles from "./author.module.css";
+import { resolveMediaUrl } from "@/src/shared/lib/resolve-media-url";
 
 interface Author {
   id: number;
@@ -24,15 +25,6 @@ interface Author {
     year: number | null;
     category: { name: string } | null;
   }>;
-  proseWorks?: Array<{
-    id: number;
-    title: string;
-    slug: string;
-    kind: string;
-    year: number | null;
-    description?: string | null;
-    chapterCount: number;
-  }>;
 }
 
 interface PageProps {
@@ -41,12 +33,10 @@ interface PageProps {
   };
 }
 
-type WorksTab = "poems" | "prose";
 
 export default function AuthorPage({ params }: PageProps) {
   const { t } = useI18n();
   const plural = usePlural();
-  const [worksTab, setWorksTab] = useState<WorksTab>("poems");
   const [bioExpanded, setBioExpanded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const authorQueryKey = useLocaleQueryKey(["author", params.slug]);
@@ -105,7 +95,6 @@ export default function AuthorPage({ params }: PageProps) {
     few: "common.poemFew",
     many: "common.poemMany",
   });
-  const proseCount = author.proseWorks?.length ?? 0;
   const bioParagraphs =
     author.bio
       ?.split(/\n\s*\n/)
@@ -127,7 +116,7 @@ export default function AuthorPage({ params }: PageProps) {
             <div className={styles.imageContainer}>
               {author.image && !imageError ? (
                 <img
-                  src={author.image}
+                  src={resolveMediaUrl(author.image)}
                   alt={author.name}
                   className={styles.heroImage}
                   onError={() => setImageError(true)}
@@ -156,14 +145,6 @@ export default function AuthorPage({ params }: PageProps) {
                   </span>
                   <span className={styles.statLabel}>{poemWord}</span>
                 </div>
-                {proseCount > 0 && (
-                  <div className={styles.statItem}>
-                    <span className={styles.statNumber}>{proseCount}</span>
-                    <span className={styles.statLabel}>
-                      {t("authorPage.tabProse")}
-                    </span>
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -221,127 +202,53 @@ export default function AuthorPage({ params }: PageProps) {
           <div className={styles.poemsSection}>
             <div className={styles.poemsHeader}>
               <h2 className={styles.sectionTitle}>{t("authorPage.works")}</h2>
-              <div className={styles.tabs}>
-                <button
-                  type="button"
-                  className={
-                    worksTab === "poems" ? styles.tabActive : styles.tab
-                  }
-                  onClick={() => setWorksTab("poems")}
-                >
-                  {t("authorPage.tabPoems")} ({author.poems.length})
-                </button>
-                <button
-                  type="button"
-                  className={
-                    worksTab === "prose" ? styles.tabActive : styles.tab
-                  }
-                  onClick={() => setWorksTab("prose")}
-                >
-                  {t("authorPage.tabProse")} ({proseCount})
-                </button>
-              </div>
             </div>
 
-            {worksTab === "poems" && (
-              <div className={styles.poemsList}>
-                {author.poems.length > 0 ? (
-                  author.poems.map((poem, index) => (
-                    <Link
-                      href={`/poem/${poem.id}`}
-                      key={poem.id}
-                      className={styles.poemCard}
-                      style={{ animationDelay: `${index * 0.05}s` }}
-                    >
-                      <div className={styles.poemNumber}>
-                        {String(index + 1).padStart(2, "0")}
-                      </div>
-                      <div className={styles.poemContent}>
-                        <h3 className={styles.poemTitle}>{poem.title}</h3>
-                        <div className={styles.poemMeta}>
-                          {poem.category?.name && (
-                            <span className={styles.poemCategory}>
-                              {poem.category.name}
-                            </span>
-                          )}
-                          {poem.year && (
-                            <span className={styles.poemYear}>{poem.year}</span>
-                          )}
-                        </div>
-                      </div>
-                      <div className={styles.poemArrow}>
-                        <svg
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <path d="M5 12h14M12 5l7 7-7 7" />
-                        </svg>
-                      </div>
-                    </Link>
-                  ))
-                ) : (
-                  <div className={styles.emptyState}>
-                    <p>{t("authorPage.noPoems")}</p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {worksTab === "prose" && (
-              <div className={styles.poemsList}>
-                {proseCount > 0 ? (
-                  author.proseWorks!.map((work, index) => (
-                    <Link
-                      href={`/prose/${work.slug}`}
-                      key={work.id}
-                      className={styles.poemCard}
-                      style={{ animationDelay: `${index * 0.05}s` }}
-                    >
-                      <div className={styles.poemNumber}>📖</div>
-                      <div className={styles.poemContent}>
-                        <h3 className={styles.poemTitle}>{work.title}</h3>
-                        <div className={styles.poemMeta}>
+            <div className={styles.poemsList}>
+              {author.poems.length > 0 ? (
+                author.poems.map((poem, index) => (
+                  <Link
+                    href={`/poem/${poem.id}`}
+                    key={poem.id}
+                    className={styles.poemCard}
+                    style={{ animationDelay: `${index * 0.05}s` }}
+                  >
+                    <div className={styles.poemNumber}>
+                      {String(index + 1).padStart(2, "0")}
+                    </div>
+                    <div className={styles.poemContent}>
+                      <h3 className={styles.poemTitle}>{poem.title}</h3>
+                      <div className={styles.poemMeta}>
+                        {poem.category?.name && (
                           <span className={styles.poemCategory}>
-                            {t(`proseReader.kind.${work.kind}` as "proseReader.kind.NOVEL")}
+                            {poem.category.name}
                           </span>
-                          {work.year && (
-                            <span className={styles.poemYear}>{work.year}</span>
-                          )}
-                          <span className={styles.poemYear}>
-                            {t("authorPage.chapters", {
-                              count: work.chapterCount,
-                            })}
-                          </span>
-                        </div>
-                        {work.description && (
-                          <p className={styles.proseDesc}>{work.description}</p>
+                        )}
+                        {poem.year && (
+                          <span className={styles.poemYear}>{poem.year}</span>
                         )}
                       </div>
-                      <div className={styles.poemArrow}>
-                        <svg
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <path d="M5 12h14M12 5l7 7-7 7" />
-                        </svg>
-                      </div>
-                    </Link>
-                  ))
-                ) : (
-                  <div className={styles.emptyState}>
-                    <p>{t("authorPage.noProse")}</p>
-                  </div>
-                )}
-              </div>
-            )}
+                    </div>
+                    <div className={styles.poemArrow}>
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M5 12h14M12 5l7 7-7 7" />
+                      </svg>
+                    </div>
+                  </Link>
+                ))
+              ) : (
+                <div className={styles.emptyState}>
+                  <p>{t("authorPage.noPoems")}</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>

@@ -212,3 +212,35 @@
     padding: 1.25rem 1.1rem;
   }
 }
+
+@media (max-width: 480px) {
+  .chapterTitle {
+    font-size: 1.35rem;
+  }
+
+  .body p {
+    text-align: left;
+    font-size: 0.95rem;
+  }
+
+  .pager {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .pagerPrev,
+  .pagerNext {
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .pagerNext {
+    margin-left: 0;
+  }
+
+  .fontControls button {
+    width: 2rem;
+    height: 2rem;
+  }
+}

@@ -8,6 +8,7 @@ import DotsNavigation from "@/src/features/season-slider/ui/DotsNavigation";
 import NavigationArrows from "@/src/features/season-slider/ui/NavigationArrows";
 import ProgressBar from "@/src/features/season-slider/ui/ProgressBar";
 import { SeasonSlide } from "@/src/features/season-slider/ui/SeasonSlide";
+import { SeasonMobileCalendar } from "@/src/features/season-slider/ui/SeasonMobileCalendar";
 import type { SlideSeason } from "@/src/features/season-slider/season-slider-data";
 import { useI18n } from "@/src/shared/i18n";
 
@@ -81,44 +82,48 @@ export default function SeasonSlider() {
   }
 
   return (
-    <div className={`${styles.slider} ${styles.hasSlides}`}>
-      <div className={styles.slidesContainer}>
-        {SEASON_ORDER.map((season, index) => {
-          const seasonSlides = slidesBySeason[season] ?? [];
-          if (!seasonSlides.length) return null;
+    <div className={styles.seasonBlock}>
+      <div className={`${styles.slider} ${styles.hasSlides}`}>
+        <div className={styles.slidesContainer}>
+          {SEASON_ORDER.map((season, index) => {
+            const seasonSlides = slidesBySeason[season] ?? [];
+            if (!seasonSlides.length) return null;
 
-          return (
-            <SeasonSlide
-              key={season}
-              season={season}
-              slides={seasonSlides}
-              activeImageIndex={
-                index === seasonIndex ? activeImageIndex : 0
-              }
-              isActive={index === seasonIndex}
+            return (
+              <SeasonSlide
+                key={season}
+                season={season}
+                slides={seasonSlides}
+                activeImageIndex={
+                  index === seasonIndex ? activeImageIndex : 0
+                }
+                isActive={index === seasonIndex}
+              />
+            );
+          })}
+        </div>
+
+        <NavigationArrows onNext={nextSeason} onPrev={prevSeason} />
+
+        {activeSeasonSlides.length > 1 && (
+          <>
+            <DotsNavigation
+              slidesLength={activeSeasonSlides.length}
+              current={activeImageIndex}
+              onDotClick={goToSlide}
             />
-          );
-        })}
+            <ProgressBar
+              progress={
+                activeSeasonSlides.length === 1
+                  ? 1
+                  : activeImageIndex / (activeSeasonSlides.length - 1)
+              }
+            />
+          </>
+        )}
       </div>
 
-      <NavigationArrows onNext={nextSeason} onPrev={prevSeason} />
-
-      {activeSeasonSlides.length > 1 && (
-        <>
-          <DotsNavigation
-            slidesLength={activeSeasonSlides.length}
-            current={activeImageIndex}
-            onDotClick={goToSlide}
-          />
-          <ProgressBar
-            progress={
-              activeSeasonSlides.length === 1
-                ? 1
-                : activeImageIndex / (activeSeasonSlides.length - 1)
-            }
-          />
-        </>
-      )}
+      <SeasonMobileCalendar season={activeSeason} />
     </div>
   );
 }

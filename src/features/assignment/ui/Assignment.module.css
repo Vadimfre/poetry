@@ -742,4 +742,110 @@
   .container {
     padding: 20px 14px 36px;
   }
+
+  .hero {
+    padding: 20px 18px;
+  }
+
+  .heroInner,
+  .header {
+    flex-direction: column;
+  }
+
+  .tableWrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table {
+    min-width: 560px;
+  }
+
+  .journalToolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchWrap {
+    max-width: none;
+  }
+
+  .assignRow {
+    flex-direction: column;
+  }
+
+  .button,
+  .secondaryButton,
+  .linkButton,
+  .backLink,
+  .ghostButton {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 16px 12px 32px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .card,
+  .panel,
+  .form {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .cardHeader {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .summaryStrip {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .result {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .codeInput {
+    font-size: 22px;
+    letter-spacing: 0.15em;
+  }
+
+  .progressStrip {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: 16px 14px;
+    border-radius: 18px;
+  }
+
+  .summaryStrip {
+    grid-template-columns: 1fr;
+  }
+
+  .tabs .tab {
+    padding: 12px 14px;
+  }
+
+  .checkItem {
+    padding: 10px 12px;
+  }
+
+  .emptyState {
+    padding: 32px 16px;
+  }
 }

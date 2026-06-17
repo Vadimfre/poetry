@@ -337,3 +337,17 @@
     flex-direction: column;
   }
 }
+
+@media (max-width: 480px) {
+  .container {
+    padding: 20px 12px;
+  }
+
+  .title {
+    font-size: 26px;
+  }
+
+  .card {
+    padding: 20px 16px;
+  }
+}

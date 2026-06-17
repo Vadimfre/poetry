@@ -429,3 +429,54 @@
   width: 1rem;
   height: 1rem;
 }
+
+@media (max-width: 768px) {
+  .header {
+    padding: 1.125rem;
+    padding-bottom: 0.875rem;
+  }
+
+  .headerContent {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .actionButtons {
+    flex-direction: row;
+    align-self: flex-end;
+  }
+
+  .title {
+    font-size: 1.1rem;
+    white-space: normal;
+  }
+
+  .stats {
+    gap: 0.5rem;
+  }
+
+  .statItem {
+    font-size: 0.8125rem;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .videoLink {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .content {
+    padding: 1.125rem;
+    padding-top: 1rem;
+  }
+
+  .text {
+    font-size: 0.9375rem;
+    padding-left: 1rem;
+  }
+
+  .footer {
+    padding: 0 1.125rem 1.125rem;
+  }
+}

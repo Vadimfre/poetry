@@ -1,7 +1,7 @@
 import Header from '@/components/Header/Header'
 
 export const metadata = {
-  title: 'Квізы | Poetry',
+  title: 'Quizzes',
 }
 
 export default function QuizzesLayout({

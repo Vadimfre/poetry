@@ -300,3 +300,26 @@
 .forgotPassword a:hover {
   color: black
 }
+
+@media (max-width: 480px) {
+  .main {
+    padding: 24px 16px;
+  }
+
+  .authCard {
+    padding: 28px 20px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+
+  .submitButton,
+  .socialButton {
+    width: 100%;
+  }
+
+  .socialButtons {
+    flex-direction: column;
+  }
+}

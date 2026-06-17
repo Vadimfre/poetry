@@ -14,11 +14,13 @@ import styles from "./Header.module.css";
 const Header = () => {
   const { t } = useI18n();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isAuthModalOpen = useAuthModalStore((s) => s.isOpen);
   const openAuthModal = useAuthModalStore((s) => s.open);
   const closeAuthModal = useAuthModalStore((s) => s.close);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isDirectionsOpen, setIsDirectionsOpen] = useState(false);
+  const [isMobileDirectionsOpen, setIsMobileDirectionsOpen] = useState(false);
   const [canHover, setCanHover] = useState(false);
 
   const { user, isAuthenticated, logout: logoutStore } = useUserStore();
@@ -48,6 +50,13 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
+    document.body.style.overflow = isMobileMenuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
 
@@ -74,15 +83,22 @@ const Header = () => {
     };
   }, [isProfileMenuOpen, isDirectionsOpen]);
 
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+    setIsMobileDirectionsOpen(false);
+  };
+
   const handleLogout = async () => {
     try {
       await authApi.logout();
       logoutStore();
       setIsProfileMenuOpen(false);
+      closeMobileMenu();
     } catch (error) {
       console.error("Logout error:", error);
       logoutStore();
       setIsProfileMenuOpen(false);
+      closeMobileMenu();
     }
   };
 
@@ -94,12 +110,47 @@ const Header = () => {
         ? t("header.roleAdmin")
         : t("header.roleUser");
 
+  const renderDirectionsItems = (onNavigate: () => void) =>
+    categories?.map((category) => (
+      <Link
+        key={category.id}
+        href={`/collection/${category.slug}`}
+        className={styles.directionItem}
+        onClick={onNavigate}
+      >
+        <div className={styles.directionIcon}>
+          {category.name.charAt(0).toUpperCase()}
+        </div>
+        <div className={styles.directionContent}>
+          <div className={styles.directionTitle}>{category.name}</div>
+          <div className={styles.directionDesc}>
+            {category.description ||
+              t("header.collections", {
+                count: category._count?.collections || 0,
+              })}
+          </div>
+        </div>
+      </Link>
+    ));
+
   return (
     <header
       className={`${styles.header} ${isScrolled ? styles.headerScrolled : ""}`}
     >
       <div className={styles.headerWrapper}>
         <div className={styles.headerContent}>
+          <button
+            type="button"
+            className={styles.menuToggle}
+            onClick={() => setIsMobileMenuOpen(true)}
+            aria-label={t("header.openMenu")}
+            aria-expanded={isMobileMenuOpen}
+          >
+            <span className={styles.menuBar} />
+            <span className={styles.menuBar} />
+            <span className={styles.menuBar} />
+          </button>
+
           <nav className={styles.navLeft}>
             <Link
               href="/"
@@ -128,29 +179,7 @@ const Header = () => {
               </button>
               {isDirectionsOpen && categories && categories.length > 0 && (
                 <div className={styles.directionsMenu}>
-                  {categories.map((category) => (
-                    <Link
-                      key={category.id}
-                      href={`/collection/${category.slug}`}
-                      className={styles.directionItem}
-                      onClick={() => setIsDirectionsOpen(false)}
-                    >
-                      <div className={styles.directionIcon}>
-                        {category.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div className={styles.directionContent}>
-                        <div className={styles.directionTitle}>
-                          {category.name}
-                        </div>
-                        <div className={styles.directionDesc}>
-                          {category.description ||
-                            t("header.collections", {
-                              count: category._count?.collections || 0,
-                            })}
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
+                  {renderDirectionsItems(() => setIsDirectionsOpen(false))}
                 </div>
               )}
             </div>
@@ -272,21 +301,160 @@ const Header = () => {
                 )}
               </div>
             ) : (
+              <button className={styles.login} onClick={openAuthModal}>
+                {t("header.login")}
+              </button>
+            )}
+          </nav>
+
+          <div className={styles.mobileActions}>
+            <LanguageSelect />
+            {isAuthenticated && user ? (
               <button
-                className={styles.login}
+                type="button"
+                className={styles.mobileAvatar}
+                onClick={() => setIsMobileMenuOpen(true)}
+                aria-label={t("header.profileSettings")}
+              >
+                {(user.name || user.email).charAt(0).toUpperCase()}
+              </button>
+            ) : (
+              <button
+                type="button"
+                className={styles.mobileLogin}
                 onClick={openAuthModal}
               >
                 {t("header.login")}
               </button>
             )}
-          </nav>
+          </div>
         </div>
       </div>
 
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={closeAuthModal}
-      />
+      {isMobileMenuOpen && (
+        <div
+          className={styles.mobileOverlay}
+          onClick={closeMobileMenu}
+          aria-hidden
+        />
+      )}
+
+      <nav
+        className={`${styles.mobileMenu} ${isMobileMenuOpen ? styles.mobileMenuOpen : ""}`}
+        aria-hidden={!isMobileMenuOpen}
+      >
+        <div className={styles.mobileMenuHeader}>
+          <span className={styles.mobileMenuTitle}>POETRY</span>
+          <button
+            type="button"
+            className={styles.mobileClose}
+            onClick={closeMobileMenu}
+            aria-label={t("header.closeMenu")}
+          >
+            ✕
+          </button>
+        </div>
+
+        {isAuthenticated && user && (
+          <div className={styles.mobileUserBlock}>
+            <div className={styles.avatarLarge}>
+              {(user.name || user.email).charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <div className={styles.profileName}>
+                {user.name || t("header.userFallback")}
+              </div>
+              <div className={styles.profileRole}>{roleLabel}</div>
+            </div>
+          </div>
+        )}
+
+        <div className={styles.mobileNavLinks}>
+          <Link href="/" className={styles.mobileNavLink} onClick={closeMobileMenu}>
+            {t("header.home")}
+          </Link>
+
+          <button
+            type="button"
+            className={styles.mobileNavLink}
+            onClick={() => setIsMobileDirectionsOpen((p) => !p)}
+          >
+            {t("header.directions")}{" "}
+            <span className={styles.mobileChevron}>
+              {isMobileDirectionsOpen ? "▲" : "▼"}
+            </span>
+          </button>
+          {isMobileDirectionsOpen && categories && categories.length > 0 && (
+            <div className={styles.mobileDirections}>
+              {renderDirectionsItems(closeMobileMenu)}
+            </div>
+          )}
+
+          <Link href="/filters" className={styles.mobileNavLink} onClick={closeMobileMenu}>
+            {t("header.filters")}
+          </Link>
+          <Link href="/quizzes" className={styles.mobileNavLink} onClick={closeMobileMenu}>
+            {t("header.quizzes")}
+          </Link>
+          <Link href="/school" className={styles.mobileNavLink} onClick={closeMobileMenu}>
+            {t("header.school")}
+          </Link>
+          {isTeacher && (
+            <Link href="/teacher" className={styles.mobileNavLink} onClick={closeMobileMenu}>
+              {t("header.classes")}
+            </Link>
+          )}
+          {isStudent && (
+            <Link href="/student" className={styles.mobileNavLink} onClick={closeMobileMenu}>
+              {t("header.myAssignments")}
+            </Link>
+          )}
+          <Link href="/favorites" className={styles.mobileNavLink} onClick={closeMobileMenu}>
+            {t("header.favorites")}
+          </Link>
+          <Link href="/about" className={styles.mobileNavLink} onClick={closeMobileMenu}>
+            {t("header.about")}
+          </Link>
+          <Link href="/faq" className={styles.mobileNavLink} onClick={closeMobileMenu}>
+            {t("header.faq")}
+          </Link>
+          {isAdmin && (
+            <Link href="/admin" className={styles.mobileNavLink} onClick={closeMobileMenu}>
+              {t("header.adminPanel")}
+            </Link>
+          )}
+          {isAuthenticated && user && (
+            <Link href="/settings" className={styles.mobileNavLink} onClick={closeMobileMenu}>
+              {t("header.profileSettings")}
+            </Link>
+          )}
+        </div>
+
+        <div className={styles.mobileMenuFooter}>
+          {isAuthenticated && user ? (
+            <button
+              type="button"
+              className={styles.mobileLogout}
+              onClick={handleLogout}
+            >
+              {t("header.logout")}
+            </button>
+          ) : (
+            <button
+              type="button"
+              className={styles.mobileLoginFull}
+              onClick={() => {
+                closeMobileMenu();
+                openAuthModal();
+              }}
+            >
+              {t("header.login")}
+            </button>
+          )}
+        </div>
+      </nav>
+
+      <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} />
     </header>
   );
 };

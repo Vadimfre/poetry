@@ -4,9 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/src/entities/user";
-import { assignmentApi, classroomApi, readingAssignmentApi } from "@/src/shared/api";
+import { assignmentApi, classroomApi } from "@/src/shared/api";
 import type { Classroom, QuizAssignment } from "@/src/shared/types/assignment.types";
-import type { ReadingAssignment } from "@/src/shared/types/prose.types";
 import { useI18n } from "@/src/shared/i18n";
 import type { Locale } from "@/src/shared/i18n/types";
 import styles from "./Assignment.module.css";
@@ -32,7 +31,6 @@ export function StudentWorkspace({ classId }: { classId?: string }) {
   const { user, isAuthenticated, hasHydrated } = useUserStore();
   const [classes, setClasses] = useState<Classroom[]>([]);
   const [assignments, setAssignments] = useState<QuizAssignment[]>([]);
-  const [readingAssignments, setReadingAssignments] = useState<ReadingAssignment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,14 +54,12 @@ export function StudentWorkspace({ classId }: { classId?: string }) {
     try {
       setLoading(true);
       setError(null);
-      const [classroomsData, assignmentsData, readingData] = await Promise.all([
+      const [classroomsData, assignmentsData] = await Promise.all([
         classroomApi.getMy(),
         assignmentApi.getMy(),
-        readingAssignmentApi.getMy(),
       ]);
       setClasses(classroomsData);
       setAssignments(assignmentsData);
-      setReadingAssignments(readingData);
     } catch (err: unknown) {
       setError(getApiMessage(err, t("teacher.error")));
     } finally {
@@ -74,9 +70,6 @@ export function StudentWorkspace({ classId }: { classId?: string }) {
   const visibleAssignments = classId
     ? assignments.filter((assignment) => assignment.classroomId === classId)
     : assignments;
-  const visibleReading = classId
-    ? readingAssignments.filter((r) => r.classroomId === classId)
-    : readingAssignments;
   const currentClass = classId
     ? classes.find((classroom) => classroom.id === classId)
     : null;
@@ -152,44 +145,8 @@ export function StudentWorkspace({ classId }: { classId?: string }) {
           </aside>
 
           <section className={styles.stack}>
-            {visibleReading.length > 0 && (
-              <>
-                <p className={styles.sectionLabel}>Абавязковае чытанне</p>
-                {visibleReading.map((reading) => {
-                  const done = !!reading.myProgress?.completedAt;
-                  const slug = reading.proseWork.slug;
-                  const href = `/prose/${slug}?assignment=${reading.id}`;
-
-                  return (
-                    <div key={reading.id} className={styles.card}>
-                      <div className={styles.assignRow}>
-                        <div className={styles.assignMeta}>
-                          <h3 className={styles.cardTitle}>{reading.title}</h3>
-                          <p className={styles.meta}>
-                            {reading.classroom?.name} · {reading.proseWork.title}
-                          </p>
-                          <span
-                            className={`${styles.statusPill} ${
-                              done ? styles.statusDone : styles.statusTodo
-                            }`}
-                          >
-                            {done
-                              ? `Прачитана (${reading.myProgress?.progressPercent ?? 100}%)`
-                              : `${reading.myProgress?.progressPercent ?? 0}%`}
-                          </span>
-                        </div>
-                        <Link href={href} className={styles.button}>
-                          {done ? "Перачытаць" : "Читаць"}
-                        </Link>
-                      </div>
-                    </div>
-                  );
-                })}
-              </>
-            )}
-
             <p className={styles.sectionLabel}>{t("teacher.assignments")}</p>
-            {visibleAssignments.length === 0 && visibleReading.length === 0 ? (
+            {visibleAssignments.length === 0 ? (
               <div className={styles.emptyState}>
                 <div className={styles.emptyIcon}>✨</div>
                 <p className={styles.emptyTitle}>{t("student.noAssignments")}</p>

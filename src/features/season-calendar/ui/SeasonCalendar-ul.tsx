@@ -6,7 +6,7 @@ import { Holiday } from "@/src/shared";
 import CalendarHeader from "./CalendarHeader";
 import CalendarDays from "./CalendarDays";
 import { HolidayModal } from "../../../../components/HolidayModal/holiday-modal";
-import { useCalendarLabels } from "@/src/shared/i18n";
+import { useCalendarLabels, useI18n } from "@/src/shared/i18n";
 
 interface SeasonCalendarProps {
   holidays: Holiday[];
@@ -21,6 +21,7 @@ export default function SeasonCalendar({
   year,
   accentColor = "#7cb342",
 }: SeasonCalendarProps) {
+  const { t } = useI18n();
   const { dayNames, getMonthsForNumbers } = useCalendarLabels();
   const months = getMonthsForNumbers(monthNumbers);
 
@@ -100,7 +101,7 @@ export default function SeasonCalendar({
             className={styles.monthArrow}
             onClick={handlePrevMonth}
             disabled={activeMonthIndex === 0}
-            aria-label={prevMonthLabel ?? "Папярэдні месяц"}
+            aria-label={prevMonthLabel ?? t("calendar.prevMonth")}
             title={prevMonthLabel ?? undefined}
           >
             <span className={styles.monthArrowIcon}>‹</span>
@@ -145,7 +146,7 @@ export default function SeasonCalendar({
             className={styles.monthArrow}
             onClick={handleNextMonth}
             disabled={activeMonthIndex === monthNumbers.length - 1}
-            aria-label={nextMonthLabel ?? "Наступны месяц"}
+            aria-label={nextMonthLabel ?? t("calendar.nextMonth")}
             title={nextMonthLabel ?? undefined}
           >
             {nextMonthLabel && (

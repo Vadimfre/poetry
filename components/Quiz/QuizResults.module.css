@@ -265,3 +265,18 @@
     justify-content: center;
   }
 }
+
+@media (max-width: 480px) {
+  .resultCard {
+    padding: 1.5rem 1rem;
+  }
+
+  .scoreCircle {
+    width: 120px;
+    height: 120px;
+  }
+
+  .percentage {
+    font-size: 1.75rem;
+  }
+}

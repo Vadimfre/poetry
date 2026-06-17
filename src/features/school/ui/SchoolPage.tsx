@@ -27,8 +27,6 @@ export function SchoolPage() {
 
   const totalPoems =
     data?.grades.reduce((sum, g) => sum + g.poemCount, 0) ?? 0;
-  const totalProse =
-    data?.grades.reduce((sum, g) => sum + g.proseCount, 0) ?? 0;
   const totalMemorize =
     data?.grades.reduce((sum, g) => sum + g.memorizeCount, 0) ?? 0;
 
@@ -80,10 +78,6 @@ export function SchoolPage() {
                 <div className={styles.heroStat}>
                   <div className={styles.heroStatValue}>{totalPoems}</div>
                   <div className={styles.heroStatLabel}>{t("school.statPoems")}</div>
-                </div>
-                <div className={styles.heroStat}>
-                  <div className={styles.heroStatValue}>{totalProse}</div>
-                  <div className={styles.heroStatLabel}>{t("school.statProse")}</div>
                 </div>
                 <div className={styles.heroStat}>
                   <div className={styles.heroStatValue}>{totalMemorize}</div>
@@ -145,18 +139,6 @@ export function SchoolPage() {
                           one: "common.verseOne",
                           few: "common.verseFew",
                           many: "common.verseMany",
-                        }),
-                      })}
-                    </span>
-                  )}
-                  {g.proseCount > 0 && (
-                    <span className={styles.statPill}>
-                      {t("school.proseCount", {
-                        count: g.proseCount,
-                        word: plural(g.proseCount, {
-                          one: "common.proseOne",
-                          few: "common.proseFew",
-                          many: "common.proseMany",
                         }),
                       })}
                     </span>

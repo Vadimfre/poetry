@@ -27,3 +27,12 @@
   box-shadow: none;
   color: #94a3b8;
 }
+
+@media (max-width: 768px) {
+  .button {
+    width: 100%;
+    max-width: 320px;
+    padding: 0.85rem 1.5rem;
+    font-size: 0.9375rem;
+  }
+}

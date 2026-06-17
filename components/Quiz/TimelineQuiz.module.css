@@ -174,3 +174,16 @@
     font-size: 0.65rem;
   }
 }
+
+@media (max-width: 480px) {
+  .timelineWrapper {
+    padding: 60px 10px 16px;
+  }
+
+  .poetsPool {
+    max-height: 88px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+}

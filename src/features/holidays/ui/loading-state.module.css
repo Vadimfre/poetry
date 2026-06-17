@@ -67,3 +67,19 @@
     opacity: 0.5;
   }
 }
+
+@media (max-width: 768px) {
+  .loadingContainer {
+    height: 360px;
+    border-radius: 1rem;
+  }
+
+  .loadingIcon {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .loadingTitle {
+    font-size: 1rem;
+  }
+}

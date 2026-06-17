@@ -354,3 +354,26 @@
     font-size: 28px;
   }
 }
+
+@media (max-width: 480px) {
+  .heroTitle {
+    font-size: 28px;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statNumber {
+    font-size: 28px;
+  }
+
+  .sectionTitle {
+    font-size: 24px;
+  }
+
+  .ctaButton {
+    width: 100%;
+    text-align: center;
+  }
+}

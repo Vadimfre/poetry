@@ -6,6 +6,9 @@ import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/src/shared/api/client";
 import { useI18n, usePlural } from "@/src/shared/i18n";
 import { useLocaleQueryKey } from "@/src/shared/i18n/use-locale-query-key";
+import { filterByLetter } from "@/src/shared/lib/alphabet-filter";
+import { resolveMediaUrl } from "@/src/shared/lib/resolve-media-url";
+import AlphabetFilter from "@/components/AlphabetFilter/AlphabetFilter";
 import styles from "./AllAuthorsSection.module.css";
 
 interface Author {
@@ -24,6 +27,7 @@ const AllAuthorsSection = () => {
   const plural = usePlural();
   const [isVisible, setIsVisible] = useState(false);
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
+  const [activeLetter, setActiveLetter] = useState<string | null>(null);
 
   const authorsQueryKey = useLocaleQueryKey(["all-authors"]);
   const { data: authors, isLoading } = useQuery<Author[]>({
@@ -41,6 +45,11 @@ const AllAuthorsSection = () => {
       0;
     return { authorCount, poemCount };
   }, [authors]);
+
+  const filteredAuthors = useMemo(
+    () => filterByLetter(authors ?? [], activeLetter),
+    [authors, activeLetter],
+  );
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 300);
@@ -93,8 +102,23 @@ const AllAuthorsSection = () => {
           </div>
         </div>
 
+        {authors && authors.length > 0 && (
+          <AlphabetFilter
+            activeLetter={activeLetter}
+            onLetterChange={setActiveLetter}
+            items={authors}
+            allLabel={t("allAuthors.filterAll")}
+            ariaLabel={t("allAuthors.filterAria")}
+          />
+        )}
+
+        {filteredAuthors.length === 0 ? (
+          <div className={styles.emptyFilter}>
+            {t("allAuthors.filterEmpty", { letter: activeLetter ?? "" })}
+          </div>
+        ) : (
         <div className={`${styles.grid} ${isVisible ? styles.visible : ""}`}>
-          {authors?.map((author, index) => {
+          {filteredAuthors.map((author, index) => {
             const years = author.birthYear
               ? `${author.birthYear}–${author.deathYear || ""}`
               : "";
@@ -109,7 +133,7 @@ const AllAuthorsSection = () => {
                 <div className={styles.imageWrapper}>
                   {author.image && !imageErrors[author.slug] ? (
                     <img
-                      src={author.image}
+                      src={resolveMediaUrl(author.image)}
                       alt={author.name}
                       className={styles.image}
                       onError={() =>
@@ -147,6 +171,7 @@ const AllAuthorsSection = () => {
             );
           })}
         </div>
+        )}
       </div>
     </section>
   );

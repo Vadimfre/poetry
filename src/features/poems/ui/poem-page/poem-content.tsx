@@ -7,6 +7,7 @@ import type { Poem } from "@/src/shared/types";
 import PoemGuestGate from "@/components/PoemGuestGate/PoemGuestGate";
 import { useUserStore } from "@/src/entities/user";
 import { useI18n } from "@/src/shared/i18n";
+import { resolveMediaUrl } from "@/src/shared/lib/resolve-media-url";
 import type { Locale } from "@/src/shared/i18n/types";
 
 interface PoemContentProps {
@@ -65,7 +66,7 @@ export function PoemContent({ poem }: PoemContentProps) {
       >
         {poem.author.image ? (
           <Image
-            src={poem.author.image}
+            src={resolveMediaUrl(poem.author.image)}
             alt={poem.author.name}
             width={48}
             height={48}

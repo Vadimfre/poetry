@@ -7,7 +7,6 @@ import {
   ArrowLeft,
   ArrowRight,
   BookOpen,
-  FileText,
   GraduationCap,
   Inbox,
 } from "lucide-react";
@@ -16,7 +15,6 @@ import { schoolApi } from "@/src/shared/api";
 import { useI18n, usePlural } from "@/src/shared/i18n";
 import { useLocaleQueryKey } from "@/src/shared/i18n/use-locale-query-key";
 import type { Poem } from "@/src/shared/types";
-import type { ProseWorkListItem } from "@/src/shared/types/prose.types";
 import styles from "./school.module.css";
 
 const GRADES = [5, 6, 7, 8, 9, 10, 11] as const;
@@ -44,37 +42,16 @@ export function SchoolGradePage({ grade }: { grade: number }) {
   const tabs: { key: TabKey; label: string; count: number }[] = useMemo(() => {
     if (!data) return [];
     return [
-      {
-        key: "study",
-        label: t("school.tabStudy"),
-        count: data.study.length + data.prose.study.length,
-      },
-      {
-        key: "memorize",
-        label: t("school.tabMemorize"),
-        count: data.memorize.length + data.prose.memorize.length,
-      },
-      {
-        key: "discussion",
-        label: t("school.tabDiscussion"),
-        count: data.discussion.length + data.prose.discussion.length,
-      },
-      {
-        key: "extra",
-        label: t("school.tabExtra"),
-        count: data.extra.length + data.prose.extra.length,
-      },
+      { key: "study" as const, label: t("school.tabStudy"), count: data.study.length },
+      { key: "memorize" as const, label: t("school.tabMemorize"), count: data.memorize.length },
+      { key: "discussion" as const, label: t("school.tabDiscussion"), count: data.discussion.length },
+      { key: "extra" as const, label: t("school.tabExtra"), count: data.extra.length },
     ];
   }, [data, t]);
 
   const works = useMemo(() => {
     if (!data) return [];
-    const poemList = data[tab];
-    const proseList = data.prose[tab];
-    return [
-      ...poemList.map((p) => ({ type: "poem" as const, item: p })),
-      ...proseList.map((w) => ({ type: "prose" as const, item: w })),
-    ];
+    return data[tab].map((p) => ({ type: "poem" as const, item: p }));
   }, [data, tab]);
 
   const isEmpty = works.length === 0;
@@ -110,16 +87,11 @@ export function SchoolGradePage({ grade }: { grade: number }) {
               <p className={styles.subtitle}>{t("school.gradeSubtitle")}</p>
               {data && (
                 <p className={styles.sourceNote}>
-                  {t("school.foundTotal", {
+                  {t("school.foundPoemsOnly", {
                     poems: `${data.totals.poems} ${plural(data.totals.poems, {
                       one: "common.verseOne",
                       few: "common.verseFew",
                       many: "common.verseMany",
-                    })}`,
-                    prose: `${data.totals.prose} ${plural(data.totals.prose, {
-                      one: "common.proseOne",
-                      few: "common.proseFew",
-                      many: "common.proseMany",
                     })}`,
                   })}
                 </p>
@@ -133,12 +105,8 @@ export function SchoolGradePage({ grade }: { grade: number }) {
                   <div className={styles.heroStatLabel}>{t("school.statPoems")}</div>
                 </div>
                 <div className={styles.heroStat}>
-                  <div className={styles.heroStatValue}>{data.totals.prose}</div>
-                  <div className={styles.heroStatLabel}>{t("school.statProse")}</div>
-                </div>
-                <div className={styles.heroStat}>
                   <div className={styles.heroStatValue}>
-                    {data.memorize.length + data.prose.memorize.length}
+                    {data.memorize.length}
                   </div>
                   <div className={styles.heroStatLabel}>{t("school.statMemorize")}</div>
                 </div>
@@ -206,21 +174,13 @@ export function SchoolGradePage({ grade }: { grade: number }) {
               </div>
             ) : (
               <div className={styles.list}>
-                {works.map((entry, index) =>
-                  entry.type === "poem" ? (
-                    <PoemCard
-                      key={`poem-${entry.item.id}`}
-                      poem={entry.item}
-                      index={index + 1}
-                    />
-                  ) : (
-                    <ProseCard
-                      key={`prose-${entry.item.id}`}
-                      work={entry.item}
-                      index={index + 1}
-                    />
-                  ),
-                )}
+                {works.map((entry, index) => (
+                  <PoemCard
+                    key={`poem-${entry.item.id}`}
+                    poem={entry.item}
+                    index={index + 1}
+                  />
+                ))}
               </div>
             )}
           </div>
@@ -256,42 +216,6 @@ function PoemCard({ poem, index }: { poem: Poem; index: number }) {
           <ArrowRight aria-hidden="true" />
         </span>
         <BookOpen size={18} color="#8b7355" aria-hidden="true" />
-      </div>
-    </Link>
-  );
-}
-
-function ProseCard({ work, index }: { work: ProseWorkListItem; index: number }) {
-  const { t } = useI18n();
-  const preview = excerpt(work.description || undefined);
-
-  return (
-    <Link href={`/prose/${work.slug}`} className={styles.workCard}>
-      <div className={styles.workCardTop}>
-        <span className={`${styles.workIndex} ${styles.workIndexProse}`}>
-          {index}
-        </span>
-        <div className={styles.workMain}>
-          <h2 className={styles.workTitle}>{work.title}</h2>
-          <div className={styles.workMeta}>
-            <span>{work.author?.name}</span>
-            {work.year && <span>· {work.year}</span>}
-            {work.chapterCount > 0 && (
-              <span>· {t("school.chapters", { count: work.chapterCount })}</span>
-            )}
-            <span className={`${styles.workBadge} ${styles.workBadgeProse}`}>
-              {t("school.prose")}
-            </span>
-          </div>
-        </div>
-      </div>
-      {preview && <p className={styles.workExcerpt}>{preview}</p>}
-      <div className={styles.workFooter}>
-        <span className={styles.workLink}>
-          {t("school.openWork")}
-          <ArrowRight aria-hidden="true" />
-        </span>
-        <FileText size={18} color="#6d91cb" aria-hidden="true" />
       </div>
     </Link>
   );

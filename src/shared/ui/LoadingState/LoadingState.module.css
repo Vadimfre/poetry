@@ -12,3 +12,10 @@
   width: 1.5rem;
   height: 1.5rem;
 }
+
+@media (max-width: 768px) {
+  .loading {
+    padding: 2rem 1rem;
+    font-size: 0.8125rem;
+  }
+}

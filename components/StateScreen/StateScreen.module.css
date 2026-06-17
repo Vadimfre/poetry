@@ -128,3 +128,21 @@
     height: 44px;
   }
 }
+
+@media (max-width: 480px) {
+  .stateScreen {
+    padding: 32px 16px;
+    min-height: 40vh;
+  }
+
+  .stateTitle {
+    font-size: 24px;
+  }
+
+  .stateButton {
+    width: 100%;
+    max-width: 280px;
+    justify-content: center;
+    padding: 14px 24px;
+  }
+}

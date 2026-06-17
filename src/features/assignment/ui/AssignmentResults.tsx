@@ -6,9 +6,10 @@ import { useRouter } from "next/navigation";
 import { useUserStore } from "@/src/entities/user";
 import { assignmentApi } from "@/src/shared/api";
 import type { QuizAssignment, QuizAttempt } from "@/src/shared/types/assignment.types";
+import { useI18n } from "@/src/shared/i18n";
 import styles from "./Assignment.module.css";
 
-function getApiMessage(err: unknown): string {
+function getApiMessage(err: unknown, fallback: string): string {
   const e = err as {
     response?: { data?: { message?: string | string[] } };
     message?: string;
@@ -16,7 +17,7 @@ function getApiMessage(err: unknown): string {
   const msg = e?.response?.data?.message;
   if (typeof msg === "string") return msg;
   if (Array.isArray(msg)) return msg.join(" ");
-  return e?.message || "Памылка";
+  return e?.message || fallback;
 }
 
 function gradeClass(grade: number): string {
@@ -36,6 +37,7 @@ function initials(name: string | null | undefined, email: string | undefined) {
 }
 
 export function AssignmentResults({ assignmentId }: { assignmentId: string }) {
+  const { t } = useI18n();
   const router = useRouter();
   const { user, isAuthenticated, hasHydrated } = useUserStore();
   const [assignment, setAssignment] = useState<QuizAssignment | null>(null);
@@ -65,7 +67,7 @@ export function AssignmentResults({ assignmentId }: { assignmentId: string }) {
       setError(null);
       setAssignment(await assignmentApi.getResults(assignmentId));
     } catch (err: unknown) {
-      setError(getApiMessage(err));
+      setError(getApiMessage(err, t("teacher.error")));
     } finally {
       setLoading(false);
     }
@@ -101,7 +103,7 @@ export function AssignmentResults({ assignmentId }: { assignmentId: string }) {
       <main className={`${styles.container} ${styles.pageBg}`}>
         <div className={styles.loadingCenter}>
           <div className={styles.spinner} />
-          <span>Загрузка журнала…</span>
+          <span>{t("teacher.loadingJournal")}</span>
         </div>
       </main>
     );
@@ -111,9 +113,11 @@ export function AssignmentResults({ assignmentId }: { assignmentId: string }) {
     return (
       <main className={`${styles.container} ${styles.pageBg}`}>
         <div className={styles.maxWidth}>
-          <p className={styles.error}>{error || "Заданне не знойдзена"}</p>
+          <p className={styles.error}>
+            {error || t("teacher.assignmentNotFound")}
+          </p>
           <Link href="/teacher" className={styles.backLink}>
-            Да кабінета
+            {t("teacher.toWorkspace")}
           </Link>
         </div>
       </main>
@@ -126,12 +130,15 @@ export function AssignmentResults({ assignmentId }: { assignmentId: string }) {
         <header className={styles.hero}>
           <div className={styles.heroInner}>
             <div>
-              <div className={styles.heroBadge}>Журнал</div>
+              <div className={styles.heroBadge}>{t("teacher.journalBadge")}</div>
               <h1 className={styles.title}>{assignment.title}</h1>
               <p className={styles.subtitle}>
-                Клас: <strong>{assignment.classroom?.name}</strong>
+                {t("teacher.classLabel")}{" "}
+                <strong>{assignment.classroom?.name}</strong>
                 {assignment.dueDate
-                  ? ` · дэдлайн ${new Date(assignment.dueDate).toLocaleString()}`
+                  ? t("teacher.deadlineShort", {
+                      date: new Date(assignment.dueDate).toLocaleString(),
+                    })
                   : ""}
               </p>
             </div>
@@ -140,10 +147,10 @@ export function AssignmentResults({ assignmentId }: { assignmentId: string }) {
               className={styles.secondaryButton}
               onClick={() => void loadResults()}
             >
-              Абнавіць
+              {t("teacher.refresh")}
             </button>
             <Link href="/teacher" className={styles.backLink}>
-              Да кабінета
+              {t("teacher.toWorkspace")}
             </Link>
           </div>
         </header>
@@ -151,25 +158,25 @@ export function AssignmentResults({ assignmentId }: { assignmentId: string }) {
         <div className={styles.summaryStrip}>
           <div className={styles.summaryCard}>
             <div className={styles.summaryValue}>{stats.count}</div>
-            <div className={styles.summaryLabel}>Здач</div>
+            <div className={styles.summaryLabel}>
+              {t("teacher.submissionsLabel")}
+            </div>
           </div>
           <div className={styles.summaryCard}>
             <div className={styles.summaryValue}>{stats.avgPct}%</div>
-            <div className={styles.summaryLabel}>Сярэдні %</div>
+            <div className={styles.summaryLabel}>{t("teacher.avgPercent")}</div>
           </div>
           <div className={styles.summaryCard}>
             <div className={styles.summaryValue}>{stats.avgGrade}</div>
-            <div className={styles.summaryLabel}>Сярэдняя адзнака</div>
+            <div className={styles.summaryLabel}>{t("teacher.avgGrade")}</div>
           </div>
         </div>
 
         {assignment.attempts.length === 0 ? (
           <div className={styles.emptyState}>
             <div className={styles.emptyIcon}>📝</div>
-            <p className={styles.emptyTitle}>Пакуль няма здач</p>
-            <p className={styles.meta}>
-              Калі вучні прайдуць заданне, тут з&apos;явіцца табліца з вынікамі.
-            </p>
+            <p className={styles.emptyTitle}>{t("teacher.noSubmissionsYet")}</p>
+            <p className={styles.meta}>{t("teacher.noSubmissionsHint")}</p>
           </div>
         ) : (
           <>
@@ -178,14 +185,17 @@ export function AssignmentResults({ assignmentId }: { assignmentId: string }) {
                 <input
                   className={styles.searchInput}
                   type="search"
-                  placeholder="Пошук па імі або email…"
+                  placeholder={t("teacher.searchStudents")}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  aria-label="Пошук вучняў"
+                  aria-label={t("teacher.searchStudentsAria")}
                 />
               </div>
               <span className={styles.meta}>
-                Паказана: {filteredAttempts.length} з {assignment.attempts.length}
+                {t("teacher.shownCount", {
+                  shown: filteredAttempts.length,
+                  total: assignment.attempts.length,
+                })}
               </span>
             </div>
 
@@ -193,11 +203,11 @@ export function AssignmentResults({ assignmentId }: { assignmentId: string }) {
               <table className={styles.table}>
                 <thead>
                   <tr>
-                    <th>Вучань</th>
-                    <th>Дата здачы</th>
-                    <th>%</th>
-                    <th>Балы</th>
-                    <th>Адзнака</th>
+                    <th>{t("teacher.studentCol")}</th>
+                    <th>{t("teacher.submittedAtCol")}</th>
+                    <th>{t("teacher.percentLabel")}</th>
+                    <th>{t("teacher.scoreCol")}</th>
+                    <th>{t("teacher.gradeCol")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -209,7 +219,7 @@ export function AssignmentResults({ assignmentId }: { assignmentId: string }) {
             </div>
             {filteredAttempts.length === 0 && query.trim() && (
               <p className={styles.meta} style={{ marginTop: 12 }}>
-                Нічога не знойдзена па запыце «{query}».
+                {t("teacher.noSearchResults", { query })}
               </p>
             )}
           </>

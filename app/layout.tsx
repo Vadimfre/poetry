@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import './responsive.css'
 import { Providers } from './providers'
 import { cn } from "@/lib/utils";
 
@@ -12,8 +13,11 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Poetry — Беларускія творы',
-  description: 'Беларускія творы ад талендавых аўтараў пад любы настрой і тэму',
+  title: {
+    default: 'Poetry',
+    template: '%s | Poetry',
+  },
+  description: 'Belarusian literature and poetry platform',
 }
 
 export default function RootLayout({

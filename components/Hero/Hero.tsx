@@ -107,17 +107,7 @@ const Hero = () => {
         <div
           className={`${styles.imageContainer} ${imageLoaded ? styles.imageLoaded : ""}`}
         >
-          <div className={styles.imageWrapper}>
-            {/* <Image 
-              src="/images/seasons/winter.jpg"
-              alt="Poetry illustration"
-              fill
-              priority
-              onLoad={() => setImageLoaded(true)}
-            /> */}
-            <SeasonSlider />
-          </div>
-          {/* Декоративные элементы */}
+          <SeasonSlider />
           <div className={styles.imageDecor1}></div>
           <div className={styles.imageDecor2}></div>
         </div>

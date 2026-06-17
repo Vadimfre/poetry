@@ -5,9 +5,9 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props) {
-  const { id } = await params;
+  await params;
   return {
-    title: `Квіз | Квізы`,
+    title: "Quiz",
   };
 }
 

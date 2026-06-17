@@ -113,3 +113,13 @@
     font-size: 28px;
   }
 }
+
+@media (max-width: 480px) {
+  .poemsListSection {
+    padding: 48px 0;
+  }
+
+  .categoryTitle {
+    font-size: 24px;
+  }
+}
