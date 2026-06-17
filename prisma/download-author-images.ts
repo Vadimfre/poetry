@@ -11,26 +11,7 @@ const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
 const UA = "PoetryBelarus/1.0 (local dev; contact: admin@poetry.local)";
 const WIKI_THUMB_SIZE = 400;
 const REQUEST_DELAY_MS = 1500;
-const AUTHORS_DIR = path.resolve(
-  __dirname,
-  "../../public/images/authors",
-);
-
-const TARGET_SLUGS = [
-  "ales-pismanokov",
-  "arkadz-kuliashou",
-  "zmitrok-biadula",
-  "danuta-bichel-zahnetava",
-  "maksim-bahdanovich",
-  "maksim-tank",
-  "nil-hilevich",
-  "petrus-brouka",
-  "ryhor-baradulin",
-  "uladzimir-karatkevich",
-  "francishak-bahushevich",
-  "yanka-kupala",
-  "yanka-sipakov",
-];
+const AUTHORS_DIR = path.resolve(__dirname, "../upload/authors");
 
 const FALLBACK_URLS: Record<string, string> = {
   "ales-pismanokov": "https://nashi-lyudi.by/images/33/2733.jpg",
@@ -168,7 +149,6 @@ async function main() {
   fs.mkdirSync(AUTHORS_DIR, { recursive: true });
 
   const authors = await prisma.author.findMany({
-    where: { slug: { in: TARGET_SLUGS } },
     select: { id: true, slug: true, name: true, image: true },
     orderBy: { name: "asc" },
   });
@@ -177,7 +157,7 @@ async function main() {
   const authorImagesMap: Record<string, string> = {};
 
   for (const author of authors) {
-    const localPath = `/images/authors/${author.slug}.jpg`;
+    const localPath = `/upload/authors/${author.slug}.jpg`;
     const destFile = path.join(AUTHORS_DIR, `${author.slug}.jpg`);
 
     if (fs.existsSync(destFile)) {

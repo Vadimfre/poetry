@@ -30,6 +30,8 @@
     "seed:bulk-quizzes": "cross-env SEED_BULK_QUIZZES_ONLY=1 ts-node prisma/seed.ts",
     "seed:i18n": "ts-node prisma/seed-i18n.ts",
     "fix:author-images": "ts-node prisma/fix-author-images.ts",
+    "download:author-images": "ts-node prisma/download-author-images.ts",
+    "remove:prose": "ts-node prisma/remove-prose.ts",
     "fix:quiz-i18n-be": "ts-node prisma/fix-quiz-i18n-be.ts",
     "import:prose": "ts-node prisma/import-wikisource-prose.ts",
     "import:prose:dry": "ts-node prisma/import-wikisource-prose.ts --dry-run"

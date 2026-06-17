@@ -4,7 +4,6 @@ import { Pool } from "pg";
 import * as bcrypt from "bcrypt";
 import "dotenv/config";
 import { runI18nSeed } from "./seed-i18n";
-import { runProseSeed } from "./seed-prose";
 import { runSchoolSeed } from "./seed-school-curriculum";
 import { authorImageForSlug } from "./author-images";
 import { extraLiteraryEvents } from "./data/extra-literary-events";
@@ -4056,11 +4055,9 @@ Ave Maria! Мы з табой
   await seedBulkQuizzes(authorRefs);
 
   if (process.env.SKIP_I18N !== "1") {
-    await runProseSeed(prisma);
     await runSchoolSeed(prisma);
     await runI18nSeed();
   } else {
-    await runProseSeed(prisma);
     await runSchoolSeed(prisma);
     console.log("⏭️ SKIP_I18N=1 — пераклады не абноўлены (npm run seed:i18n)");
   }
