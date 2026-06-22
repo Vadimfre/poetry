@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/src/shared/api/client";
 import { useLocaleQueryKey } from "@/src/shared/i18n/use-locale-query-key";
 import { useI18n } from "@/src/shared/i18n/context";
-import { resolveMediaUrl } from "@/src/shared/lib/resolve-media-url";
+import { resolveAuthorImageUrl } from "@/src/shared/lib/resolve-media-url";
 import styles from "./AuthorsSection.module.css";
 
 interface Author {
@@ -95,25 +95,19 @@ const AuthorsSection = () => {
                 onMouseEnter={() => setActiveIndex(index)}
               >
                 <div className={styles.authorImageWrapper}>
-                  {author.image && !imageErrors[author.slug] ? (
-                    <img
-                      src={resolveMediaUrl(author.image)}
-                      alt={author.name}
-                      className={styles.authorImage}
-                      onError={() =>
-                        setImageErrors((prev) => ({
-                          ...prev,
-                          [author.slug]: true,
-                        }))
-                      }
-                    />
-                  ) : (
-                    <img
-                      src="/images/author-placeholder.svg"
-                      alt=""
-                      className={styles.authorImagePlaceholder}
-                    />
-                  )}
+                  <img
+                    src={resolveAuthorImageUrl(author.slug, author.image)}
+                    alt={author.name}
+                    className={styles.authorImage}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = "/images/author-placeholder.svg";
+                      setImageErrors((prev) => ({
+                        ...prev,
+                        [author.slug]: true,
+                      }));
+                    }}
+                  />
                 </div>
                 <div className={styles.authorInfo}>
                   <h3 className={styles.authorName}>{author.name}</h3>

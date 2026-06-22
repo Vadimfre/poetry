@@ -22,7 +22,7 @@ import Link from "next/link";
 import PoemGuestGate from "@/components/PoemGuestGate/PoemGuestGate";
 import { useUserStore } from "@/src/entities/user";
 import { useI18n } from "@/src/shared/i18n";
-import { resolveMediaUrl } from "@/src/shared/lib/resolve-media-url";
+import { resolveAuthorImageUrl } from "@/src/shared/lib/resolve-media-url";
 
 interface PoemCardProps {
   poem: Poem;
@@ -220,9 +220,9 @@ function AuthorInfo({ author }: { author: Poem["author"] }) {
   const { t } = useI18n();
   return (
     <div className={styles.authorInfo}>
-      {author.image ? (
+      {author.slug ? (
         <Image
-          src={resolveMediaUrl(author.image)}
+          src={resolveAuthorImageUrl(author.slug, author.image)}
           alt={author.name}
           width={36}
           height={36}

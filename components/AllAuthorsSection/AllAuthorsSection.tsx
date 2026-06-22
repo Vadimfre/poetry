@@ -7,7 +7,7 @@ import { apiClient } from "@/src/shared/api/client";
 import { useI18n, usePlural } from "@/src/shared/i18n";
 import { useLocaleQueryKey } from "@/src/shared/i18n/use-locale-query-key";
 import { filterByLetter } from "@/src/shared/lib/alphabet-filter";
-import { resolveMediaUrl } from "@/src/shared/lib/resolve-media-url";
+import { resolveAuthorImageUrl } from "@/src/shared/lib/resolve-media-url";
 import AlphabetFilter from "@/components/AlphabetFilter/AlphabetFilter";
 import styles from "./AllAuthorsSection.module.css";
 
@@ -131,25 +131,19 @@ const AllAuthorsSection = () => {
                 style={{ animationDelay: `${index * 0.05}s` }}
               >
                 <div className={styles.imageWrapper}>
-                  {author.image && !imageErrors[author.slug] ? (
-                    <img
-                      src={resolveMediaUrl(author.image)}
-                      alt={author.name}
-                      className={styles.image}
-                      onError={() =>
-                        setImageErrors((prev) => ({
-                          ...prev,
-                          [author.slug]: true,
-                        }))
-                      }
-                    />
-                  ) : (
-                    <img
-                      src="/images/author-placeholder.svg"
-                      alt=""
-                      className={styles.imagePlaceholder}
-                    />
-                  )}
+                  <img
+                    src={resolveAuthorImageUrl(author.slug, author.image)}
+                    alt={author.name}
+                    className={styles.image}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = "/images/author-placeholder.svg";
+                      setImageErrors((prev) => ({
+                        ...prev,
+                        [author.slug]: true,
+                      }));
+                    }}
+                  />
                 </div>
 
                 <div className={styles.info}>

@@ -8,7 +8,7 @@ import { useI18n, usePlural } from "@/src/shared/i18n";
 import Header from "@/components/Header/Header";
 import Link from "next/link";
 import styles from "./author.module.css";
-import { resolveMediaUrl } from "@/src/shared/lib/resolve-media-url";
+import { resolveAuthorImageUrl } from "@/src/shared/lib/resolve-media-url";
 
 interface Author {
   id: number;
@@ -114,20 +114,16 @@ export default function AuthorPage({ params }: PageProps) {
 
           <div className={styles.hero}>
             <div className={styles.imageContainer}>
-              {author.image && !imageError ? (
-                <img
-                  src={resolveMediaUrl(author.image)}
-                  alt={author.name}
-                  className={styles.heroImage}
-                  onError={() => setImageError(true)}
-                />
-              ) : (
-                <img
-                  src="/images/author-placeholder.svg"
-                  alt=""
-                  className={styles.imagePlaceholder}
-                />
-              )}
+              <img
+                src={resolveAuthorImageUrl(author.slug, author.image)}
+                alt={author.name}
+                className={styles.heroImage}
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = "/images/author-placeholder.svg";
+                  setImageError(true);
+                }}
+              />
             </div>
 
             <div className={styles.heroContent}>

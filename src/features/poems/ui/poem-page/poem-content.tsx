@@ -7,7 +7,7 @@ import type { Poem } from "@/src/shared/types";
 import PoemGuestGate from "@/components/PoemGuestGate/PoemGuestGate";
 import { useUserStore } from "@/src/entities/user";
 import { useI18n } from "@/src/shared/i18n";
-import { resolveMediaUrl } from "@/src/shared/lib/resolve-media-url";
+import { resolveAuthorImageUrl } from "@/src/shared/lib/resolve-media-url";
 import type { Locale } from "@/src/shared/i18n/types";
 
 interface PoemContentProps {
@@ -64,9 +64,9 @@ export function PoemContent({ poem }: PoemContentProps) {
         animate="animate"
         transition={{ duration: 0.5 }}
       >
-        {poem.author.image ? (
+        {poem.author.slug ? (
           <Image
-            src={resolveMediaUrl(poem.author.image)}
+            src={resolveAuthorImageUrl(poem.author.slug, poem.author.image)}
             alt={poem.author.name}
             width={48}
             height={48}

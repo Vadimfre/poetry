@@ -7,7 +7,7 @@ import { Holiday } from "@/src/shared";
 import styles from "./info-tab.module.css";
 import { useCalendarLabels } from "@/src/shared/i18n";
 import { useI18n, usePlural } from "@/src/shared/i18n";
-import { resolveMediaUrl } from "@/src/shared/lib/resolve-media-url";
+import { resolveAuthorImageUrl } from "@/src/shared/lib/resolve-media-url";
 
 interface InfoTabProps {
   holiday: Holiday;
@@ -98,12 +98,12 @@ function InfoRow({
   );
 }
 
-function AuthorChip({ author }: { author: { name: string; image?: string } }) {
+function AuthorChip({ author }: { author: { name: string; slug?: string; image?: string } }) {
   return (
     <div className={styles.authorChip}>
-      {author.image ? (
+      {author.slug ? (
         <Image
-          src={resolveMediaUrl(author.image)}
+          src={resolveAuthorImageUrl(author.slug, author.image)}
           alt={author.name}
           width={20}
           height={20}
@@ -128,5 +128,9 @@ function getUniqueAuthors(holiday: Holiday) {
       seen.add(p.author.name);
       return true;
     })
-    .map((p) => ({ name: p.author.name, image: p.author.image ?? undefined }));
+    .map((p) => ({
+      name: p.author.name,
+      slug: p.author.slug,
+      image: p.author.image ?? undefined,
+    }));
 }
