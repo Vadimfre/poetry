@@ -11,6 +11,7 @@ import {
   useOptimisticViews,
 } from "@/src/shared/hooks/interactions";
 import PoemGuestGate from "@/components/PoemGuestGate/PoemGuestGate";
+import { PoemDecorBackground } from "@/components/PoemDecorBackground/PoemDecorBackground";
 import { useUserStore } from "@/src/entities/user";
 import styles from "./PoemViewSection.module.css";
 import { toast } from "sonner";
@@ -100,8 +101,8 @@ const PoemViewSection = ({ poemId }: PoemViewSectionProps) => {
   if (isLoading) {
     return (
       <section className={styles.poemViewSection}>
-        <div className={styles.noVideoBackground}></div>
-        <div className={styles.videoOverlay}></div>
+        <PoemDecorBackground />
+        <div className={styles.decorOverlay}></div>
         <div className="container">
           <div
             style={{
@@ -121,8 +122,8 @@ const PoemViewSection = ({ poemId }: PoemViewSectionProps) => {
   if (error || !poem) {
     return (
       <section className={styles.poemViewSection}>
-        <div className={styles.noVideoBackground}></div>
-        <div className={styles.videoOverlay}></div>
+        <PoemDecorBackground />
+        <div className={styles.decorOverlay}></div>
         <div className="container">
           <button className={styles.backButton} onClick={handleBackClick}>
             ← {t("common.back")}
@@ -226,11 +227,11 @@ const PoemViewSection = ({ poemId }: PoemViewSectionProps) => {
           </div>
         </>
       ) : (
-        <div className={styles.noVideoBackground}></div>
+        <PoemDecorBackground />
       )}
 
       {/* Overlay */}
-      <div className={styles.videoOverlay}></div>
+      <div className={videoUrl ? styles.videoOverlay : styles.decorOverlay}></div>
 
       <div className="container">
         <button className={styles.backButton} onClick={handleBackClick}>

@@ -1,0 +1,54 @@
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(214, 176, 114, 0.08), transparent 34%),
+    radial-gradient(circle at 82% 88%, rgba(116, 151, 196, 0.07), transparent 36%),
+    linear-gradient(160deg, #faf9f7 0%, #f4f0ec 55%, #efeae5 100%);
+}
+
+.storkLeft,
+.storkRight,
+.ornament {
+  position: absolute;
+  user-select: none;
+  opacity: 0.11;
+}
+
+.storkLeft {
+  left: -2%;
+  bottom: 6%;
+  width: min(28vw, 220px);
+  height: auto;
+}
+
+.storkRight {
+  right: -2%;
+  top: 8%;
+  width: min(26vw, 200px);
+  height: auto;
+}
+
+.ornament {
+  left: 50%;
+  top: 50%;
+  width: min(42vw, 360px);
+  transform: translate(-50%, -50%);
+  opacity: 0.06;
+}
+
+@media (max-width: 768px) {
+  .storkLeft,
+  .storkRight {
+    width: min(34vw, 140px);
+    opacity: 0.08;
+  }
+
+  .ornament {
+    width: min(56vw, 240px);
+    opacity: 0.05;
+  }
+}
